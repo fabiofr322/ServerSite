@@ -6,133 +6,187 @@
     <title>FRCRAFT - Servidor de Minecraft Survival</title>
     <meta name="description" content="Junte-se ao nosso servidor de Minecraft Survival! Uma comunidade ativa, eventos semanais e um mundo incrível para explorar.">
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <!-- Fontes do Google -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
+    
     <link rel="icon" href="https://placehold.co/32x32/ec4899/ffffff?text=F" type="image/png">
     <link rel="stylesheet" href="style.css">
 </head>
 <body class="antialiased">
-    <header class="bg-black/80 backdrop-blur-sm fixed top-0 left-0 right-0 z-50">
+    <!-- Fundo de Estrelas Animado -->
+    <div class="stars-bg"></div>
+
+    <header class="bg-black/50 backdrop-blur-sm fixed top-0 left-0 right-0 z-50 border-b border-gray-800/50">
         <div class="container mx-auto px-6 py-4 flex justify-between items-center">
             <a href="#" class="text-xl font-bold text-white tracking-wider">FRCRAFT</a>
             <nav class="hidden md:flex items-center space-x-8 text-sm">
-                <a href="#about" class="text-gray-300 hover:text-pink-400 transition-colors">Sobre</a>
-                <a href="#rules" class="text-gray-300 hover:text-pink-400 transition-colors">Regras</a>
-                <a href="galeria.html" class="text-gray-300 hover:text-pink-400 transition-colors">Galeria</a>
-                <a href="#discord" class="text-gray-300 hover:text-pink-400 transition-colors">Discord</a>
+                <a href="#about" class="nav-link">Sobre</a>
+                <a href="#rules" class="nav-link">Regras</a>
+                <a href="galeria.html" class="nav-link">Galeria</a>
+                <a href="#discord" class="nav-link">Discord</a>
             </nav>
             <button id="mobile-menu-button" class="md:hidden text-white">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" /></svg>
             </button>
         </div>
-        <div id="mobile-menu" class="hidden md:hidden">
-            <a href="#about" class="block py-2 px-6 text-gray-300 hover:bg-gray-900">Sobre</a>
-            <a href="#rules" class="block py-2 px-6 text-gray-300 hover:bg-gray-900">Regras</a>
-            <a href="galeria.html" class="block py-2 px-6 text-gray-300 hover:bg-gray-900">Galeria</a>
-            <a href="#discord" class="block py-2 px-6 text-gray-300 hover:bg-gray-900">Discord</a>
+        <div id="mobile-menu" class="hidden md:hidden bg-black/80">
+            <a href="#about" class="block py-3 px-6 text-gray-300 hover:bg-pink-500/20">Sobre</a>
+            <a href="#rules" class="block py-3 px-6 text-gray-300 hover:bg-pink-500/20">Regras</a>
+            <a href="galeria.html" class="block py-3 px-6 text-gray-300 hover:bg-pink-500/20">Galeria</a>
+            <a href="#discord" class="block py-3 px-6 text-gray-300 hover:bg-pink-500/20">Discord</a>
         </div>
     </header>
     <main>
         <section class="hero-bg h-screen flex items-center justify-center text-center">
             <div class="container mx-auto px-6">
-                <h1 class="text-3xl md:text-5xl font-bold text-white uppercase leading-tight mb-4">Bem-vindo ao FRCRAFT</h1>
-                <p class="text-sm md:text-base text-gray-300 max-w-3xl mx-auto mb-8 leading-relaxed">A aventura survival definitiva te espera. Explore, construa e sobreviva com nossa comunidade incrível!</p>
-                <div class="bg-black/70 inline-block p-4 rounded-lg shadow-lg">
+                <h1 class="text-4xl md:text-6xl font-bold text-white uppercase leading-tight mb-4 hero-title">Bem-vindo ao FRCRAFT</h1>
+                <p class="text-lg md:text-xl text-gray-300 max-w-3xl mx-auto mb-8 leading-relaxed body-font">A aventura survival definitiva te espera. Explore, construa e sobreviva com nossa comunidade incrível!</p>
+                <div class="ip-box inline-block p-4 rounded-lg shadow-lg">
                     <span class="text-gray-400 uppercase text-xs">IP do Servidor</span>
                     <div class="flex items-center justify-center space-x-4 mt-2">
                         <p id="server-ip" class="text-lg md:text-xl font-bold text-pink-400">enx-cirion-2.enx.host:10055</p>
-                        <button onclick="copyIp()" class="bg-pink-500 hover:bg-pink-600 text-white font-bold py-2 px-4 rounded-md transition-colors text-sm">Copiar</button>
+                        <button onclick="copyIp()" class="btn-primary">Copiar</button>
                     </div>
                 </div>
                 <div id="copy-message" class="mt-4 text-pink-400 opacity-0 transition-opacity text-sm">IP copiado!</div>
             </div>
         </section>
         
-        <section id="about" class="py-20 bg-gray-950">
+        <section id="about" class="py-20 fade-in-section">
             <div class="container mx-auto px-6 text-center">
-                <h2 class="text-2xl md:text-3xl font-bold text-white mb-4">Sobre o Servidor</h2>
+                <h2 class="text-3xl md:text-4xl font-bold text-white mb-4">Sobre o Servidor</h2>
                 <div class="w-24 h-1 bg-pink-500 mx-auto mb-8"></div>
-                <p class="text-gray-400 max-w-3xl mx-auto text-sm leading-loose">
+                <p class="text-gray-300 max-w-3xl mx-auto text-lg leading-loose body-font">
                     Nosso servidor foi criado para fãs de Minecraft. Oferecemos uma experiência survival clássica, mas com plugins que melhoram a jogabilidade, como sistema de clãs, proteção de terreno. Realizamos eventos mensais com recompensas exclusivas e temos uma equipe de administração ativa e prestativa para garantir um ambiente amigável e justo para todos.
                 </p>
             </div>
         </section>
 
-        <section id="rules" class="py-20">
+        <section id="rules" class="py-20 fade-in-section">
             <div class="container mx-auto px-6">
-                <h2 class="text-2xl md:text-3xl font-bold text-white text-center mb-4">Nossas Regras</h2>
+                <h2 class="text-3xl md:text-4xl font-bold text-white text-center mb-4">Nossas Regras</h2>
                 <div class="w-24 h-1 bg-pink-500 mx-auto mb-12"></div>
                 <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-                    <div class="bg-gray-900 p-6 rounded-lg shadow-md">
-                        <h3 class="text-lg font-bold text-white mb-2">Respeito</h3>
-                        <p class="text-gray-400 text-xs leading-relaxed">Trate todos com respeito. Assédio, discriminação ou toxicidade não serão tolerados.</p>
+                    <div class="rule-card">
+                        <h3 class="text-xl font-bold text-white mb-2">Respeito</h3>
+                        <p class="text-gray-300 text-base leading-relaxed body-font">Trate todos com respeito. Assédio, discriminação ou toxicidade não serão tolerados.</p>
                     </div>
-                    <div class="bg-gray-900 p-6 rounded-lg shadow-md">
-                        <h3 class="text-lg font-bold text-white mb-2">Sem Griefing</h3>
-                        <p class="text-gray-400 text-xs leading-relaxed">Proibido destruir ou roubar construções de outros jogadores. Use as proteções de terreno.</p>
+                    <div class="rule-card">
+                        <h3 class="text-xl font-bold text-white mb-2">Sem Griefing</h3>
+                        <p class="text-gray-300 text-base leading-relaxed body-font">Proibido destruir ou roubar construções de outros jogadores. Use as proteções de terreno.</p>
                     </div>
-                    <div class="bg-gray-900 p-6 rounded-lg shadow-md">
-                        <h3 class="text-lg font-bold text-white mb-2">Sem Cheats</h3>
-                        <p class="text-gray-400 text-xs leading-relaxed">O uso de hacks, x-ray ou qualquer cliente modificado que dê vantagem injusta resultará em banimento.</p>
+                    <div class="rule-card">
+                        <h3 class="text-xl font-bold text-white mb-2">Sem Cheats</h3>
+                        <p class="text-gray-300 text-base leading-relaxed body-font">O uso de hacks, x-ray ou qualquer cliente modificado que dê vantagem injusta resultará em banimento.</p>
                     </div>
-                    <div class="bg-gray-900 p-6 rounded-lg shadow-md">
-                        <h3 class="text-lg font-bold text-white mb-2">Construa Certo</h3>
-                        <p class="text-gray-400 text-xs leading-relaxed">Evite construir máquinas que causem lag excessivo. Construções ofensivas serão removidas.</p>
+                    <div class="rule-card">
+                        <h3 class="text-xl font-bold text-white mb-2">Construa Certo</h3>
+                        <p class="text-gray-300 text-base leading-relaxed body-font">Evite construir máquinas que causem lag excessivo. Construções ofensivas serão removidas.</p>
                     </div>
-                    <div class="bg-gray-900 p-6 rounded-lg shadow-md">
-                        <h3 class="text-lg font-bold text-white mb-2">Sem Spam</h3>
-                        <p class="text-gray-400 text-xs leading-relaxed">Não faça spam no chat com mensagens repetidas, CAPS LOCK ou divulgação de outros servidores.</p>
+                    <div class="rule-card">
+                        <h3 class="text-xl font-bold text-white mb-2">Sem Spam</h3>
+                        <p class="text-gray-300 text-base leading-relaxed body-font">Não faça spam no chat com mensagens repetidas, CAPS LOCK ou divulgação de outros servidores.</p>
                     </div>
-                    <div class="bg-gray-900 p-6 rounded-lg shadow-md">
-                        <h3 class="text-lg font-bold text-white mb-2">Divirta-se!</h3>
-                        <p class="text-gray-400 text-xs leading-relaxed">A regra mais importante! O objetivo do servidor é que todos possam se divertir e ter uma ótima experiência.</p>
+                    <div class="rule-card">
+                        <h3 class="text-xl font-bold text-white mb-2">Divirta-se!</h3>
+                        <p class="text-gray-300 text-base leading-relaxed body-font">A regra mais importante! O objetivo do servidor é que todos possam se divertir e ter uma ótima experiência.</p>
                     </div>
                 </div>
             </div>
         </section>
 
-        <section id="gallery" class="py-20 bg-gray-950">
+        <section id="gallery" class="py-20 fade-in-section">
             <div class="container mx-auto px-6">
-                <h2 class="text-2xl md:text-3xl font-bold text-white text-center mb-4">Galeria</h2>
+                <h2 class="text-3xl md:text-4xl font-bold text-white text-center mb-4">Galeria</h2>
                 <div class="w-24 h-1 bg-pink-500 mx-auto mb-12"></div>
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                    <a href="galeria.html" class="gallery-item block relative overflow-hidden rounded-lg shadow-lg group">
-                        <img src="https://placehold.co/600x400/1f2937/ec4899?text=Construções" alt="Construções no servidor" class="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-500">
-                        <div class="overlay absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 p-4 text-center">
-                            <p class="text-white text-lg font-bold">Ver todas as construções</p>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <a href="galeria.html" class="gallery-preview-item group">
+                        <img src="lago_do_vale_yneeo.jpg" alt="Construções no servidor" class="preview-image">
+                        <div class="preview-overlay">
+                            <p class="text-white text-xl font-bold">Ver Galeria Completa</p>
                         </div>
                     </a>
-                    <div class="gallery-item relative overflow-hidden rounded-lg shadow-lg group">
-                        <img src="lago_do_vale_yneeo.png" alt="Lago no vale com cerejeiras" class="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-500">
-                        <div class="overlay absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 p-4 text-center">
-                            <p class="text-white text-lg font-bold">Lago no Vale por Yneeo</p>
+                    <a href="galeria.html" class="gallery-preview-item group">
+                        <img src="iamgem_fundo.jpg" alt="Estátuas de dragões e guerreira" class="preview-image">
+                        <div class="preview-overlay">
+                             <p class="text-white text-xl font-bold">Construções Épicas</p>
                         </div>
+                    </a>
+                    <a href="galeria.html" class="gallery-preview-item group">
+                        <img src="vila_grega_kell_fabio.png" alt="Vila grega" class="preview-image">
+                        <div class="preview-overlay">
+                             <p class="text-white text-xl font-bold">Projetos da Comunidade</p>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- NOVA SECÇÃO: NOSSA COMUNIDADE -->
+        <section id="community" class="py-20 fade-in-section">
+            <div class="container mx-auto px-6 text-center">
+                <h2 class="text-3xl md:text-4xl font-bold text-white mb-4">Nossa Comunidade</h2>
+                <div class="w-24 h-1 bg-pink-500 mx-auto mb-12"></div>
+                <div class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-6 justify-center">
+                    <div class="player-card">
+                        <img class="player-head-large" src="" alt="Cabeça do jogador Kellcerejinha">
+                        <p class="player-name-large">Kellcerejinha</p>
                     </div>
-                    <div class="gallery-item relative overflow-hidden rounded-lg shadow-lg group">
-                        <img src="iamgem_fundo.png" alt="Estátuas de dragões e guerreira" class="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-500">
-                        <div class="overlay absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 p-4 text-center">
-                            <p class="text-white text-lg font-bold">Spawn do Servidor</p>
-                        </div>
+                    
+                    <div class="player-card">
+                        <img class="player-head-large" src="" alt="Cabeça do jogador Kellcerejinha">
+                        <p class="player-name-large">fabiofr32</p>
+                    </div>
+                    <div class="player-card">
+                        <img class="player-head-large" src="" alt="Cabeça do jogador yNeoo">
+                        <p class="player-name-large">yNeoo</p>
+                    </div>
+                    <div class="player-card">
+                        <img class="player-head-large" src="" alt="Cabeça do jogador XDarkzin1_1X">
+                        <p class="player-name-large">XDarkzin1_1X</p>
+                    </div>
+                    <div class="player-card">
+                        <img class="player-head-large" src="" alt="Cabeça do jogador juniordagoiba">
+                        <p class="player-name-large">juniordagoiba</p>
+                    </div>
+                    <div class="player-card">
+                        <img class="player-head-large" src="" alt="Cabeça do jogador masterdobudhaa">
+                        <p class="player-name-large">masterdobudhaa</p>
+                    </div>
+                     <div class="player-card">
+                        <img class="player-head-large" src="" alt="Cabeça do jogador Lxzinho4261">
+                        <p class="player-name-large">Lxzinho4261</p>
+                    </div>
+                     <div class="player-card">
+                        <img class="player-head-large" src="" alt="Cabeça do jogador eriick_silvaxs">
+                        <p class="player-name-large">eriick_silvaxs</p>
+                    </div>
+                     <div class="player-card">
+                        <img class="player-head-large" src="" alt="Cabeça do jogador Admin">
+                        <p class="player-name-large">Admin</p>
                     </div>
                 </div>
             </div>
         </section>
 
-        <section id="discord" class="py-20 text-center">
+        <section id="discord" class="py-20 text-center fade-in-section">
             <div class="container mx-auto px-6">
-                <h2 class="text-2xl md:text-3xl font-bold text-white mb-4">Junte-se à nossa comunidade!</h2>
-                <p class="text-gray-400 max-w-2xl mx-auto mb-8 text-sm leading-loose">O Discord é o coração da nossa comunidade. Fique por dentro de todos os anúncios, participe de sorteios e converse com outros jogadores.</p>
-                <a href="https://discord.gg/4Bgmp2eB" target="_blank" class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-8 rounded-lg text-base transition-colors inline-block">
+                <h2 class="text-3xl md:text-4xl font-bold text-white mb-4">Junte-se à nossa comunidade!</h2>
+                <p class="text-gray-300 max-w-2xl mx-auto mb-8 text-lg leading-loose body-font">O Discord é o coração da nossa comunidade. Fique por dentro de todos os anúncios, participe de sorteios e converse com outros jogadores.</p>
+                <a href="https://discord.gg/4Bgmp2eB" target="_blank" class="btn-secondary">
                     Entrar no Discord
                 </a>
             </div>
         </section>
     </main>
-    <footer class="bg-black py-6">
-        <div class="container mx-auto px-6 text-center text-gray-500 text-xs">
+    <footer class="bg-black/50 py-6">
+        <div class="container mx-auto px-6 text-center text-gray-500 text-sm body-font">
             <p>&copy; 2025 FRCRAFT. Todos os direitos reservados.</p>
             <p class="mt-1">Não somos afiliados à Mojang Studios.</p>
         </div>
     </footer>
-    <script type="module" src="script.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>

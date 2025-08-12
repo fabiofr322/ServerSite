@@ -1,50 +1,179 @@
-/* Estilo para a fonte Press Start 2P */
+/* --- FONTES --- */
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap');
+
+/* --- CONFIGURAÇÕES GERAIS E FUNDO --- */
 body {
     font-family: 'Press Start 2P', cursive;
-    background-color: #0c0a09;
-    color: #d1d5db;
+    background-color: #0d0c1d; /* Azul noite profundo */
+    color: #e0e0e0;
     font-smooth: never;
     -webkit-font-smoothing: none;
+    overflow-x: hidden;
 }
 
-/* Efeito de fundo gradiente sutil com roxo */
+.body-font {
+    font-family: 'VT323', monospace;
+}
+
+.stars-bg {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    background-image: 
+        radial-gradient(white, rgba(255,255,255,0) 0.5px, transparent 2px),
+        radial-gradient(white, rgba(255,255,255,0) 0.5px, transparent 2px);
+    background-size: 300px 300px, 150px 150px;
+    background-position: 0 0, 75px 75px;
+    animation: stars-move 60s linear infinite;
+}
+
+@keyframes stars-move {
+    from {background-position: 0 0, 75px 75px;}
+    to {background-position: 300px 300px, 225px 225px;}
+}
+
+/* --- CABEÇALHO E NAVEGAÇÃO --- */
+.nav-link {
+    color: #a7a7a7;
+    transition: all 0.3s ease;
+    padding-bottom: 4px;
+    border-bottom: 2px solid transparent;
+}
+.nav-link:hover {
+    color: #f973d0;
+    border-bottom-color: #f973d0;
+}
+
+/* --- SEÇÃO HERO --- */
 .hero-bg {
-    background-image: linear-gradient(to bottom, rgba(55, 0, 99, 0.5), rgba(0, 0, 0, 1)), url('iamgem_fundo.png');
-    background-size: cover;
-    background-position: center;
+    background: none; /* Remove o fundo antigo */
+}
+.hero-title {
+    text-shadow: 0 0 10px #f973d0, 0 0 20px #f973d0, 0 0 35px #f973d0;
+}
+.ip-box {
+    background: rgba(15, 12, 41, 0.7);
+    backdrop-filter: blur(5px);
+    border: 1px solid rgba(249, 115, 208, 0.4);
 }
 
-/* Melhora a renderização das imagens para um estilo pixelado */
-img {
+/* --- BOTÕES --- */
+.btn-primary {
+    background-color: #e33c9a;
+    color: white;
+    padding: 8px 16px;
+    border-radius: 6px;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    font-size: 14px;
+    border: 1px solid #ff5dc4;
+    box-shadow: 0 0 10px #e33c9a;
+}
+.btn-primary:hover {
+    background-color: #ff5dc4;
+    transform: scale(1.05);
+}
+
+.btn-secondary {
+    background-color: #8b5cf6;
+    color: white;
+    padding: 12px 28px;
+    border-radius: 6px;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    font-size: 18px;
+    border: 1px solid #a78bfa;
+    box-shadow: 0 0 15px #8b5cf6;
+}
+.btn-secondary:hover {
+    background-color: #a78bfa;
+    transform: scale(1.05);
+}
+
+/* --- CARDS (REGRAS, GALERIA, COMUNIDADE) --- */
+.rule-card, .album-card, .submit-card, .gallery-preview-item, .player-card {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 1.5rem;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+.rule-card:hover, .album-card:hover, .submit-card:hover, .gallery-preview-item:hover, .player-card:hover {
+    transform: translateY(-5px);
+    border-color: rgba(249, 115, 208, 0.5);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+}
+
+/* --- SECÇÃO COMUNIDADE --- */
+.player-card {
+    padding: 1.5rem 1rem;
+    text-align: center;
+}
+.player-card:hover {
+    border-color: rgba(139, 92, 246, 0.7);
+}
+.player-head-large {
+    width: 80px;
+    height: 80px;
+    border-radius: 8px;
+    margin: 0 auto 1rem;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    background-color: rgba(0,0,0,0.2);
     image-rendering: pixelated;
 }
-
-/* --- ESTILOS GERAIS MELHORADOS --- */
-h1, h2, h3 {
-    text-shadow: 0 0 5px rgba(236, 72, 153, 0.4), 0 0 10px rgba(236, 72, 153, 0.3);
+.player-name-large {
+    font-family: 'VT323', monospace;
+    font-size: 1.1rem;
+    color: #e0e0e0;
+    word-break: break-all;
 }
 
-.bg-pink-500, .bg-purple-600 {
-    transition: all 0.3s ease;
-    text-shadow: 0 0 4px rgba(0, 0, 0, 0.7);
-    box-shadow: 0 0 8px rgba(236, 72, 153, 0.3), inset 0 0 4px rgba(255, 255, 255, 0.1);
-}
 
-.bg-pink-500:hover, .bg-purple-600:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 0 15px rgba(236, 72, 153, 0.6), inset 0 0 5px rgba(255, 255, 255, 0.2);
-}
-
-/* --- ESTILOS PARA OS ÁLBUNS --- */
-.album-card .album-cover {
+/* --- GALERIA --- */
+.album-cover {
+    overflow: hidden;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    cursor: pointer;
     position: relative;
 }
-
-/* Adiciona a transição de fade para a imagem da capa */
-.album-cover img {
-    transition: opacity 0.5s ease-in-out;
+.album-image {
+    width: 100%;
+    height: 12rem;
+    object-fit: cover;
+    transition: all 0.5s ease-in-out;
 }
-
+.album-card:hover .album-image {
+    transform: scale(1.05);
+}
+.album-title {
+    font-size: 1.1rem;
+    font-weight: bold;
+    color: white;
+    margin-bottom: 0.25rem;
+}
+.player-info {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+}
+.player-head {
+    width: 1.25rem;
+    height: 1.25rem;
+    border-radius: 4px;
+}
+.player-name {
+    font-family: 'VT323', monospace;
+    font-size: 1rem;
+    color: #a7a7a7;
+}
 .album-icon {
     position: absolute;
     top: 8px;
@@ -53,15 +182,42 @@ h1, h2, h3 {
     color: white;
     padding: 6px;
     border-radius: 5px;
-    display: none; /* Escondido por padrão */
+    display: none;
 }
-
-/* Mostra o ícone apenas se o álbum tiver mais de uma imagem */
 .album-card[data-multiple-images="true"] .album-icon {
     display: block;
 }
 
-/* --- ESTILOS PARA O MODAL (SLIDESHOW) --- */
+/* Preview da Galeria na Página Principal */
+.gallery-preview-item { padding: 0; }
+.preview-image { width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s ease; }
+.group:hover .preview-image { transform: scale(1.1); }
+.preview-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    padding: 1rem;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+.group:hover .preview-overlay { opacity: 1; }
+
+
+/* --- ANIMAÇÃO DE SCROLL --- */
+.fade-in-section {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+}
+.fade-in-section.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* --- MODAL SLIDESHOW --- */
 .modal {
   display: none;
   position: fixed;
@@ -71,82 +227,59 @@ h1, h2, h3 {
   width: 100%;
   height: 100%;
   overflow: hidden;
-  background-color: rgba(0,0,0,0.95);
+  background-color: rgba(13, 12, 29, 0.9);
+  backdrop-filter: blur(5px);
   align-items: center;
   justify-content: center;
 }
-
-.modal.show {
-    display: flex;
-}
-
+.modal.show { display: flex; }
 .modal-content {
   margin: auto;
   display: block;
   max-width: 85%;
   max-height: 80vh;
   image-rendering: auto;
-  animation-name: zoom;
-  animation-duration: 0.3s;
-  border: 3px solid #ec4899;
-  box-shadow: 0 0 30px rgba(236, 72, 153, 0.7);
+  animation: zoom-in 0.3s ease;
+  border: 2px solid #f973d0;
+  border-radius: 8px;
+  box-shadow: 0 0 40px rgba(249, 115, 208, 0.5);
 }
-
-@keyframes zoom {
+@keyframes zoom-in {
   from {transform: scale(0.8)}
   to {transform: scale(1)}
 }
-
 .close-modal {
   position: absolute;
   top: 20px;
   right: 35px;
   color: #f1f1f1;
   font-size: 40px;
-  font-weight: bold;
   transition: 0.3s;
   cursor: pointer;
-  line-height: 1;
-  text-shadow: 0 0 5px #000;
 }
-
 .prev-slide, .next-slide {
   cursor: pointer;
   position: absolute;
   top: 50%;
-  width: auto;
   padding: 16px;
   margin-top: -30px;
   color: white;
-  font-weight: bold;
   font-size: 24px;
   transition: 0.3s ease;
-  border-radius: 0 3px 3px 0;
   user-select: none;
   background-color: rgba(0,0,0,0.3);
 }
-
-.prev-slide {
-  left: 10px;
-  border-radius: 3px 0 0 3px;
-}
-
-.next-slide {
-  right: 10px;
-  border-radius: 3px 0 0 3px;
-}
-
-.prev-slide:hover, .next-slide:hover {
-  background-color: rgba(236, 72, 153, 0.8);
-}
-
+.prev-slide { left: 10px; border-radius: 3px; }
+.next-slide { right: 10px; border-radius: 3px; }
+.prev-slide:hover, .next-slide:hover { background-color: rgba(249, 115, 208, 0.8); }
 .slide-counter {
     position: absolute;
     bottom: 15px;
     left: 50%;
     transform: translateX(-50%);
     color: #f1f1f1;
-    font-size: 12px;
+    font-size: 1rem;
+    font-family: 'VT323', monospace;
     padding: 8px 12px;
     background-color: rgba(0,0,0,0.7);
     border-radius: 5px;
