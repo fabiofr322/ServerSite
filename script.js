@@ -134,9 +134,27 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // --- LÓGICA PARA A GALERIA DE FOTOS E VOTAÇÃO DO EVENTO ---
-    function setupEventPageLogic() {
+    async function setupEventPageLogic() {
         const photoGallery = document.getElementById('photo-gallery');
         if (!photoGallery) return;
+
+        // Aguarda o Firebase estar disponível no objeto window
+        while (!window.firebase) {
+            await new Promise(resolve => setTimeout(resolve, 100));
+        }
+        const { db, auth, getDoc, doc, setDoc, onSnapshot, increment, updateDoc, signInAnonymously, signInWithCustomToken } = window.firebase;
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+
+        // Autenticação
+        try {
+            if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                await signInWithCustomToken(auth, __initial_auth_token);
+            } else {
+                await signInAnonymously(auth);
+            }
+        } catch (error) {
+            console.error("Authentication Error:", error);
+        }
 
         // Lógica da Galeria de Fotos
         const modal = document.getElementById('photoModal');
@@ -169,33 +187,38 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
-        // Lógica de Votação com localStorage
+        // --- Lógica de Votação com Firebase ---
         const votingPoll = document.getElementById('voting-poll');
         const photoCards = photoGallery.querySelectorAll('.photo-card');
         const voteMessage = document.getElementById('vote-message');
-        const VOTE_STORAGE_KEY = 'medievalEventVotes';
+        const eventId = 'medieval-tournament-1';
+        const votesDocRef = doc(db, `artifacts/${appId}/public/data/eventVotes`, eventId);
 
-        // Carrega os votos do localStorage ou inicializa
-        let storedVotes = JSON.parse(localStorage.getItem(VOTE_STORAGE_KEY));
-        let votingOptions;
+        let votingOptions = Array.from(photoCards).map((card, index) => {
+            const title = card.querySelector('h4').textContent;
+            const player = card.querySelector('.player-name').textContent;
+            return { id: `option_${index}`, title, player, votes: 0 };
+        });
 
-        if (storedVotes && storedVotes.length === photoCards.length) {
-            votingOptions = storedVotes;
-        } else {
-            votingOptions = Array.from(photoCards).map(card => {
-                const title = card.querySelector('h4').textContent;
-                const player = card.querySelector('.player-name').textContent;
-                return { title, player, votes: 0 };
-            });
+        // Função para inicializar o documento no Firestore se ele não existir
+        async function initializeVotes() {
+            const docSnap = await getDoc(votesDocRef);
+            if (!docSnap.exists()) {
+                const initialVotes = {};
+                votingOptions.forEach(option => {
+                    initialVotes[option.id] = 0;
+                });
+                await setDoc(votesDocRef, initialVotes);
+            }
         }
 
-        // Renderiza o painel de votação
-        function renderPoll() {
+        // Renderiza a UI da votação
+        function renderPollUI() {
             votingPoll.innerHTML = votingOptions.map((option, index) => `
-                <div class="voting-option" data-index="${index}">
+                <div class="voting-option" data-id="${option.id}">
                     <div class="flex justify-between items-center mb-1 text-xs">
                         <span class="text-white font-bold">${option.title} <span class="text-gray-400 font-normal">por ${option.player}</span></span>
-                        <span class="text-gray-400 vote-count">${option.votes} ${option.votes === 1 ? 'voto' : 'votos'}</span>
+                        <span class="text-gray-400 vote-count">0 votos</span>
                     </div>
                     <div class="w-full bg-gray-700 rounded-full h-2.5">
                         <div class="vote-bar bg-purple-600 h-2.5 rounded-full transition-all duration-500" style="width: 0%"></div>
@@ -203,35 +226,36 @@ document.addEventListener('DOMContentLoaded', () => {
                     <button class="vote-button mt-2 bg-purple-500 hover:bg-purple-600 text-white font-bold py-1 px-3 rounded-md text-xs transition-colors">Votar</button>
                 </div>
             `).join('');
-            updatePollUI();
             addVoteListeners();
         }
 
-        function updatePollUI() {
-            const totalVotes = votingOptions.reduce((sum, option) => sum + option.votes, 0);
+        // Atualiza a UI com os dados do Firestore
+        function updatePollUI(votesData) {
+            const totalVotes = Object.values(votesData).reduce((sum, count) => sum + count, 0);
 
-            votingOptions.forEach((option, index) => {
-                const percentage = totalVotes === 0 ? 0 : (option.votes / totalVotes) * 100;
-                const optionElement = votingPoll.querySelector(`.voting-option[data-index="${index}"]`);
+            votingOptions.forEach(option => {
+                const optionVotes = votesData[option.id] || 0;
+                const percentage = totalVotes === 0 ? 0 : (optionVotes / totalVotes) * 100;
+                const optionElement = votingPoll.querySelector(`.voting-option[data-id="${option.id}"]`);
                 if (optionElement) {
                     optionElement.querySelector('.vote-bar').style.width = `${percentage}%`;
-                    optionElement.querySelector('.vote-count').textContent = `${option.votes} ${option.votes === 1 ? 'voto' : 'votos'}`;
+                    optionElement.querySelector('.vote-count').textContent = `${optionVotes} ${optionVotes === 1 ? 'voto' : 'votos'}`;
                 }
             });
         }
 
-        // Adiciona os listeners aos botões
+        // Adiciona listeners aos botões de voto
         function addVoteListeners() {
-            const voteButtons = votingPoll.querySelectorAll('.vote-button');
-            voteButtons.forEach((button) => {
-                button.addEventListener('click', (e) => {
-                    const selectedOptionIndex = e.target.closest('.voting-option').dataset.index;
-                    votingOptions[selectedOptionIndex].votes++;
+            votingPoll.querySelectorAll('.vote-button').forEach(button => {
+                button.addEventListener('click', async (e) => {
+                    const optionId = e.target.closest('.voting-option').dataset.id;
 
-                    localStorage.setItem(VOTE_STORAGE_KEY, JSON.stringify(votingOptions));
-                    updatePollUI();
+                    // Incrementa o voto no Firestore
+                    await updateDoc(votesDocRef, {
+                        [optionId]: increment(1)
+                    });
 
-                    // Mostra a mensagem de agradecimento e a esconde depois de um tempo
+                    // Mostra a mensagem de agradecimento
                     voteMessage.style.opacity = '1';
                     setTimeout(() => {
                         voteMessage.style.opacity = '0';
@@ -240,7 +264,16 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
 
-        renderPoll();
+        // Inicia tudo
+        await initializeVotes();
+        renderPollUI();
+
+        // Ouve por atualizações em tempo real
+        onSnapshot(votesDocRef, (doc) => {
+            if (doc.exists()) {
+                updatePollUI(doc.data());
+            }
+        });
     }
 
     // Executa todas as lógicas necessárias na página
