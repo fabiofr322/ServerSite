@@ -7,9 +7,9 @@ body {
     -webkit-font-smoothing: none;
 }
 
-/* Efeito de fundo gradiente sutil com roxo */
+/* Efeito de fundo gradiente sutil com rosa */
 .hero-bg {
-    background-image: linear-gradient(to bottom, rgba(55, 0, 99, 0.5), rgba(0, 0, 0, 1)), url('iamgem_fundo.png');
+    background-image: linear-gradient(to bottom, rgba(131, 24, 67, 0.5), rgba(0, 0, 0, 1)), url('iamgem_fundo.png');
     background-size: cover;
     background-position: center;
 }
@@ -21,18 +21,18 @@ img {
 
 /* --- ESTILOS GERAIS MELHORADOS --- */
 h1, h2, h3 {
-    text-shadow: 0 0 5px rgba(236, 72, 153, 0.4), 0 0 10px rgba(236, 72, 153, 0.3);
+    text-shadow: 0 0 5px rgba(168, 85, 247, 0.4), 0 0 10px rgba(168, 85, 247, 0.3);
 }
 
-.bg-pink-500, .bg-purple-600 {
+.bg-purple-500, .bg-pink-600 {
     transition: all 0.3s ease;
     text-shadow: 0 0 4px rgba(0, 0, 0, 0.7);
-    box-shadow: 0 0 8px rgba(236, 72, 153, 0.3), inset 0 0 4px rgba(255, 255, 255, 0.1);
+    box-shadow: 0 0 8px rgba(168, 85, 247, 0.3), inset 0 0 4px rgba(255, 255, 255, 0.1);
 }
 
-.bg-pink-500:hover, .bg-purple-600:hover {
+.bg-purple-500:hover, .bg-pink-600:hover {
     transform: translateY(-2px);
-    box-shadow: 0 0 15px rgba(236, 72, 153, 0.6), inset 0 0 5px rgba(255, 255, 255, 0.2);
+    box-shadow: 0 0 15px rgba(168, 85, 247, 0.6), inset 0 0 5px rgba(255, 255, 255, 0.2);
 }
 
 /* --- ESTILOS PARA OS ÁLBUNS --- */
@@ -68,7 +68,7 @@ h1, h2, h3 {
 
 .player-card:hover {
     transform: translateY(-5px);
-    box-shadow: 0 0 15px rgba(236, 72, 153, 0.5);
+    box-shadow: 0 0 15px rgba(168, 85, 247, 0.5);
 }
 
 .player-head {
@@ -103,8 +103,8 @@ h1, h2, h3 {
   image-rendering: auto;
   animation-name: zoom;
   animation-duration: 0.3s;
-  border: 3px solid #ec4899;
-  box-shadow: 0 0 30px rgba(236, 72, 153, 0.7);
+  border: 3px solid #a855f7;
+  box-shadow: 0 0 30px rgba(168, 85, 247, 0.7);
 }
 
 @keyframes zoom {
@@ -152,7 +152,7 @@ h1, h2, h3 {
 }
 
 .prev-slide:hover, .next-slide:hover {
-  background-color: rgba(236, 72, 153, 0.8);
+  background-color: rgba(168, 85, 247, 0.8);
 }
 
 .slide-counter {
