@@ -161,40 +161,30 @@
 <!-- Firebase SDK -->
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-    import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
     import { getFirestore, doc, getDoc, setDoc, onSnapshot, increment, updateDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-    // --- IMPORTANTE: CONFIGURAÇÃO DO FIREBASE ---
-    // Para que a votação funcione no seu site, precisa de criar um projeto no Firebase
-    // e colar as suas próprias credenciais de configuração aqui.
-    // 1. Aceda a https://firebase.google.com/ e crie um projeto.
-    // 2. Adicione uma "Aplicação da Web" ao seu projeto.
-    // 3. O Firebase fornecerá um objeto de configuração. Cole-o abaixo.
-    const firebaseUserConfig = {
-        apiKey: "COLE_A_SUA_API_KEY_AQUI",
-        authDomain: "O_SEU_PROJETO.firebaseapp.com",
-        projectId: "O_SEU_PROJECT_ID",
-        storageBucket: "O_SEU_PROJETO.appspot.com",
-        messagingSenderId: "O_SEU_SENDER_ID",
-        appId: "O_SEU_APP_ID"
+    // Configuração do Firebase que você forneceu
+    const firebaseConfig = {
+        apiKey: "AIzaSyB_hZZLmwcxcn3EduxG73jmdhtW6jj1tZ4",
+        authDomain: "site-frcraft.firebaseapp.com",
+        projectId: "site-frcraft",
+        storageBucket: "site-frcraft.appspot.com",
+        messagingSenderId: "212386805056",
+        appId: "1:212386805056:web:57e484852b9e9ca89b76a5",
+        measurementId: "G-P6NZ9M69Y5"
     };
 
-    // O código abaixo tenta usar as credenciais do ambiente de desenvolvimento (Canvas).
-    // Se não as encontrar, usa a configuração que colou acima.
-    const firebaseConfig = typeof __firebase_config !== 'undefined'
-        ? JSON.parse(__firebase_config)
-        : firebaseUserConfig;
-
-    // Inicializa o Firebase apenas se a configuração for válida
-    if (firebaseConfig && firebaseConfig.apiKey && firebaseConfig.apiKey !== "COLE_A_SUA_API_KEY_AQUI") {
+    // Inicializa o Firebase
+    try {
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
         const auth = getAuth(app);
         // Passa as funções e objetos do Firebase para o escopo global para que o script.js os possa usar
-        window.firebase = { app, db, auth, getDoc, doc, setDoc, onSnapshot, increment, updateDoc, signInAnonymously, signInWithCustomToken };
-    } else {
-        console.warn("Configuração do Firebase não fornecida. A votação será desativada.");
-        // Deixa o window.firebase indefinido para que o script.js mostre a mensagem de erro.
+        window.firebase = { app, db, auth, getDoc, doc, setDoc, onSnapshot, increment, updateDoc, signInAnonymously };
+    } catch (error) {
+        console.error("Erro ao inicializar o Firebase:", error);
+        window.firebase = null; // Garante que o script saiba que a inicialização falhou
     }
 </script>
 

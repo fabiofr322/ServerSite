@@ -192,16 +192,11 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        const { db, auth, getDoc, doc, setDoc, onSnapshot, increment, updateDoc, signInAnonymously, signInWithCustomToken } = window.firebase;
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        const { db, auth, getDoc, doc, setDoc, onSnapshot, increment, updateDoc, signInAnonymously } = window.firebase;
 
-        // Autenticação
+        // Autenticação anónima para permitir a escrita na base de dados
         try {
-            if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                await signInWithCustomToken(auth, __initial_auth_token);
-            } else {
-                await signInAnonymously(auth);
-            }
+            await signInAnonymously(auth);
         } catch (error) {
             console.error("Erro de autenticação com Firebase:", error);
             votingSection.innerHTML = '<p class="text-center text-red-400 text-sm">Falha na autenticação. A votação está desativada.</p>';
@@ -212,7 +207,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const photoCards = document.querySelectorAll('#photo-gallery .photo-card');
         const voteMessage = document.getElementById('vote-message');
         const eventId = 'medieval-tournament-1';
-        const votesDocRef = doc(db, `artifacts/${appId}/public/data/eventVotes`, eventId);
+        // O caminho da base de dados não precisa de appId quando se usa a sua própria configuração
+        const votesDocRef = doc(db, "eventVotes", eventId);
 
         const votingOptions = Array.from(photoCards).map((card, index) => {
             const title = card.querySelector('h4').textContent;
@@ -245,7 +241,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     // Se o documento não existir, cria-o antes de tentar atualizar
                     if (error.code === 'not-found') {
                         try {
-                            await setDoc(votesDocRef, { [optionId]: 1 }, { merge: true });
+                            const initialVotes = {};
+                            votingOptions.forEach(opt => { initialVotes[opt.id] = 0; });
+                            initialVotes[optionId] = 1;
+                            await setDoc(votesDocRef, initialVotes);
                         } catch (initError) {
                             console.error("Erro ao criar documento de votos:", initError);
                         }
@@ -272,19 +271,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }, (error) => {
             console.error("Erro ao ouvir as atualizações de votos:", error);
         });
-
-        const docSnap = await getDoc(votesDocRef);
-        if (!docSnap.exists()) {
-            const initialVotes = {};
-            votingOptions.forEach(option => {
-                initialVotes[option.id] = 0;
-            });
-            try {
-                await setDoc(votesDocRef, initialVotes);
-            } catch (error) {
-                console.error("Erro ao inicializar os votos no Firestore:", error);
-            }
-        }
     }
 
     // Executa todas as lógicas necessárias na página
