@@ -133,30 +133,12 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // --- LÓGICA PARA A GALERIA DE FOTOS E VOTAÇÃO DO EVENTO ---
-    async function setupEventPageLogic() {
+    // --- LÓGICA PARA A GALERIA DA PÁGINA DE EVENTOS (SEM FIREBASE) ---
+    function setupEventPageGallery() {
         const photoGallery = document.getElementById('photo-gallery');
         if (!photoGallery) return;
 
-        // Aguarda o Firebase estar disponível no objeto window
-        while (!window.firebase) {
-            await new Promise(resolve => setTimeout(resolve, 100));
-        }
-        const { db, auth, getDoc, doc, setDoc, onSnapshot, increment, updateDoc, signInAnonymously, signInWithCustomToken } = window.firebase;
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-
-        // Autenticação
-        try {
-            if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                await signInWithCustomToken(auth, __initial_auth_token);
-            } else {
-                await signInAnonymously(auth);
-            }
-        } catch (error) {
-            console.error("Authentication Error:", error);
-        }
-
-        // Lógica da Galeria de Fotos
+        // Lógica da Galeria de Fotos (Modal)
         const modal = document.getElementById('photoModal');
         const modalImg = document.getElementById('modalImage');
         const galleryPhotos = photoGallery.querySelectorAll('.gallery-photo');
@@ -186,22 +168,58 @@ document.addEventListener('DOMContentLoaded', () => {
                 headImg.onerror = () => { headImg.style.display = 'none'; };
             }
         });
+    }
 
-        // --- Lógica de Votação com Firebase ---
+    // --- LÓGICA PARA A VOTAÇÃO DO EVENTO (COM FIREBASE) ---
+    async function setupEventVotingLogic() {
+        const votingSection = document.getElementById('voting-section');
+        if (!votingSection) return;
+
+        // Adiciona um timeout para evitar loop infinito caso o Firebase não carregue
+        const firebaseReady = await Promise.race([
+            (async () => {
+                while (!window.firebase) {
+                    await new Promise(resolve => setTimeout(resolve, 100));
+                }
+                return true;
+            })(),
+            new Promise(resolve => setTimeout(() => resolve(false), 5000)) // Timeout de 5 segundos
+        ]);
+
+        if (!firebaseReady) {
+            console.error("Firebase não foi inicializado. A funcionalidade de votação está desativada.");
+            votingSection.innerHTML = '<p class="text-center text-red-400 text-sm">O sistema de votação está indisponível no momento.</p>';
+            return;
+        }
+
+        const { db, auth, getDoc, doc, setDoc, onSnapshot, increment, updateDoc, signInAnonymously, signInWithCustomToken } = window.firebase;
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+
+        // Autenticação
+        try {
+            if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                await signInWithCustomToken(auth, __initial_auth_token);
+            } else {
+                await signInAnonymously(auth);
+            }
+        } catch (error) {
+            console.error("Erro de autenticação com Firebase:", error);
+            votingSection.innerHTML = '<p class="text-center text-red-400 text-sm">Falha na autenticação. A votação está desativada.</p>';
+            return;
+        }
+
         const votingPoll = document.getElementById('voting-poll');
-        const photoCards = photoGallery.querySelectorAll('.photo-card');
+        const photoCards = document.querySelectorAll('#photo-gallery .photo-card');
         const voteMessage = document.getElementById('vote-message');
         const eventId = 'medieval-tournament-1';
         const votesDocRef = doc(db, `artifacts/${appId}/public/data/eventVotes`, eventId);
 
-        // 1. Mapeia as opções de voto a partir do HTML
         const votingOptions = Array.from(photoCards).map((card, index) => {
             const title = card.querySelector('h4').textContent;
             const player = card.querySelector('.player-name').textContent;
             return { id: `option_${index}`, title, player };
         });
 
-        // 2. Renderiza a estrutura estática da enquete
         votingPoll.innerHTML = votingOptions.map(option => `
             <div class="voting-option" data-id="${option.id}">
                 <div class="flex justify-between items-center mb-1 text-xs">
@@ -215,25 +233,27 @@ document.addEventListener('DOMContentLoaded', () => {
             </div>
         `).join('');
 
-        // 3. Adiciona os listeners aos botões de voto
         votingPoll.querySelectorAll('.vote-button').forEach(button => {
             button.addEventListener('click', async (e) => {
                 const optionId = e.target.closest('.voting-option').dataset.id;
                 try {
-                    // Incrementa o voto no Firestore de forma atômica
                     await updateDoc(votesDocRef, { [optionId]: increment(1) });
-
-                    // Mostra a mensagem de agradecimento
                     voteMessage.style.opacity = '1';
                     setTimeout(() => { voteMessage.style.opacity = '0'; }, 2000);
                 } catch (error) {
                     console.error("Erro ao registrar o voto:", error);
-                    alert("Não foi possível registrar seu voto. Verifique o console para mais detalhes.");
+                    // Se o documento não existir, cria-o antes de tentar atualizar
+                    if (error.code === 'not-found') {
+                        try {
+                            await setDoc(votesDocRef, { [optionId]: 1 }, { merge: true });
+                        } catch (initError) {
+                            console.error("Erro ao criar documento de votos:", initError);
+                        }
+                    }
                 }
             });
         });
 
-        // 4. Ouve por atualizações em tempo real e atualiza a UI
         onSnapshot(votesDocRef, (doc) => {
             if (doc.exists()) {
                 const votesData = doc.data();
@@ -253,7 +273,6 @@ document.addEventListener('DOMContentLoaded', () => {
             console.error("Erro ao ouvir as atualizações de votos:", error);
         });
 
-        // 5. Garante que o documento de votos exista no Firestore
         const docSnap = await getDoc(votesDocRef);
         if (!docSnap.exists()) {
             const initialVotes = {};
@@ -272,5 +291,6 @@ document.addEventListener('DOMContentLoaded', () => {
     setupGeneralLogic();
     setupGalleryLogic();
     setupPlayersSectionLogic();
-    setupEventPageLogic();
+    setupEventPageGallery();
+    setupEventVotingLogic();
 });
