@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Galeria - FRCRAFT</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts: Press Start 2P -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    
+    <!-- Favicon (Ícone da Aba) -->
+    <link rel="icon" href="https://placehold.co/32x32/ec4899/ffffff?text=F" type="image/png">
+
+    <!-- Seu arquivo de CSS externo -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="antialiased bg-gray-950">
+
+    <!-- Cabeçalho da Galeria -->
+    <header class="bg-black/80 backdrop-blur-sm sticky top-0 left-0 right-0 z-50">
+        <div class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <h1 class="text-xl font-bold text-white tracking-wider">Galeria de Construções</h1>
+            <a href="serversite.html" class="bg-pink-500 hover:bg-pink-600 text-white font-bold py-2 px-4 rounded-md transition-colors text-sm">
+                Voltar
+            </a>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-6 py-12">
+        
+        <!-- Seção: Envie sua Construção -->
+        <div class="bg-gray-900/50 border border-pink-500/30 p-6 rounded-lg shadow-md mb-12 text-center">
+            <h2 class="text-lg font-bold text-white mb-3">Mostre seu Talento!</h2>
+            <p class="text-gray-400 text-xs leading-relaxed max-w-2xl mx-auto mb-6">
+                Quer ter sua construção aqui na galeria oficial do FRCRAFT? É fácil! Entre no nosso Discord, procure o canal #envie-sua-build e mande uma screenshot incrível com o nome da sua obra!
+            </p>
+            <a href="https://discord.gg/4Bgmp2eB" target="_blank" class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-8 rounded-lg text-base transition-colors inline-block">
+                Enviar pelo Discord
+            </a>
+        </div>
+
+        <!-- Grid de Álbuns -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            
+            <!-- Álbum 1: Vale do Yneeo -->
+            <div class="album-card bg-gray-900 p-4 rounded-lg shadow-md" 
+                 data-images="lago_do_vale_yneeo.png,vale_yneoo_up.png,casa_hotbit_vale_yneoo.png">
+                <div class="album-cover overflow-hidden rounded-lg mb-4 cursor-pointer relative">
+                    <img src="lago_do_vale_yneeo.png" alt="Capa do álbum Vale do Yneeo" class="w-full h-48 object-cover transition-transform duration-300 group-hover:scale-105">
+                    <div class="album-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" /></svg>
+                    </div>
+                </div>
+                <h3 class="text-base font-bold text-white mb-1">Vale do Yneeo</h3>
+                <div class="flex items-center space-x-2 mt-2">
+                    <img class="player-head w-4 h-4 rounded-sm" src="" alt="Cabeça do jogador">
+                    <p class="text-xs text-gray-400 player-name">Yneeo</p>
+                </div>
+            </div>
+
+            <!-- Álbum 2: Spawn (imagem única) -->
+            <div class="album-card bg-gray-900 p-4 rounded-lg shadow-md"
+                 data-images="iamgem_fundo.png">
+                <div class="album-cover overflow-hidden rounded-lg mb-4 cursor-pointer relative">
+                    <img src="iamgem_fundo.png" alt="Capa do álbum Spawn Épico" class="w-full h-48 object-cover transition-transform duration-300 group-hover:scale-105">
+                </div>
+                <h3 class="text-base font-bold text-white mb-1">Spawn Épico</h3>
+                <div class="flex items-center space-x-2 mt-2">
+                    <img class="player-head w-4 h-4 rounded-sm" src="" alt="Cabeça do jogador">
+                    <p class="text-xs text-gray-400 player-name">Admin</p>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Rodapé -->
+    <footer class="bg-black py-6 mt-12">
+        <div class="container mx-auto px-6 text-center text-gray-500 text-xs">
+            <p>&copy; 2025 FRCRAFT. Todos os direitos reservados.</p>
+            <p class="mt-1">Não somos afiliados à Mojang Studios.</p>
+        </div>
+    </footer>
+
+    <!-- O Modal (Slideshow) -->
+    <div id="albumModal" class="modal">
+        <span class="close-modal">&times;</span>
+        <img class="modal-content" id="modalImage">
+        <a class="prev-slide">&#10094;</a>
+        <a class="next-slide">&#10095;</a>
+        <div class="slide-counter"></div>
+    </div>
+
+    <!-- Seu arquivo de JavaScript externo -->
+    <script src="script.js"></script>
+
+</body>
+</html>
