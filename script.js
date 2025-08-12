@@ -194,86 +194,78 @@ document.addEventListener('DOMContentLoaded', () => {
         const eventId = 'medieval-tournament-1';
         const votesDocRef = doc(db, `artifacts/${appId}/public/data/eventVotes`, eventId);
 
-        let votingOptions = Array.from(photoCards).map((card, index) => {
+        // 1. Mapeia as opções de voto a partir do HTML
+        const votingOptions = Array.from(photoCards).map((card, index) => {
             const title = card.querySelector('h4').textContent;
             const player = card.querySelector('.player-name').textContent;
-            return { id: `option_${index}`, title, player, votes: 0 };
+            return { id: `option_${index}`, title, player };
         });
 
-        // Função para inicializar o documento no Firestore se ele não existir
-        async function initializeVotes() {
-            const docSnap = await getDoc(votesDocRef);
-            if (!docSnap.exists()) {
-                const initialVotes = {};
-                votingOptions.forEach(option => {
-                    initialVotes[option.id] = 0;
-                });
-                await setDoc(votesDocRef, initialVotes);
-            }
-        }
-
-        // Renderiza a UI da votação
-        function renderPollUI() {
-            votingPoll.innerHTML = votingOptions.map((option, index) => `
-                <div class="voting-option" data-id="${option.id}">
-                    <div class="flex justify-between items-center mb-1 text-xs">
-                        <span class="text-white font-bold">${option.title} <span class="text-gray-400 font-normal">por ${option.player}</span></span>
-                        <span class="text-gray-400 vote-count">0 votos</span>
-                    </div>
-                    <div class="w-full bg-gray-700 rounded-full h-2.5">
-                        <div class="vote-bar bg-purple-600 h-2.5 rounded-full transition-all duration-500" style="width: 0%"></div>
-                    </div>
-                    <button class="vote-button mt-2 bg-purple-500 hover:bg-purple-600 text-white font-bold py-1 px-3 rounded-md text-xs transition-colors">Votar</button>
+        // 2. Renderiza a estrutura estática da enquete
+        votingPoll.innerHTML = votingOptions.map(option => `
+            <div class="voting-option" data-id="${option.id}">
+                <div class="flex justify-between items-center mb-1 text-xs">
+                    <span class="text-white font-bold">${option.title} <span class="text-gray-400 font-normal">por ${option.player}</span></span>
+                    <span class="text-gray-400 vote-count">0 votos</span>
                 </div>
-            `).join('');
-            addVoteListeners();
-        }
+                <div class="w-full bg-gray-700 rounded-full h-2.5">
+                    <div class="vote-bar bg-purple-600 h-2.5 rounded-full transition-all duration-500" style="width: 0%"></div>
+                </div>
+                <button class="vote-button mt-2 bg-purple-500 hover:bg-purple-600 text-white font-bold py-1 px-3 rounded-md text-xs transition-colors">Votar</button>
+            </div>
+        `).join('');
 
-        // Atualiza a UI com os dados do Firestore
-        function updatePollUI(votesData) {
-            const totalVotes = Object.values(votesData).reduce((sum, count) => sum + count, 0);
-
-            votingOptions.forEach(option => {
-                const optionVotes = votesData[option.id] || 0;
-                const percentage = totalVotes === 0 ? 0 : (optionVotes / totalVotes) * 100;
-                const optionElement = votingPoll.querySelector(`.voting-option[data-id="${option.id}"]`);
-                if (optionElement) {
-                    optionElement.querySelector('.vote-bar').style.width = `${percentage}%`;
-                    optionElement.querySelector('.vote-count').textContent = `${optionVotes} ${optionVotes === 1 ? 'voto' : 'votos'}`;
-                }
-            });
-        }
-
-        // Adiciona listeners aos botões de voto
-        function addVoteListeners() {
-            votingPoll.querySelectorAll('.vote-button').forEach(button => {
-                button.addEventListener('click', async (e) => {
-                    const optionId = e.target.closest('.voting-option').dataset.id;
-
-                    // Incrementa o voto no Firestore
-                    await updateDoc(votesDocRef, {
-                        [optionId]: increment(1)
-                    });
+        // 3. Adiciona os listeners aos botões de voto
+        votingPoll.querySelectorAll('.vote-button').forEach(button => {
+            button.addEventListener('click', async (e) => {
+                const optionId = e.target.closest('.voting-option').dataset.id;
+                try {
+                    // Incrementa o voto no Firestore de forma atômica
+                    await updateDoc(votesDocRef, { [optionId]: increment(1) });
 
                     // Mostra a mensagem de agradecimento
                     voteMessage.style.opacity = '1';
-                    setTimeout(() => {
-                        voteMessage.style.opacity = '0';
-                    }, 2000);
-                });
+                    setTimeout(() => { voteMessage.style.opacity = '0'; }, 2000);
+                } catch (error) {
+                    console.error("Erro ao registrar o voto:", error);
+                    alert("Não foi possível registrar seu voto. Verifique o console para mais detalhes.");
+                }
             });
-        }
+        });
 
-        // Inicia tudo
-        await initializeVotes();
-        renderPollUI();
-
-        // Ouve por atualizações em tempo real
+        // 4. Ouve por atualizações em tempo real e atualiza a UI
         onSnapshot(votesDocRef, (doc) => {
             if (doc.exists()) {
-                updatePollUI(doc.data());
+                const votesData = doc.data();
+                const totalVotes = Object.values(votesData).reduce((sum, count) => sum + count, 0);
+
+                votingOptions.forEach(option => {
+                    const optionVotes = votesData[option.id] || 0;
+                    const percentage = totalVotes === 0 ? 0 : (optionVotes / totalVotes) * 100;
+                    const optionElement = votingPoll.querySelector(`.voting-option[data-id="${option.id}"]`);
+                    if (optionElement) {
+                        optionElement.querySelector('.vote-bar').style.width = `${percentage}%`;
+                        optionElement.querySelector('.vote-count').textContent = `${optionVotes} ${optionVotes === 1 ? 'voto' : 'votos'}`;
+                    }
+                });
             }
+        }, (error) => {
+            console.error("Erro ao ouvir as atualizações de votos:", error);
         });
+
+        // 5. Garante que o documento de votos exista no Firestore
+        const docSnap = await getDoc(votesDocRef);
+        if (!docSnap.exists()) {
+            const initialVotes = {};
+            votingOptions.forEach(option => {
+                initialVotes[option.id] = 0;
+            });
+            try {
+                await setDoc(votesDocRef, initialVotes);
+            } catch (error) {
+                console.error("Erro ao inicializar os votos no Firestore:", error);
+            }
+        }
     }
 
     // Executa todas as lógicas necessárias na página
