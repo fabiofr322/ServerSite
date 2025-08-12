@@ -10,11 +10,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 mobileMenu.classList.toggle('hidden');
             });
         }
-
+        
         // Copiar IP
         const copyButton = document.querySelector('button[onclick="copyIp()"]');
         if (copyButton) {
-            copyButton.onclick = null;
+            copyButton.onclick = null; 
             copyButton.addEventListener('click', () => {
                 const ipElement = document.getElementById('server-ip');
                 if (!ipElement) return;
@@ -32,7 +32,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- LÓGICA DA PÁGINA DA GALERIA PRINCIPAL ---
     function setupGalleryLogic() {
         const modal = document.getElementById('albumModal');
-        if (!modal) return;
+        if (!modal) return; 
 
         const modalImg = document.getElementById('modalImage');
         const closeModalBtn = document.querySelector('.close-modal');
@@ -69,7 +69,7 @@ document.addEventListener('DOMContentLoaded', () => {
         function openModalWithAlbum(albumCard) {
             currentAlbumImages = albumCard.dataset.images.split(',').map(img => img.trim());
             currentImageIndex = 0;
-
+            
             if (currentAlbumImages.length <= 1) {
                 prevBtn.style.display = 'none';
                 nextBtn.style.display = 'none';
@@ -107,7 +107,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 closeModal();
             }
         });
-
+        
         document.querySelectorAll('.album-card .player-name').forEach(nameElement => {
             const playerName = nameElement.innerText.trim();
             const headImg = nameElement.parentElement.querySelector('.player-head');
@@ -136,7 +136,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- LÓGICA PARA A GALERIA DE FOTOS E VOTAÇÃO DO EVENTO ---
     function setupEventPageLogic() {
         const photoGallery = document.getElementById('photo-gallery');
-        if (!photoGallery) return;
+        if (!photoGallery) return; 
 
         // Lógica da Galeria de Fotos
         const modal = document.getElementById('photoModal');
@@ -158,7 +158,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 closeModal();
             }
         });
-
+        
         // Lógica para buscar cabeças de jogadores
         photoGallery.querySelectorAll('.player-name').forEach(nameElement => {
             const playerName = nameElement.innerText.trim();
@@ -173,7 +173,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const votingPoll = document.getElementById('voting-poll');
         const photoCards = photoGallery.querySelectorAll('.photo-card');
         const voteMessage = document.getElementById('vote-message');
-
+        
         // Gera as opções de voto dinamicamente a partir da galeria
         const votingOptions = Array.from(photoCards).map(card => {
             const title = card.querySelector('h4').textContent;
@@ -205,11 +205,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     alert('Você já votou nesta sessão!');
                     return;
                 }
-
+                
                 hasVoted = true;
                 const selectedOptionIndex = e.target.closest('.voting-option').dataset.index;
                 votingOptions[selectedOptionIndex].votes++;
-
+                
                 updatePollUI();
 
                 voteButtons.forEach(btn => {
@@ -217,14 +217,14 @@ document.addEventListener('DOMContentLoaded', () => {
                     btn.classList.add('opacity-50', 'cursor-not-allowed');
                     btn.classList.remove('hover:bg-purple-600');
                 });
-
+                
                 voteMessage.style.opacity = '1';
             });
         });
 
         function updatePollUI() {
             const totalVotes = votingOptions.reduce((sum, option) => sum + option.votes, 0);
-
+            
             votingOptions.forEach((option, index) => {
                 const percentage = totalVotes === 0 ? 0 : (option.votes / totalVotes) * 100;
                 const optionElement = votingPoll.querySelector(`.voting-option[data-index="${index}"]`);
