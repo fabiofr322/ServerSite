@@ -10,11 +10,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 mobileMenu.classList.toggle('hidden');
             });
         }
-        
+
         // Copiar IP
         const copyButton = document.querySelector('button[onclick="copyIp()"]');
         if (copyButton) {
-            copyButton.onclick = null; 
+            copyButton.onclick = null;
             copyButton.addEventListener('click', () => {
                 const ipElement = document.getElementById('server-ip');
                 if (!ipElement) return;
@@ -32,7 +32,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- LÓGICA DA PÁGINA DA GALERIA PRINCIPAL ---
     function setupGalleryLogic() {
         const modal = document.getElementById('albumModal');
-        if (!modal) return; 
+        if (!modal) return;
 
         const modalImg = document.getElementById('modalImage');
         const closeModalBtn = document.querySelector('.close-modal');
@@ -69,7 +69,7 @@ document.addEventListener('DOMContentLoaded', () => {
         function openModalWithAlbum(albumCard) {
             currentAlbumImages = albumCard.dataset.images.split(',').map(img => img.trim());
             currentImageIndex = 0;
-            
+
             if (currentAlbumImages.length <= 1) {
                 prevBtn.style.display = 'none';
                 nextBtn.style.display = 'none';
@@ -107,7 +107,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 closeModal();
             }
         });
-        
+
         document.querySelectorAll('.album-card .player-name').forEach(nameElement => {
             const playerName = nameElement.innerText.trim();
             const headImg = nameElement.parentElement.querySelector('.player-head');
@@ -136,7 +136,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- LÓGICA PARA A GALERIA DE FOTOS E VOTAÇÃO DO EVENTO ---
     function setupEventPageLogic() {
         const photoGallery = document.getElementById('photo-gallery');
-        if (!photoGallery) return; 
+        if (!photoGallery) return;
 
         // Lógica da Galeria de Fotos
         const modal = document.getElementById('photoModal');
@@ -158,7 +158,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 closeModal();
             }
         });
-        
+
         // Lógica para buscar cabeças de jogadores
         photoGallery.querySelectorAll('.player-name').forEach(nameElement => {
             const playerName = nameElement.innerText.trim();
@@ -169,69 +169,78 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
-        // Lógica de Votação
+        // Lógica de Votação com localStorage
         const votingPoll = document.getElementById('voting-poll');
         const photoCards = photoGallery.querySelectorAll('.photo-card');
         const voteMessage = document.getElementById('vote-message');
-        
-        // Gera as opções de voto dinamicamente a partir da galeria
-        const votingOptions = Array.from(photoCards).map(card => {
-            const title = card.querySelector('h4').textContent;
-            const player = card.querySelector('.player-name').textContent;
-            return { title, player, votes: 0 };
-        });
+        const VOTE_STORAGE_KEY = 'medievalEventVotes';
+
+        // Carrega os votos do localStorage ou inicializa
+        let storedVotes = JSON.parse(localStorage.getItem(VOTE_STORAGE_KEY));
+        let votingOptions;
+
+        if (storedVotes && storedVotes.length === photoCards.length) {
+            votingOptions = storedVotes;
+        } else {
+            votingOptions = Array.from(photoCards).map(card => {
+                const title = card.querySelector('h4').textContent;
+                const player = card.querySelector('.player-name').textContent;
+                return { title, player, votes: 0 };
+            });
+        }
 
         // Renderiza o painel de votação
-        votingPoll.innerHTML = votingOptions.map((option, index) => `
-            <div class="voting-option" data-index="${index}">
-                <div class="flex justify-between items-center mb-1 text-xs">
-                    <span class="text-white font-bold">${option.title} <span class="text-gray-400 font-normal">por ${option.player}</span></span>
-                    <span class="text-gray-400 vote-count">0 votos</span>
+        function renderPoll() {
+            votingPoll.innerHTML = votingOptions.map((option, index) => `
+                <div class="voting-option" data-index="${index}">
+                    <div class="flex justify-between items-center mb-1 text-xs">
+                        <span class="text-white font-bold">${option.title} <span class="text-gray-400 font-normal">por ${option.player}</span></span>
+                        <span class="text-gray-400 vote-count">${option.votes} ${option.votes === 1 ? 'voto' : 'votos'}</span>
+                    </div>
+                    <div class="w-full bg-gray-700 rounded-full h-2.5">
+                        <div class="vote-bar bg-purple-600 h-2.5 rounded-full transition-all duration-500" style="width: 0%"></div>
+                    </div>
+                    <button class="vote-button mt-2 bg-purple-500 hover:bg-purple-600 text-white font-bold py-1 px-3 rounded-md text-xs transition-colors">Votar</button>
                 </div>
-                <div class="w-full bg-gray-700 rounded-full h-2.5">
-                    <div class="vote-bar bg-purple-600 h-2.5 rounded-full transition-all duration-500" style="width: 0%"></div>
-                </div>
-                <button class="vote-button mt-2 bg-purple-500 hover:bg-purple-600 text-white font-bold py-1 px-3 rounded-md text-xs transition-colors">Votar</button>
-            </div>
-        `).join('');
-
-        // Lógica de clique e atualização
-        let hasVoted = false;
-        const voteButtons = votingPoll.querySelectorAll('.vote-button');
-
-        voteButtons.forEach((button) => {
-            button.addEventListener('click', (e) => {
-                if (hasVoted) {
-                    alert('Você já votou nesta sessão!');
-                    return;
-                }
-                
-                hasVoted = true;
-                const selectedOptionIndex = e.target.closest('.voting-option').dataset.index;
-                votingOptions[selectedOptionIndex].votes++;
-                
-                updatePollUI();
-
-                voteButtons.forEach(btn => {
-                    btn.disabled = true;
-                    btn.classList.add('opacity-50', 'cursor-not-allowed');
-                    btn.classList.remove('hover:bg-purple-600');
-                });
-                
-                voteMessage.style.opacity = '1';
-            });
-        });
+            `).join('');
+            updatePollUI();
+            addVoteListeners();
+        }
 
         function updatePollUI() {
             const totalVotes = votingOptions.reduce((sum, option) => sum + option.votes, 0);
-            
+
             votingOptions.forEach((option, index) => {
                 const percentage = totalVotes === 0 ? 0 : (option.votes / totalVotes) * 100;
                 const optionElement = votingPoll.querySelector(`.voting-option[data-index="${index}"]`);
-                optionElement.querySelector('.vote-bar').style.width = `${percentage}%`;
-                optionElement.querySelector('.vote-count').textContent = `${option.votes} ${option.votes === 1 ? 'voto' : 'votos'}`;
+                if (optionElement) {
+                    optionElement.querySelector('.vote-bar').style.width = `${percentage}%`;
+                    optionElement.querySelector('.vote-count').textContent = `${option.votes} ${option.votes === 1 ? 'voto' : 'votos'}`;
+                }
             });
         }
+
+        // Adiciona os listeners aos botões
+        function addVoteListeners() {
+            const voteButtons = votingPoll.querySelectorAll('.vote-button');
+            voteButtons.forEach((button) => {
+                button.addEventListener('click', (e) => {
+                    const selectedOptionIndex = e.target.closest('.voting-option').dataset.index;
+                    votingOptions[selectedOptionIndex].votes++;
+
+                    localStorage.setItem(VOTE_STORAGE_KEY, JSON.stringify(votingOptions));
+                    updatePollUI();
+
+                    // Mostra a mensagem de agradecimento e a esconde depois de um tempo
+                    voteMessage.style.opacity = '1';
+                    setTimeout(() => {
+                        voteMessage.style.opacity = '0';
+                    }, 2000);
+                });
+            });
+        }
+
+        renderPoll();
     }
 
     // Executa todas as lógicas necessárias na página
