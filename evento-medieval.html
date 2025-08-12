@@ -158,38 +158,8 @@
     <img class="modal-content" id="modalImage">
 </div>
 
-<!-- Firebase SDK -->
-<script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-    import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-    import { getFirestore, doc, getDoc, setDoc, onSnapshot, increment, updateDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-
-    // Configuração do Firebase que você forneceu
-    const firebaseConfig = {
-        apiKey: "AIzaSyB_hZZLmwcxcn3EduxG73jmdhtW6jj1tZ4",
-        authDomain: "site-frcraft.firebaseapp.com",
-        projectId: "site-frcraft",
-        storageBucket: "site-frcraft.appspot.com",
-        messagingSenderId: "212386805056",
-        appId: "1:212386805056:web:57e484852b9e9ca89b76a5",
-        measurementId: "G-P6NZ9M69Y5"
-    };
-
-    // Inicializa o Firebase
-    try {
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-        const auth = getAuth(app);
-        // Passa as funções e objetos do Firebase para o escopo global para que o script.js os possa usar
-        window.firebase = { app, db, auth, getDoc, doc, setDoc, onSnapshot, increment, updateDoc, signInAnonymously };
-    } catch (error) {
-        console.error("Erro ao inicializar o Firebase:", error);
-        window.firebase = null; // Garante que o script saiba que a inicialização falhou
-    }
-</script>
-
-<!-- Seu Script Principal -->
-<script type="module" src="script.js"></script>
+<!-- Inclui o script principal (versão atualizada) -->
+<script src="script.js"></script>
 
 </body>
 </html>
