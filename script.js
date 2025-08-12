@@ -241,7 +241,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     voteMessage.style.opacity = '1';
                     setTimeout(() => { voteMessage.style.opacity = '0'; }, 2000);
                 } catch (error) {
-                    console.error("Erro ao registrar o voto:", error);
+                    console.error("Erro ao registar o voto:", error);
                     // Se o documento não existir, cria-o antes de tentar atualizar
                     if (error.code === 'not-found') {
                         try {

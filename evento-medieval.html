@@ -58,26 +58,6 @@
                 <li class="flex items-start"><span class="text-purple-400 font-bold w-28 flex-shrink-0">Status:</span><span class="bg-red-800 text-red-200 px-2 py-0.5 rounded-full font-bold">Evento Encerrado</span></li>
             </ul>
         </div>
-
-        <!-- Como Participar -->
-        <div class="bg-gray-900 p-6 rounded-lg shadow-inner mb-8">
-            <h3 class="text-lg font-bold text-white mb-6 text-center border-b border-gray-700 pb-3">Como Participar</h3>
-            <ol class="list-decimal list-inside space-y-3 text-xs text-gray-300">
-                <li>Encontre um local livre e desocupado na área do evento.</li>
-                <li>Marque seu terreno com uma placa contendo seu nick.</li>
-                <li>Comece a construir! Sua construção deve ser estritamente medieval.</li>
-                <li>Envie a foto do terreno no canal ⁠#eventos-servidor do Discord!</li>
-            </ol>
-        </div>
-
-        <!-- Nota Importante -->
-        <div class="bg-yellow-900/40 border border-yellow-500/50 text-yellow-200 text-xs p-4 rounded-lg mb-8">
-            <p><span class="font-bold">Importante:</span> Proteja seu terreno com os comandos de claim do servidor. A staff não se responsabilizará por áreas não protegidas.</p>
-        </div>
-
-        <p class="text-center text-gray-400 text-sm mt-4">
-            Afie seu machado, prepare suas pedras e construa uma lenda!
-        </p>
     </div>
 
     <!-- Seção de Galeria de Fotos -->
@@ -180,22 +160,42 @@
 
 <!-- Firebase SDK -->
 <script type="module">
-    // Import the functions you need from the SDKs you need
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
     import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
     import { getFirestore, doc, getDoc, setDoc, onSnapshot, increment, updateDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-    // Your web app's Firebase configuration
-    // As variáveis __firebase_config e __initial_auth_token são injetadas pelo ambiente.
-    const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
+    // --- IMPORTANTE: CONFIGURAÇÃO DO FIREBASE ---
+    // Para que a votação funcione no seu site, precisa de criar um projeto no Firebase
+    // e colar as suas próprias credenciais de configuração aqui.
+    // 1. Aceda a https://firebase.google.com/ e crie um projeto.
+    // 2. Adicione uma "Aplicação da Web" ao seu projeto.
+    // 3. O Firebase fornecerá um objeto de configuração. Cole-o abaixo.
+    const firebaseUserConfig = {
+        apiKey: "COLE_A_SUA_API_KEY_AQUI",
+        authDomain: "O_SEU_PROJETO.firebaseapp.com",
+        projectId: "O_SEU_PROJECT_ID",
+        storageBucket: "O_SEU_PROJETO.appspot.com",
+        messagingSenderId: "O_SEU_SENDER_ID",
+        appId: "O_SEU_APP_ID"
+    };
 
-    // Initialize Firebase
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-    const auth = getAuth(app);
+    // O código abaixo tenta usar as credenciais do ambiente de desenvolvimento (Canvas).
+    // Se não as encontrar, usa a configuração que colou acima.
+    const firebaseConfig = typeof __firebase_config !== 'undefined'
+        ? JSON.parse(__firebase_config)
+        : firebaseUserConfig;
 
-    // Pass db and auth to the global scope so script.js can use them
-    window.firebase = { app, db, auth, getDoc, doc, setDoc, onSnapshot, increment, updateDoc, signInAnonymously, signInWithCustomToken };
+    // Inicializa o Firebase apenas se a configuração for válida
+    if (firebaseConfig && firebaseConfig.apiKey && firebaseConfig.apiKey !== "COLE_A_SUA_API_KEY_AQUI") {
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+        // Passa as funções e objetos do Firebase para o escopo global para que o script.js os possa usar
+        window.firebase = { app, db, auth, getDoc, doc, setDoc, onSnapshot, increment, updateDoc, signInAnonymously, signInWithCustomToken };
+    } else {
+        console.warn("Configuração do Firebase não fornecida. A votação será desativada.");
+        // Deixa o window.firebase indefinido para que o script.js mostre a mensagem de erro.
+    }
 </script>
 
 <!-- Seu Script Principal -->
