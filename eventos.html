@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eventos - FRCRAFT</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts: Press Start 2P -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    
+    <!-- Favicon (Ícone da Aba) -->
+    <link rel="icon" href="https://placehold.co/32x32/a855f7/ffffff?text=F" type="image/png">
+
+    <!-- Seu arquivo de CSS externo -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="antialiased bg-gray-950">
+
+    <!-- Cabeçalho da Página de Eventos -->
+    <header class="bg-black/80 backdrop-blur-sm sticky top-0 left-0 right-0 z-50">
+        <div class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <h1 class="text-xl font-bold text-white tracking-wider">Eventos do Servidor</h1>
+            <a href="index.html" class="bg-purple-500 hover:bg-purple-600 text-white font-bold py-2 px-4 rounded-md transition-colors text-sm">
+                Voltar
+            </a>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-6 py-12">
+        
+        <!-- Grid de Eventos -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            
+            <!-- Card do Evento Medieval -->
+            <a href="evento-medieval.html" class="event-card group block bg-gray-900 p-6 rounded-lg shadow-md hover:shadow-purple-500/20 hover:-translate-y-1 transition-all duration-300">
+                <div class="relative">
+                    <img src="https://placehold.co/600x400/1a1a1a/a855f7?text=Medieval" alt="Torneio Medieval" class="w-full h-40 object-cover rounded-md mb-4">
+                    <span class="absolute top-2 right-2 bg-red-800 text-red-200 text-xs px-2 py-1 rounded-full font-bold">Encerrado</span>
+                </div>
+                <h3 class="text-lg font-bold text-white mb-2 group-hover:text-purple-400 transition-colors">1º Torneio Medieval</h3>
+                <p class="text-gray-400 text-xs leading-relaxed">
+                    O Domínio do Spawn! Construtores transformaram as terras em obras-primas medievais.
+                </p>
+            </a>
+
+            <!-- Card de Exemplo para Evento Futuro -->
+            <div class="event-card group bg-gray-900 p-6 rounded-lg shadow-md opacity-50 cursor-not-allowed">
+                 <div class="relative">
+                    <img src="https://placehold.co/600x400/1a1a1a/a855f7?text=Em Breve" alt="Próximo Evento" class="w-full h-40 object-cover rounded-md mb-4">
+                    <span class="absolute top-2 right-2 bg-blue-800 text-blue-200 text-xs px-2 py-1 rounded-full font-bold">Em Breve</span>
+                </div>
+                <h3 class="text-lg font-bold text-white mb-2">Próximo Grande Evento</h3>
+                <p class="text-gray-400 text-xs leading-relaxed">
+                    Fique de olho em nosso Discord para saber qual será a próxima grande competição do servidor!
+                </p>
+            </div>
+
+            <!-- Você pode adicionar mais cards de eventos aqui no futuro -->
+
+        </div>
+    </main>
+
+    <!-- Rodapé -->
+    <footer class="bg-black py-6 mt-12">
+        <div class="container mx-auto px-6 text-center text-gray-500 text-xs">
+            <p>&copy; 2025 FRCRAFT. Todos os direitos reservados.</p>
+            <p class="mt-1">Não somos afiliados à Mojang Studios.</p>
+        </div>
+    </footer>
+
+</body>
+</html>
