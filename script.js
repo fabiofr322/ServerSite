@@ -20,7 +20,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (!ipElement) return;
                 navigator.clipboard.writeText(ipElement.innerText).then(() => {
                     const message = document.getElementById('copy-message');
-                    if(message) {
+                    if (message) {
                         message.style.opacity = '1';
                         setTimeout(() => { message.style.opacity = '0'; }, 2000);
                     }
@@ -133,12 +133,11 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // --- LÓGICA PARA A GALERIA DA PÁGINA DE EVENTOS (SEM FIREBASE) ---
+    // --- LÓGICA PARA A GALERIA DA PÁGINA DE EVENTOS ---
     function setupEventPageGallery() {
         const photoGallery = document.getElementById('photo-gallery');
         if (!photoGallery) return;
 
-        // Lógica da Galeria de Fotos (Modal)
         const modal = document.getElementById('photoModal');
         const modalImg = document.getElementById('modalImage');
         const galleryPhotos = photoGallery.querySelectorAll('.gallery-photo');
@@ -159,7 +158,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
-        // Lógica para buscar cabeças de jogadores
         photoGallery.querySelectorAll('.player-name').forEach(nameElement => {
             const playerName = nameElement.innerText.trim();
             const headImg = nameElement.closest('.photo-card').querySelector('.player-head');
@@ -170,12 +168,11 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // --- LÓGICA PARA A VOTAÇÃO DO EVENTO (COM FIREBASE) ---
+    // --- LÓGICA PARA A VOTAÇÃO DO EVENTO ---
     async function setupEventVotingLogic() {
         const votingSection = document.getElementById('voting-section');
         if (!votingSection) return;
 
-        // Adiciona um timeout para evitar loop infinito caso o Firebase não carregue
         const firebaseReady = await Promise.race([
             (async () => {
                 while (!window.firebase) {
@@ -183,22 +180,19 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
                 return true;
             })(),
-            new Promise(resolve => setTimeout(() => resolve(false), 5000)) // Timeout de 5 segundos
+            new Promise(resolve => setTimeout(() => resolve(false), 5000))
         ]);
 
         if (!firebaseReady) {
-            console.error("Firebase não foi inicializado. A funcionalidade de votação está desativada.");
             votingSection.innerHTML = '<p class="text-center text-red-400 text-sm">O sistema de votação está indisponível no momento.</p>';
             return;
         }
 
-        const { db, auth, getDoc, doc, setDoc, onSnapshot, increment, updateDoc, signInAnonymously } = window.firebase;
+        const { db, auth, doc, setDoc, onSnapshot, increment, updateDoc, signInAnonymously } = window.firebase;
 
-        // Autenticação anónima para permitir a escrita na base de dados
         try {
             await signInAnonymously(auth);
-        } catch (error) {
-            console.error("Erro de autenticação com Firebase:", error);
+        } catch {
             votingSection.innerHTML = '<p class="text-center text-red-400 text-sm">Falha na autenticação. A votação está desativada.</p>';
             return;
         }
@@ -207,7 +201,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const photoCards = document.querySelectorAll('#photo-gallery .photo-card');
         const voteMessage = document.getElementById('vote-message');
         const eventId = 'medieval-tournament-1';
-        // O caminho da base de dados não precisa de appId quando se usa a sua própria configuração
         const votesDocRef = doc(db, "eventVotes", eventId);
 
         const votingOptions = Array.from(photoCards).map((card, index) => {
@@ -229,27 +222,42 @@ document.addEventListener('DOMContentLoaded', () => {
             </div>
         `).join('');
 
+        const VOTE_COOLDOWN = 10; // segundos
+        const cooldownKey = "lastVoteTime";
+
         votingPoll.querySelectorAll('.vote-button').forEach(button => {
             button.addEventListener('click', async (e) => {
+                const now = Date.now();
+                const lastVote = parseInt(localStorage.getItem(cooldownKey) || "0");
+
+                if (now - lastVote < VOTE_COOLDOWN * 1000) {
+                    const remaining = Math.ceil((VOTE_COOLDOWN * 1000 - (now - lastVote)) / 1000);
+                    voteMessage.textContent = `⏳ Aguarde ${remaining}s para votar novamente.`;
+                    voteMessage.classList.remove("text-green-400");
+                    voteMessage.classList.add("text-yellow-400");
+                    voteMessage.style.opacity = '1';
+                    setTimeout(() => { voteMessage.style.opacity = '0'; }, 2000);
+                    return;
+                }
+
                 const optionId = e.target.closest('.voting-option').dataset.id;
                 try {
                     await updateDoc(votesDocRef, { [optionId]: increment(1) });
-                    voteMessage.style.opacity = '1';
-                    setTimeout(() => { voteMessage.style.opacity = '0'; }, 2000);
                 } catch (error) {
-                    console.error("Erro ao registar o voto:", error);
-                    // Se o documento não existir, cria-o antes de tentar atualizar
                     if (error.code === 'not-found') {
-                        try {
-                            const initialVotes = {};
-                            votingOptions.forEach(opt => { initialVotes[opt.id] = 0; });
-                            initialVotes[optionId] = 1;
-                            await setDoc(votesDocRef, initialVotes);
-                        } catch (initError) {
-                            console.error("Erro ao criar documento de votos:", initError);
-                        }
+                        const initialVotes = {};
+                        votingOptions.forEach(opt => { initialVotes[opt.id] = 0; });
+                        initialVotes[optionId] = 1;
+                        await setDoc(votesDocRef, initialVotes);
                     }
                 }
+
+                localStorage.setItem(cooldownKey, now.toString());
+                voteMessage.textContent = "✅ Obrigado pelo seu voto!";
+                voteMessage.classList.remove("text-yellow-400");
+                voteMessage.classList.add("text-green-400");
+                voteMessage.style.opacity = '1';
+                setTimeout(() => { voteMessage.style.opacity = '0'; }, 2000);
             });
         });
 
@@ -268,12 +276,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 });
             }
-        }, (error) => {
-            console.error("Erro ao ouvir as atualizações de votos:", error);
         });
     }
 
-    // Executa todas as lógicas necessárias na página
+    // Executa tudo
     setupGeneralLogic();
     setupGalleryLogic();
     setupPlayersSectionLogic();
