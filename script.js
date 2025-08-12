@@ -27,43 +27,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
             });
         }
-
-        // Animação de fade-in ao rolar a página
-        const sections = document.querySelectorAll('.fade-in-section');
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('visible');
-                }
-            });
-        }, { threshold: 0.1 });
-
-        sections.forEach(section => {
-            observer.observe(section);
-        });
-    }
-
-    // --- LÓGICA PARA BUSCAR CABEÇAS DE JOGADORES (em qualquer página) ---
-    function fetchPlayerHeads() {
-        // Para as cabeças pequenas nos álbuns
-        document.querySelectorAll('.player-name').forEach(nameElement => {
-            const playerName = nameElement.innerText.trim();
-            const headImg = nameElement.parentElement.querySelector('.player-head');
-            if (playerName && headImg) {
-                headImg.src = `https://mc-heads.net/avatar/${playerName}/16`;
-                headImg.onerror = () => { headImg.style.display = 'none'; };
-            }
-        });
-
-        // Para as cabeças grandes na página inicial
-        document.querySelectorAll('.player-name-large').forEach(nameElement => {
-            const playerName = nameElement.innerText.trim();
-            const headImg = nameElement.parentElement.querySelector('.player-head-large');
-            if (playerName && headImg) {
-                headImg.src = `https://mc-heads.net/avatar/${playerName}/80`;
-                headImg.onerror = () => { headImg.src = 'https://placehold.co/80x80/1f2937/6b7280?text=?'; };
-            }
-        });
     }
 
     // --- LÓGICA DA PÁGINA DA GALERIA ---
@@ -81,23 +44,33 @@ document.addEventListener('DOMContentLoaded', () => {
         let currentAlbumImages = [];
         let currentImageIndex = 0;
 
+        // Itera sobre cada card de álbum
         albumCards.forEach(card => {
             const images = card.dataset.images.split(',');
             
+            // Verifica se o álbum tem múltiplas imagens
             if (images.length > 1) {
                 card.setAttribute('data-multiple-images', 'true');
 
+                // --- NOVA LÓGICA DO SLIDESHOW DA CAPA ---
                 let coverIndex = 0;
                 const coverImage = card.querySelector('.album-cover img');
 
+                // Inicia um temporizador para trocar a imagem da capa
                 setInterval(() => {
+                    // Avança para a próxima imagem da lista
                     coverIndex = (coverIndex + 1) % images.length;
+
+                    // Aplica um efeito de fade-out
                     coverImage.style.opacity = '0';
+
+                    // Espera a transição de fade-out terminar para trocar a imagem e aplicar o fade-in
                     setTimeout(() => {
                         coverImage.src = images[coverIndex].trim();
                         coverImage.style.opacity = '1';
-                    }, 500);
-                }, 4000);
+                    }, 500); // Duração deve ser a mesma da transição no CSS (0.5s)
+
+                }, 4000); // Troca de imagem a cada 4 segundos
             }
         });
 
@@ -149,10 +122,35 @@ document.addEventListener('DOMContentLoaded', () => {
                 closeModal();
             }
         });
+        
+        // Lógica para buscar cabeças de jogadores
+        document.querySelectorAll('.album-card .player-name').forEach(nameElement => {
+            const playerName = nameElement.innerText.trim();
+            const headImg = nameElement.parentElement.querySelector('.player-head');
+            if (playerName && headImg) {
+                headImg.src = `https://mc-heads.net/avatar/${playerName}/16`;
+                headImg.onerror = () => { headImg.style.display = 'none'; };
+            }
+        });
+    }
+
+    // --- NOVA LÓGICA PARA A SEÇÃO DE JOGADORES NA INDEX ---
+    function setupPlayersSectionLogic() {
+        const playersSection = document.getElementById('players');
+        if (!playersSection) return; // Roda apenas se a seção #players existir
+
+        playersSection.querySelectorAll('.player-name').forEach(nameElement => {
+            const playerName = nameElement.innerText.trim();
+            const headImg = nameElement.parentElement.querySelector('.player-head');
+            if (playerName && headImg) {
+                headImg.src = `https://mc-heads.net/avatar/${playerName}/64`; // Tamanho 64x64
+                headImg.onerror = () => { headImg.style.display = 'none'; };
+            }
+        });
     }
 
     // Executa as lógicas
     setupGeneralLogic();
-    fetchPlayerHeads();
     setupGalleryLogic();
+    setupPlayersSectionLogic();
 });
