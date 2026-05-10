@@ -1,197 +1,525 @@
 <!DOCTYPE html>
-<html lang="pt-BR" class="scroll-smooth">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FRCRAFT - Servidor de Minecraft Survival</title>
-    <meta name="description" content="Junte-se ao nosso servidor de Minecraft Survival! Uma comunidade ativa, eventos semanais e um mundo incrível para explorar.">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
-    <link rel="icon" href="https://placehold.co/32x32/a855f7/ffffff?text=F" type="image/png">
-    <link rel="stylesheet" href="style.css">
+    <title>FR32SURVIVAL - Em Breve</title>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Outfit:wght@300;500;700;900&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: #0d001a;
+            min-height: 100vh;
+            overflow-x: hidden;
+            color: #fff;
+            position: relative;
+        }
+
+        /* Fundo animado com gradiente */
+        .bg-gradient {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(ellipse at 20% 50%, rgba(139, 0, 255, 0.25) 0%, transparent 50%),
+                        radial-gradient(ellipse at 80% 50%, rgba(255, 20, 147, 0.25) 0%, transparent 50%),
+                        radial-gradient(ellipse at 50% 100%, rgba(139, 0, 255, 0.15) 0%, transparent 50%);
+            z-index: 0;
+            animation: bgPulse 8s ease-in-out infinite;
+        }
+
+        @keyframes bgPulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        /* Grid de fundo */
+        .grid-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(139, 0, 255, 0.06) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 20, 147, 0.06) 1px, transparent 1px);
+            background-size: 50px 50px;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        /* Canvas de partículas */
+        #particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 2;
+            pointer-events: none;
+        }
+
+        /* Container principal */
+        .container {
+            position: relative;
+            z-index: 10;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        /* Logo / Título */
+        .logo {
+            font-family: 'Press Start 2P', cursive;
+            font-size: clamp(1.5rem, 5vw, 3rem);
+            background: linear-gradient(135deg, #ff1493, #8b00ff, #ff1493);
+            background-size: 200% 200%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: gradientShift 3s ease infinite, glitch 4s infinite;
+            text-shadow: none;
+            margin-bottom: 0.5rem;
+            letter-spacing: 2px;
+            position: relative;
+        }
+
+        .logo::after {
+            content: 'FR32SURVIVAL';
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #ff1493, #8b00ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            opacity: 0.3;
+            animation: glitchOffset 4s infinite;
+            clip-path: polygon(0 0, 100% 0, 100% 45%, 0 45%);
+        }
+
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        @keyframes glitch {
+            0%, 90%, 100% { transform: translate(0); }
+            91% { transform: translate(-2px, 1px); }
+            92% { transform: translate(2px, -1px); }
+            93% { transform: translate(0); }
+        }
+
+        @keyframes glitchOffset {
+            0%, 90%, 100% { transform: translate(0); }
+            91% { transform: translate(3px, -1px); }
+            92% { transform: translate(-3px, 1px); }
+            93% { transform: translate(0); }
+        }
+
+        .subtitle {
+            font-size: clamp(0.9rem, 2vw, 1.3rem);
+            color: #ff1493;
+            font-weight: 300;
+            letter-spacing: 8px;
+            text-transform: uppercase;
+            margin-bottom: 3rem;
+            animation: fadeInUp 1s ease 0.3s both;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Contagem Regressiva */
+        .countdown-container {
+            display: flex;
+            gap: clamp(0.5rem, 2vw, 1.5rem);
+            margin-bottom: 3rem;
+            flex-wrap: wrap;
+            justify-content: center;
+            animation: fadeInUp 1s ease 0.6s both;
+        }
+
+        .countdown-item {
+            background: rgba(139, 0, 255, 0.15);
+            border: 1px solid rgba(255, 20, 147, 0.4);
+            border-radius: 16px;
+            padding: clamp(1rem, 3vw, 2rem);
+            min-width: clamp(80px, 15vw, 140px);
+            backdrop-filter: blur(10px);
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .countdown-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 20, 147, 0.15), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .countdown-item:hover::before {
+            left: 100%;
+        }
+
+        .countdown-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 40px rgba(139, 0, 255, 0.4);
+            border-color: rgba(255, 20, 147, 0.7);
+        }
+
+        .countdown-number {
+            font-family: 'Press Start 2P', cursive;
+            font-size: clamp(1.5rem, 4vw, 2.5rem);
+            background: linear-gradient(135deg, #ff1493, #8b00ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+
+        .countdown-label {
+            font-size: clamp(0.7rem, 1.5vw, 0.9rem);
+            color: rgba(255, 255, 255, 0.6);
+            text-transform: uppercase;
+            letter-spacing: 3px;
+        }
+
+        /* Data de lançamento */
+        .launch-date {
+            font-size: clamp(1rem, 2vw, 1.3rem);
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 3rem;
+            animation: fadeInUp 1s ease 0.9s both;
+        }
+
+        .launch-date span {
+            color: #ff1493;
+            font-weight: 700;
+        }
+
+        /* Botões / Links */
+        .buttons {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            justify-content: center;
+            animation: fadeInUp 1s ease 1.2s both;
+        }
+
+        .btn {
+            padding: 1rem 2.5rem;
+            border-radius: 50px;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 700;
+            font-size: 1rem;
+            text-decoration: none;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: none;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #ff1493, #8b00ff);
+            color: #fff;
+            box-shadow: 0 4px 30px rgba(255, 20, 147, 0.5);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 40px rgba(255, 20, 147, 0.7);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: #fff;
+            border: 2px solid rgba(139, 0, 255, 0.6);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(139, 0, 255, 0.25);
+            border-color: #ff1493;
+            transform: translateY(-3px);
+        }
+
+        /* IP do servidor */
+        .server-ip {
+            margin-top: 3rem;
+            padding: 1rem 2rem;
+            background: rgba(139, 0, 255, 0.15);
+            border: 1px solid rgba(255, 20, 147, 0.4);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            animation: fadeInUp 1s ease 1.5s both;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .server-ip:hover {
+            border-color: rgba(255, 20, 147, 0.7);
+            box-shadow: 0 0 30px rgba(139, 0, 255, 0.3);
+        }
+
+        .server-ip-label {
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .server-ip-value {
+            font-family: 'Press Start 2P', cursive;
+            font-size: 0.9rem;
+            color: #ff1493;
+        }
+
+        .copy-hint {
+            font-size: 0.75rem;
+            color: rgba(255, 255, 255, 0.4);
+            margin-left: 0.5rem;
+        }
+
+        /* Footer */
+        footer {
+            position: relative;
+            z-index: 10;
+            text-align: center;
+            padding: 2rem;
+            color: rgba(255, 255, 255, 0.3);
+            font-size: 0.85rem;
+        }
+
+        footer a {
+            color: rgba(255, 20, 147, 0.7);
+            text-decoration: none;
+        }
+
+        /* Toast notification */
+        .toast {
+            position: fixed;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: linear-gradient(135deg, #ff1493, #8b00ff);
+            color: #fff;
+            padding: 1rem 2rem;
+            border-radius: 50px;
+            font-weight: 700;
+            box-shadow: 0 10px 40px rgba(255, 20, 147, 0.5);
+            opacity: 0;
+            transition: all 0.4s ease;
+            z-index: 1000;
+            pointer-events: none;
+        }
+
+        .toast.show {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
+
+        /* Responsivo */
+        @media (max-width: 600px) {
+            .countdown-container {
+                gap: 0.5rem;
+            }
+            .countdown-item {
+                min-width: 70px;
+                padding: 1rem;
+            }
+            .buttons {
+                flex-direction: column;
+                width: 100%;
+                max-width: 300px;
+            }
+            .btn {
+                width: 100%;
+                text-align: center;
+            }
+        }
+    </style>
+<base target="_blank">
 </head>
-<body class="antialiased">
-    <header class="bg-black/80 backdrop-blur-sm fixed top-0 left-0 right-0 z-50">
-        <div class="container mx-auto px-6 py-4 flex justify-between items-center">
-            <a href="#" class="text-xl font-bold text-white tracking-wider">FRCRAFT</a>
-            <nav class="hidden md:flex items-center space-x-8 text-sm">
-                <a href="#about" class="text-gray-300 hover:text-purple-400 transition-colors">Sobre</a>
-                <a href="#rules" class="text-gray-300 hover:text-purple-400 transition-colors">Regras</a>
-                <a href="#players" class="text-gray-300 hover:text-purple-400 transition-colors">Comunidade</a>
-                <a href="galeria.html" class="text-gray-300 hover:text-purple-400 transition-colors">Galeria</a>
-                <a href="eventos.html" class="text-gray-300 hover:text-purple-400 transition-colors">Eventos</a>
-                <a href="#discord" class="text-gray-300 hover:text-purple-400 transition-colors">Discord</a>
-            </nav>
-            <button id="mobile-menu-button" class="md:hidden text-white">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" /></svg>
-            </button>
+<body>
+    <div class="bg-gradient"></div>
+    <div class="grid-overlay"></div>
+    <canvas id="particles"></canvas>
+
+    <div class="container">
+        <h1 class="logo">FR32SURVIVAL</h1>
+        <p class="subtitle">O Survival vai mudar</p>
+
+        <div class="countdown-container">
+            <div class="countdown-item">
+                <span class="countdown-number" id="days">00</span>
+                <span class="countdown-label">Dias</span>
+            </div>
+            <div class="countdown-item">
+                <span class="countdown-number" id="hours">00</span>
+                <span class="countdown-label">Horas</span>
+            </div>
+            <div class="countdown-item">
+                <span class="countdown-number" id="minutes">00</span>
+                <span class="countdown-label">Minutos</span>
+            </div>
+            <div class="countdown-item">
+                <span class="countdown-number" id="seconds">00</span>
+                <span class="countdown-label">Segundos</span>
+            </div>
         </div>
-        <div id="mobile-menu" class="hidden md:hidden">
-            <a href="#about" class="block py-2 px-6 text-gray-300 hover:bg-gray-900">Sobre</a>
-            <a href="#rules" class="block py-2 px-6 text-gray-300 hover:bg-gray-900">Regras</a>
-            <a href="#players" class="block py-2 px-6 text-gray-300 hover:bg-gray-900">Comunidade</a>
-            <a href="galeria.html" class="block py-2 px-6 text-gray-300 hover:bg-gray-900">Galeria</a>
-            <a href="eventos.html" class="block py-2 px-6 text-gray-300 hover:bg-gray-900">Eventos</a>
-            <a href="#discord" class="block py-2 px-6 text-gray-300 hover:bg-gray-900">Discord</a>
+
+        <p class="launch-date">
+            Lançamento em <span>10 de Julho às 13:00</span>
+        </p>
+
+        <div class="buttons">
+            <a href="#" class="btn btn-primary">Discord</a>
+            <a href="#" class="btn btn-secondary">Instagram</a>
         </div>
-    </header>
-    <main>
-        <section class="hero-bg h-screen flex items-center justify-center text-center">
-            <div class="container mx-auto px-6">
-                <h1 class="text-3xl md:text-5xl font-bold text-white uppercase leading-tight mb-4">Bem-vindo ao FRCRAFT</h1>
-                <p class="text-sm md:text-base text-gray-300 max-w-3xl mx-auto mb-8 leading-relaxed">A aventura survival definitiva te espera. Explore, construa e sobreviva com nossa comunidade incrível!</p>
-                <div class="bg-black/70 inline-block p-4 rounded-lg shadow-lg">
-                    <span class="text-gray-400 uppercase text-xs">IP do Servidor</span>
-                    <div class="flex items-center justify-center space-x-4 mt-2">
-                        <p id="server-ip" class="text-lg md:text-xl font-bold text-purple-400">enx-cirion-2.enx.host:10055</p>
-                        <button onclick="copyIp()" class="bg-purple-500 hover:bg-purple-600 text-white font-bold py-2 px-4 rounded-md transition-colors text-sm">Copiar</button>
-                    </div>
-                </div>
-                <div id="copy-message" class="mt-4 text-purple-400 opacity-0 transition-opacity text-sm">IP copiado!</div>
-            </div>
-        </section>
-        
-        <section id="about" class="py-20 bg-gray-950">
-            <div class="container mx-auto px-6 text-center">
-                <h2 class="text-2xl md:text-3xl font-bold text-white mb-4">Sobre o Servidor</h2>
-                <div class="w-24 h-1 bg-purple-500 mx-auto mb-8"></div>
-                <p class="text-gray-400 max-w-3xl mx-auto text-sm leading-loose">
-                    Nosso servidor foi criado para fãs de Minecraft. Oferecemos uma experiência survival clássica, mas com plugins que melhoram a jogabilidade, como sistema de clãs, proteção de terreno. Realizamos eventos mensais com recompensas exclusivas e temos uma equipe de administração ativa e prestativa para garantir um ambiente amigável e justo para todos.
-                </p>
-            </div>
-        </section>
 
-        <section id="rules" class="py-20">
-            <div class="container mx-auto px-6">
-                <h2 class="text-2xl md:text-3xl font-bold text-white text-center mb-4">Nossas Regras</h2>
-                <div class="w-24 h-1 bg-purple-500 mx-auto mb-12"></div>
-                <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-                    <div class="bg-gray-900 p-6 rounded-lg shadow-md">
-                        <h3 class="text-lg font-bold text-white mb-2">Respeito</h3>
-                        <p class="text-gray-400 text-xs leading-relaxed">Trate todos com respeito. Assédio, discriminação ou toxicidade não serão tolerados.</p>
-                    </div>
-                    <div class="bg-gray-900 p-6 rounded-lg shadow-md">
-                        <h3 class="text-lg font-bold text-white mb-2">Sem Griefing</h3>
-                        <p class="text-gray-400 text-xs leading-relaxed">Proibido destruir ou roubar construções de outros jogadores. Use as proteções de terreno.</p>
-                    </div>
-                    <div class="bg-gray-900 p-6 rounded-lg shadow-md">
-                        <h3 class="text-lg font-bold text-white mb-2">Sem Cheats</h3>
-                        <p class="text-gray-400 text-xs leading-relaxed">O uso de hacks, x-ray ou qualquer cliente modificado que dê vantagem injusta resultará em banimento.</p>
-                    </div>
-                    <div class="bg-gray-900 p-6 rounded-lg shadow-md">
-                        <h3 class="text-lg font-bold text-white mb-2">Construa Certo</h3>
-                        <p class="text-gray-400 text-xs leading-relaxed">Evite construir máquinas que causem lag excessivo. Construções ofensivas serão removidas.</p>
-                    </div>
-                    <div class="bg-gray-900 p-6 rounded-lg shadow-md">
-                        <h3 class="text-lg font-bold text-white mb-2">Sem Spam</h3>
-                        <p class="text-gray-400 text-xs leading-relaxed">Não faça spam no chat com mensagens repetidas, CAPS LOCK ou divulgação de outros servidores.</p>
-                    </div>
-                    <div class="bg-gray-900 p-6 rounded-lg shadow-md">
-                        <h3 class="text-lg font-bold text-white mb-2">Divirta-se!</h3>
-                        <p class="text-gray-400 text-xs leading-relaxed">A regra mais importante! O objetivo do servidor é que todos possam se divertir e ter uma ótima experiência.</p>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <section id="players" class="py-20 bg-gray-950">
-            <div class="container mx-auto px-6">
-                <h2 class="text-2xl md:text-3xl font-bold text-white text-center mb-4">Nossa Comunidade</h2>
-                <div class="w-24 h-1 bg-purple-500 mx-auto mb-12"></div>
-                <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6 text-center">
-
-                    <div class="player-card bg-gray-900 p-4 rounded-lg shadow-md flex flex-col items-center justify-center">
-                        <img class="player-head w-16 h-16 rounded-md mb-3" src="" alt="Cabeça do jogador">
-                        <p class="text-sm text-gray-300 player-name">Kellcerejinha</p>
-                    </div>
-                    <div class="player-card bg-gray-900 p-4 rounded-lg shadow-md flex flex-col items-center justify-center">
-                        <img class="player-head w-16 h-16 rounded-md mb-3" src="" alt="Cabeça do jogador">
-                        <p class="text-sm text-gray-300 player-name">fabiofr32</p>
-                    </div>
-                    <div class="player-card bg-gray-900 p-4 rounded-lg shadow-md flex flex-col items-center justify-center">
-                        <img class="player-head w-16 h-16 rounded-md mb-3" src="" alt="Cabeça do jogador">
-                        <p class="text-sm text-gray-300 player-name">yNeoo</p>
-                    </div>
-                    <div class="player-card bg-gray-900 p-4 rounded-lg shadow-md flex flex-col items-center justify-center">
-                        <img class="player-head w-16 h-16 rounded-md mb-3" src="" alt="Cabeça do jogador">
-                        <p class="text-sm text-gray-300 player-name">XDarkzin1_1X</p>
-                    </div>
-                    <div class="player-card bg-gray-900 p-4 rounded-lg shadow-md flex flex-col items-center justify-center">
-                        <img class="player-head w-16 h-16 rounded-md mb-3" src="" alt="Cabeça do jogador">
-                        <p class="text-sm text-gray-300 player-name">juniordagoiba</p>
-                    </div>
-                    <div class="player-card bg-gray-900 p-4 rounded-lg shadow-md flex flex-col items-center justify-center">
-                        <img class="player-head w-16 h-16 rounded-md mb-3" src="" alt="Cabeça do jogador">
-                        <p class="text-sm text-gray-300 player-name">masterdobudhaa</p>
-                    </div>
-                    <div class="player-card bg-gray-900 p-4 rounded-lg shadow-md flex flex-col items-center justify-center">
-                        <img class="player-head w-16 h-16 rounded-md mb-3" src="" alt="Cabeça do jogador">
-                        <p class="text-sm text-gray-300 player-name">Lxzinho4261</p>
-                    </div>
-                    <div class="player-card bg-gray-900 p-4 rounded-lg shadow-md flex flex-col items-center justify-center">
-                        <img class="player-head w-16 h-16 rounded-md mb-3" src="" alt="Cabeça do jogador">
-                        <p class="text-sm text-gray-300 player-name">eriick_silvaxs</p>
-                    </div>
-                    <div class="player-card bg-gray-900 p-4 rounded-lg shadow-md flex flex-col items-center justify-center">
-                        <img class="player-head w-16 h-16 rounded-md mb-3" src="" alt="Cabeça do jogador">
-                        <p class="text-sm text-gray-300 player-name">CazocaOficial</p>
-                    </div>
-                    <div class="player-card bg-gray-900 p-4 rounded-lg shadow-md flex flex-col items-center justify-center">
-                        <img class="player-head w-16 h-16 rounded-md mb-3" src="" alt="Cabeça do jogador">
-                        <p class="text-sm text-gray-300 player-name">Coutersyy</p>
-                    </div>
-                    <div class="player-card bg-gray-900 p-4 rounded-lg shadow-md flex flex-col items-center justify-center">
-                        <img class="player-head w-16 h-16 rounded-md mb-3" src="" alt="Cabeça do jogador">
-                        <p class="text-sm text-gray-300 player-name">Mikey_ppc</p>
-                    </div>
-                    
-                </div>
-            </div>
-        </section>
-
-        <section id="gallery" class="py-20">
-            <div class="container mx-auto px-6">
-                <h2 class="text-2xl md:text-3xl font-bold text-white text-center mb-4">Galeria</h2>
-                <div class="w-24 h-1 bg-purple-500 mx-auto mb-12"></div>
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                    <a href="galeria.html" class="gallery-item block relative overflow-hidden rounded-lg shadow-lg group">
-                        <img src="https://placehold.co/600x400/1f2937/a855f7?text=Construções" alt="Construções no servidor" class="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-500">
-                        <div class="overlay absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 p-4 text-center">
-                            <p class="text-white text-lg font-bold">Ver todas as construções</p>
-                        </div>
-                    </a>
-                    <a href="eventos.html" class="gallery-item block relative overflow-hidden rounded-lg shadow-lg group">
-                        <img src="https://placehold.co/600x400/1f2937/a855f7?text=Eventos" alt="Eventos do servidor" class="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-500">
-                        <div class="overlay absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 p-4 text-center">
-                            <p class="text-white text-lg font-bold">Ver Eventos</p>
-                        </div>
-                    </a>
-                    <div class="gallery-item relative overflow-hidden rounded-lg shadow-lg group">
-                        <img src="iamgem_fundo.png" alt="Estátuas de dragões e guerreira" class="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-500">
-                        <div class="overlay absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 p-4 text-center">
-                            <p class="text-white text-lg font-bold">Spawn do Servidor</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <section id="discord" class="py-20 text-center">
-            <div class="container mx-auto px-6">
-                <h2 class="text-2xl md:text-3xl font-bold text-white mb-4">Junte-se à nossa comunidade!</h2>
-                <p class="text-gray-400 max-w-2xl mx-auto mb-8 text-sm leading-loose">O Discord é o coração da nossa comunidade. Fique por dentro de todos os anúncios, participe de sorteios e converse com outros jogadores.</p>
-                <a href="https://discord.gg/4Bgmp2eB" target="_blank" class="bg-pink-600 hover:bg-pink-700 text-white font-bold py-3 px-8 rounded-lg text-base transition-colors inline-block">
-                    Entrar no Discord
-                </a>
-            </div>
-        </section>
-    </main>
-    <footer class="bg-black py-6">
-        <div class="container mx-auto px-6 text-center text-gray-500 text-xs">
-            <p>&copy; 2025 FRCRAFT. Todos os direitos reservados.</p>
-            <p class="mt-1">Não somos afiliados à Mojang Studios.</p>
+        <div class="server-ip" onclick="copyIP()">
+            <span class="server-ip-label">IP do Servidor</span>
+            <span class="server-ip-value" id="ipText">fr32survival.com</span>
+            <span class="copy-hint">(clique para copiar)</span>
         </div>
+    </div>
+
+    <footer>
+        FR32SURVIVAL &copy; 2026. Não é afiliado à Mojang Studios.
     </footer>
-    <script type="module" src="script.js"></script>
+
+    <div class="toast" id="toast">IP copiado para a área de transferência!</div>
+
+    <script>
+        // Contagem Regressiva para 10 de Julho de 2026 às 13:00
+        const targetDate = new Date('2026-07-10T13:00:00').getTime();
+
+        function updateCountdown() {
+            const now = new Date().getTime();
+            const distance = targetDate - now;
+
+            if (distance < 0) {
+                document.getElementById('days').textContent = '00';
+                document.getElementById('hours').textContent = '00';
+                document.getElementById('minutes').textContent = '00';
+                document.getElementById('seconds').textContent = '00';
+                return;
+            }
+
+            const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+            document.getElementById('days').textContent = String(days).padStart(2, '0');
+            document.getElementById('hours').textContent = String(hours).padStart(2, '0');
+            document.getElementById('minutes').textContent = String(minutes).padStart(2, '0');
+            document.getElementById('seconds').textContent = String(seconds).padStart(2, '0');
+        }
+
+        setInterval(updateCountdown, 1000);
+        updateCountdown();
+
+        // Copiar IP
+        function copyIP() {
+            const ip = document.getElementById('ipText').textContent;
+            navigator.clipboard.writeText(ip).then(() => {
+                const toast = document.getElementById('toast');
+                toast.classList.add('show');
+                setTimeout(() => toast.classList.remove('show'), 2500);
+            });
+        }
+
+        // Partículas de fundo
+        const canvas = document.getElementById('particles');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+
+        class Particle {
+            constructor() {
+                this.reset();
+            }
+
+            reset() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.size = Math.random() * 2 + 0.5;
+                this.speedX = (Math.random() - 0.5) * 0.5;
+                this.speedY = (Math.random() - 0.5) * 0.5;
+                this.opacity = Math.random() * 0.5 + 0.1;
+                this.color = Math.random() > 0.5 ? '255, 20, 147' : '139, 0, 255';
+            }
+
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+
+                if (this.x < 0 || this.x > canvas.width || this.y < 0 || this.y > canvas.height) {
+                    this.reset();
+                }
+            }
+
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(${this.color}, ${this.opacity})`;
+                ctx.fill();
+            }
+        }
+
+        for (let i = 0; i < 80; i++) {
+            particles.push(new Particle());
+        }
+
+        function animateParticles() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles.forEach(p => {
+                p.update();
+                p.draw();
+            });
+            requestAnimationFrame(animateParticles);
+        }
+        animateParticles();
+    </script>
 </body>
 </html>
