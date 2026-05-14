@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FR32SURVIVAL - Em Breve</title>
+    <link rel="icon" href="icon/Fr32_Icon.png" type="image/png">
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Outfit:wght@300;500;700;900&display=swap" rel="stylesheet">
     <style>
         * {
@@ -274,45 +275,6 @@
             transform: translateY(-3px);
         }
 
-        /* IP do servidor */
-        .server-ip {
-            margin-top: 3rem;
-            padding: 1rem 2rem;
-            background: rgba(139, 0, 255, 0.15);
-            border: 1px solid rgba(255, 20, 147, 0.4);
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            animation: fadeInUp 1s ease 1.5s both;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .server-ip:hover {
-            border-color: rgba(255, 20, 147, 0.7);
-            box-shadow: 0 0 30px rgba(139, 0, 255, 0.3);
-        }
-
-        .server-ip-label {
-            color: rgba(255, 255, 255, 0.5);
-            font-size: 0.85rem;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-        }
-
-        .server-ip-value {
-            font-family: 'Press Start 2P', cursive;
-            font-size: 0.9rem;
-            color: #ff1493;
-        }
-
-        .copy-hint {
-            font-size: 0.75rem;
-            color: rgba(255, 255, 255, 0.4);
-            margin-left: 0.5rem;
-        }
-
         /* Staff Section */
         .staff-section {
             margin-top: 4rem;
@@ -484,8 +446,8 @@
 
     <div class="container">
         <h1 class="logo">FR32SURVIVAL</h1>
+        <img src="icon/Fr32_Icon.png" alt="Logo FR32" style="width: 400px; height: auto; display: block; margin: 10px auto;">
         <p class="subtitle">O Survival vai mudar</p>
-
         <div class="countdown-container">
             <div class="countdown-item">
                 <span class="countdown-number" id="days">00</span>
@@ -507,13 +469,6 @@
 
         <div class="buttons">
             <a href="https://discord.gg/UyCbh4PQZJ" target="_blank" class="btn btn-primary">Discord</a>
-        </div>
-
-        <!-- Adicionei o evento onclick aqui para que o botão funcione -->
-        <div class="server-ip" onclick="copyIP()">
-            <span class="server-ip-label">IP do Servidor</span>
-            <span class="server-ip-value" id="ipText" style="filter: blur(4px); user-select: none; pointer-events: none;">fr32survival.com</span>
-            <span class="copy-hint">(Clique para copiar)</span>
         </div>
 
         <!-- Secção da Equipa -->
