@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-PT">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -313,6 +313,110 @@
             margin-left: 0.5rem;
         }
 
+        /* Staff Section */
+        .staff-section {
+            margin-top: 4rem;
+            text-align: center;
+            animation: fadeInUp 1s ease 1.8s both;
+        }
+
+        .staff-title {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.5);
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            margin-bottom: 1.5rem;
+        }
+
+        .staff-grid {
+            display: flex;
+            gap: 1.5rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .staff-member {
+            position: relative;
+            background: rgba(139, 0, 255, 0.1);
+            border: 1px solid rgba(139, 0, 255, 0.3);
+            border-radius: 12px;
+            padding: 0.8rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .staff-member:hover {
+            border-color: #ff1493;
+            box-shadow: 0 0 20px rgba(255, 20, 147, 0.3);
+            transform: translateY(-5px);
+            background: rgba(255, 20, 147, 0.1);
+        }
+
+        .staff-avatar {
+            width: 64px;
+            height: 64px;
+            border-radius: 8px;
+            image-rendering: pixelated;
+            transition: transform 0.3s ease;
+        }
+
+        .staff-member:hover .staff-avatar {
+            transform: scale(1.1);
+        }
+
+        .staff-info {
+            position: absolute;
+            bottom: 120%; /* Fica acima da cabeça */
+            left: 50%;
+            transform: translateX(-50%) translateY(10px);
+            background: rgba(13, 0, 26, 0.95);
+            border: 1px solid rgba(255, 20, 147, 0.5);
+            padding: 0.8rem 1rem;
+            border-radius: 8px;
+            white-space: nowrap;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+            z-index: 20;
+            pointer-events: none;
+        }
+
+        /* Setinha do tooltip */
+        .staff-info::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border-width: 6px;
+            border-style: solid;
+            border-color: rgba(255, 20, 147, 0.5) transparent transparent transparent;
+        }
+
+        .staff-member:hover .staff-info {
+            opacity: 1;
+            visibility: visible;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        .staff-role {
+            display: block;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 0.4rem;
+        }
+
+        .role-owner { color: #ff1493; font-weight: 900; }
+        .role-admin { color: #ff4800; font-weight: 900; } /* Ciano para contrastar */
+
+        .staff-name {
+            font-family: 'Press Start 2P', cursive;
+            font-size: 0.7rem;
+            color: #fff;
+        }
+
         /* Footer */
         footer {
             position: relative;
@@ -401,18 +505,68 @@
             </div>
         </div>
 
-                <div class="buttons">
+        <div class="buttons">
             <a href="https://discord.gg/UyCbh4PQZJ" target="_blank" class="btn btn-primary">Discord</a>
-            </div>
+        </div>
 
-        <div class="server-ip">
+        <!-- Adicionei o evento onclick aqui para que o botão funcione -->
+        <div class="server-ip" onclick="copyIP()">
             <span class="server-ip-label">IP do Servidor</span>
             <span class="server-ip-value" id="ipText" style="filter: blur(4px); user-select: none; pointer-events: none;">fr32survival.com</span>
+            <span class="copy-hint">(Clique para copiar)</span>
+        </div>
+
+        <!-- Secção da Equipa -->
+        <div class="staff-section">
+            <h2 class="staff-title">Equipa Administrativa</h2>
+            <div class="staff-grid">
+                
+                <!-- Dono 1 -->
+                <div class="staff-member">
+                    <!-- Substitua 'Notch' pelo nick real do Dono 1 -->
+                    <img src="https://mc-heads.net/avatar/fabiofr32/100" alt="Dono 1" class="staff-avatar">
+                    <div class="staff-info">
+                        <span class="staff-role role-owner">Dono</span>
+                        <span class="staff-name">fabiofr32</span>
+                    </div>
+                </div>
+
+                <!-- Dono 2 -->
+                <div class="staff-member">
+                    <!-- Substitua 'Steve' pelo nick real do Dono 2 -->
+                    <img src="https://mc-heads.net/avatar/KellCerejinha/100" alt="Dono 2" class="staff-avatar">
+                    <div class="staff-info">
+                        <span class="staff-role role-owner">Dono</span>
+                        <span class="staff-name">KellCerejinha</span>
+                    </div>
+                </div>
+
+                <!-- Admin 1 -->
+                <div class="staff-member">
+                    <!-- Substitua 'Alex' pelo nick real do Admin 1 -->
+                    <img src="https://mc-heads.net/avatar/juninww7/100" alt="Admin 1" class="staff-avatar">
+                    <div class="staff-info">
+                        <span class="staff-role role-admin">Admin</span>
+                        <span class="staff-name">juninww7</span>
+                    </div>
+                </div>
+
+                <!-- Admin 2 -->
+                <div class="staff-member">
+                    <!-- Substitua 'Herobrine' pelo nick real do Admin 2 -->
+                    <img src="https://mc-heads.net/avatar/masterdobudhaa/100" alt="Admin 2" class="staff-avatar">
+                    <div class="staff-info">
+                        <span class="staff-role role-admin">Admin</span>
+                        <span class="staff-name">masterdobudhaa</span>
+                    </div>
+                </div>
+
             </div>
+        </div>
     </div>
 
     <footer>
-        FR32SURVIVAL &copy; 2026. Não é afiliado à Mojang Studios.
+        FR32SURVIVAL &copy; 2026.
     </footer>
 
     <div class="toast" id="toast">IP copiado para a área de transferência!</div>
@@ -447,14 +601,21 @@
         setInterval(updateCountdown, 1000);
         updateCountdown();
 
-        // Copiar IP
+        // Copiar IP - Utilizando uma forma compatível com a pré-visualização (document.execCommand)
         function copyIP() {
-            const ip = document.getElementById('ipText').textContent;
-            navigator.clipboard.writeText(ip).then(() => {
-                const toast = document.getElementById('toast');
-                toast.classList.add('show');
-                setTimeout(() => toast.classList.remove('show'), 2500);
-            });
+            const ipText = document.getElementById('ipText').textContent;
+            
+            // Criar um elemento temporário para copiar o texto
+            const tempInput = document.createElement("input");
+            tempInput.value = ipText;
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            document.execCommand("copy");
+            document.body.removeChild(tempInput);
+
+            const toast = document.getElementById('toast');
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 2500);
         }
 
         // Partículas de fundo
