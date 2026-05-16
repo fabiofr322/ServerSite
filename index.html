@@ -196,6 +196,36 @@
             border-color: rgba(255, 20, 147, 0.7);
         }
 
+        .countdown-item.blurred {
+            position: relative;
+            background: rgba(255, 255, 255, 0.06);
+            border-color: rgba(255, 20, 147, 0.2);
+            user-select: none;
+            cursor: default;
+        }
+
+        .countdown-item.blurred .countdown-number,
+        .countdown-item.blurred .countdown-label {
+            opacity: 0 !important;
+            color: transparent !important;
+            pointer-events: none;
+        }
+
+        .countdown-item.blurred::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: rgba(13, 0, 26, 0.45);
+            backdrop-filter: blur(16px);
+            pointer-events: auto;
+        }
+
+        .countdown-item.blurred:hover {
+            transform: none;
+            box-shadow: none;
+            border-color: rgba(255, 20, 147, 0.2);
+        }
+
         .countdown-number {
             font-family: 'Press Start 2P', cursive;
             font-size: clamp(1.5rem, 4vw, 2.5rem);
@@ -449,15 +479,15 @@
         <img src="icon/Fr32_Icon.png" alt="Logo FR32" style="width: 400px; height: auto; display: block; margin: 10px auto;">
         <p class="subtitle">O Survival vai mudar</p>
         <div class="countdown-container">
-            <div class="countdown-item">
+            <div class="countdown-item blurred">
                 <span class="countdown-number" id="days">00</span>
                 <span class="countdown-label">Dias</span>
             </div>
-            <div class="countdown-item">
+            <div class="countdown-item blurred">
                 <span class="countdown-number" id="hours">00</span>
                 <span class="countdown-label">Horas</span>
             </div>
-            <div class="countdown-item">
+            <div class="countdown-item blurred">
                 <span class="countdown-number" id="minutes">00</span>
                 <span class="countdown-label">Minutos</span>
             </div>
