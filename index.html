@@ -466,6 +466,496 @@
                 text-align: center;
             }
         }
+
+        /* Seção de Veteranos / Menções Honrosas */
+        .veterans-section {
+            margin-top: 5rem;
+            text-align: center;
+            animation: fadeInUp 1s ease 2.2s both;
+            width: 100%;
+            max-width: 1000px;
+        }
+
+        .veterans-title {
+            font-family: 'Press Start 2P', cursive;
+            font-size: clamp(0.9rem, 2vw, 1.2rem);
+            color: #ffaa00;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            margin-bottom: 0.5rem;
+            text-shadow: 0 0 10px rgba(255, 170, 0, 0.4);
+        }
+
+        .veterans-subtitle {
+            font-size: clamp(0.75rem, 1.5vw, 0.95rem);
+            color: rgba(255, 255, 255, 0.5);
+            margin-bottom: 3rem;
+            font-weight: 300;
+            letter-spacing: 1px;
+        }
+
+        .veterans-grid {
+            display: flex;
+            gap: 2rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 1.5rem;
+        }
+
+        .veteran-card {
+            position: relative;
+            background: rgba(255, 170, 0, 0.04);
+            border: 1px solid rgba(255, 170, 0, 0.25);
+            border-radius: 16px;
+            padding: 2rem 1.5rem;
+            min-width: 200px;
+            flex: 1 1 200px;
+            max-width: 240px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(10px);
+            transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+            overflow: hidden;
+        }
+
+        .veteran-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 170, 0, 0.1), transparent);
+            transition: left 0.6s ease;
+        }
+
+        .veteran-card:hover::before {
+            left: 100%;
+        }
+
+        .veteran-card:hover {
+            transform: translateY(-8px);
+            border-color: rgba(255, 170, 0, 0.8);
+            box-shadow: 0 15px 35px rgba(255, 170, 0, 0.2);
+            background: rgba(255, 170, 0, 0.08);
+        }
+
+        .veteran-skin {
+            height: 130px;
+            width: auto;
+            object-fit: contain;
+            image-rendering: pixelated;
+            transition: transform 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+            z-index: 2;
+            filter: drop-shadow(0 10px 15px rgba(0, 0, 0, 0.5));
+        }
+
+        .veteran-card:hover .veteran-skin {
+            transform: scale(1.1) translateY(-5px);
+        }
+
+        .veteran-glow {
+            position: absolute;
+            width: 90px;
+            height: 90px;
+            background: radial-gradient(circle, rgba(255, 170, 0, 0.15) 0%, rgba(255, 170, 0, 0) 70%);
+            top: 35px;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 1;
+            transition: all 0.4s ease;
+        }
+
+        .veteran-card:hover .veteran-glow {
+            transform: scale(1.3);
+            background: radial-gradient(circle, rgba(255, 170, 0, 0.3) 0%, rgba(255, 170, 0, 0) 70%);
+        }
+
+        .veteran-info {
+            margin-top: 1.2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            z-index: 2;
+            width: 100%;
+        }
+
+        .veteran-name {
+            font-family: 'Press Start 2P', cursive;
+            font-size: 0.7rem;
+            color: #fff;
+            letter-spacing: 1px;
+            word-break: break-all;
+        }
+
+        .veteran-badge {
+            font-size: 0.6rem;
+            color: #ffaa00;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            background: rgba(255, 170, 0, 0.1);
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            border: 1px solid rgba(255, 170, 0, 0.3);
+            align-self: center;
+        }
+
+        .veteran-desc {
+            font-size: 0.75rem;
+            color: rgba(255, 255, 255, 0.45);
+            font-weight: 300;
+            line-height: 1.3;
+        }
+
+        @media (max-width: 600px) {
+            .veterans-section {
+                margin-top: 4rem;
+            }
+            .veteran-card {
+                min-width: 100%;
+                max-width: 100%;
+                padding: 1.5rem 1rem;
+            }
+        }
+
+        /* Gallery Section */
+        .gallery-section {
+            margin-top: 5rem;
+            text-align: center;
+            animation: fadeInUp 1s ease 2.4s both;
+            width: 100%;
+            max-width: 1000px;
+        }
+
+        .gallery-title {
+            font-family: 'Press Start 2P', cursive;
+            font-size: clamp(0.9rem, 2vw, 1.2rem);
+            color: #ff1493;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            margin-bottom: 0.5rem;
+            text-shadow: 0 0 10px rgba(255, 20, 147, 0.4);
+        }
+
+        .gallery-subtitle {
+            font-size: clamp(0.75rem, 1.5vw, 0.95rem);
+            color: rgba(255, 255, 255, 0.5);
+            margin-bottom: 3rem;
+            font-weight: 300;
+            letter-spacing: 1px;
+        }
+
+        /* Season Selector */
+        .season-tabs {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 2.5rem;
+            flex-wrap: wrap;
+        }
+
+        .season-tab {
+            font-family: 'Press Start 2P', cursive;
+            font-size: 9px;
+            padding: 12px 20px;
+            border-radius: 50px;
+            border: 1px solid rgba(139, 0, 255, 0.4);
+            background: rgba(139, 0, 255, 0.1);
+            color: rgba(255, 255, 255, 0.6);
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            text-transform: uppercase;
+        }
+
+        .season-tab:hover {
+            border-color: #ff1493;
+            color: #fff;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 20, 147, 0.4);
+            background: rgba(255, 20, 147, 0.15);
+        }
+
+        .season-tab.active {
+            border-color: #ff1493;
+            background: linear-gradient(135deg, #ff1493, #8b00ff);
+            color: #fff;
+            box-shadow: 0 5px 20px rgba(255, 20, 147, 0.6);
+        }
+
+        /* Album Grid */
+        .gallery-grid {
+            display: flex;
+            gap: 2rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 1.5rem;
+        }
+
+        .album-card {
+            position: relative;
+            background: rgba(139, 0, 255, 0.04);
+            border: 1px solid rgba(139, 0, 255, 0.25);
+            border-radius: 16px;
+            padding: 1.2rem;
+            min-width: 220px;
+            flex: 1 1 220px;
+            max-width: 280px;
+            display: flex;
+            flex-direction: column;
+            backdrop-filter: blur(10px);
+            transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+            overflow: hidden;
+            text-align: left;
+            cursor: pointer;
+        }
+
+        .album-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(139, 0, 255, 0.1), transparent);
+            transition: left 0.6s ease;
+        }
+
+        .album-card:hover::before {
+            left: 100%;
+        }
+
+        .album-card:hover {
+            transform: translateY(-8px);
+            border-color: rgba(255, 20, 147, 0.6);
+            box-shadow: 0 15px 35px rgba(255, 20, 147, 0.25);
+            background: rgba(139, 0, 255, 0.08);
+        }
+
+        .album-card.hidden {
+            display: none;
+        }
+
+        .album-cover {
+            position: relative;
+            width: 100%;
+            height: 160px;
+            border-radius: 10px;
+            overflow: hidden;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+            margin-bottom: 1rem;
+        }
+
+        .album-cover img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.4s cubic-bezier(0.165, 0.84, 0.44, 1), opacity 0.5s ease-in-out;
+            image-rendering: auto;
+        }
+
+        .album-card:hover .album-cover img {
+            transform: scale(1.08);
+        }
+
+        .album-icon {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background-color: rgba(0,0,0,0.6);
+            color: white;
+            padding: 6px;
+            border-radius: 5px;
+            display: none;
+            z-index: 2;
+        }
+
+        .album-card[data-multiple-images="true"] .album-icon {
+            display: block;
+        }
+
+        .album-title {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 0.5rem;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+        }
+
+        .album-author-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: auto;
+        }
+
+        .album-author-avatar {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+            image-rendering: pixelated;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+        }
+
+        .album-author-name {
+            font-size: 0.75rem;
+            color: rgba(255, 255, 255, 0.6);
+            font-weight: 500;
+        }
+
+        /* Empty State */
+        .empty-state {
+            background: rgba(139, 0, 255, 0.03);
+            border: 2px dashed rgba(139, 0, 255, 0.3);
+            border-radius: 16px;
+            padding: 3rem 2rem;
+            max-width: 600px;
+            margin: 2rem auto;
+            backdrop-filter: blur(10px);
+            text-align: center;
+            transition: all 0.4s ease;
+            animation: pulseBorder 3s infinite alternate;
+        }
+
+        .empty-state.hidden {
+            display: none;
+        }
+
+        @keyframes pulseBorder {
+            0% { border-color: rgba(139, 0, 255, 0.25); box-shadow: 0 0 10px rgba(139, 0, 255, 0.05); }
+            100% { border-color: rgba(255, 20, 147, 0.5); box-shadow: 0 0 20px rgba(255, 20, 147, 0.15); }
+        }
+
+        .empty-state-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #fff;
+            margin-top: 1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .empty-state-desc {
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.5);
+            margin-bottom: 1.5rem;
+            line-height: 1.4;
+        }
+
+        .btn-empty-state {
+            padding: 0.6rem 1.5rem;
+            font-size: 0.8rem;
+        }
+
+        /* Slideshow Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: rgba(13, 0, 26, 0.95);
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(8px);
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            margin: auto;
+            display: block;
+            max-width: 85%;
+            max-height: 80vh;
+            border: 2px solid rgba(255, 20, 147, 0.5);
+            box-shadow: 0 0 40px rgba(139, 0, 255, 0.5);
+            border-radius: 12px;
+            animation: modalZoom 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
+        }
+
+        @keyframes modalZoom {
+            from { transform: scale(0.9); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 20px;
+            right: 35px;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 40px;
+            font-weight: bold;
+            transition: 0.3s;
+            cursor: pointer;
+            line-height: 1;
+        }
+
+        .close-modal:hover {
+            color: #ff1493;
+        }
+
+        .prev-slide, .next-slide {
+            cursor: pointer;
+            position: absolute;
+            top: 50%;
+            width: auto;
+            padding: 16px;
+            margin-top: -30px;
+            color: white;
+            font-weight: bold;
+            font-size: 24px;
+            transition: 0.3s ease;
+            border-radius: 4px;
+            user-select: none;
+            background-color: rgba(0,0,0,0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .prev-slide { left: 20px; }
+        .next-slide { right: 20px; }
+
+        .prev-slide:hover, .next-slide:hover {
+            background-color: rgba(255, 20, 147, 0.8);
+            border-color: #ff1493;
+            box-shadow: 0 0 15px rgba(255, 20, 147, 0.6);
+        }
+
+        .slide-counter {
+            position: absolute;
+            bottom: 25px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.85rem;
+            padding: 8px 16px;
+            background-color: rgba(13, 0, 26, 0.8);
+            border: 1px solid rgba(139, 0, 255, 0.3);
+            border-radius: 30px;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 9px;
+        }
+
+        @media (max-width: 600px) {
+            .gallery-section {
+                margin-top: 4rem;
+            }
+            .album-card {
+                min-width: 100%;
+                max-width: 100%;
+            }
+            .prev-slide, .next-slide {
+                padding: 12px;
+                font-size: 18px;
+            }
+        }
     </style>
 <base target="_blank">
 </head>
@@ -543,6 +1033,324 @@
                     <div class="staff-info">
                         <span class="staff-role role-admin">Admin</span>
                         <span class="staff-name">masterdobudhaa</span>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Seção de Menções Honrosas -->
+        <div class="veterans-section">
+            <h2 class="veterans-title">Mural dos Veteranos</h2>
+            <p class="veterans-subtitle">Aqueles que construíram a nossa história desde o primeiro bloco.</p>
+            <div class="veterans-grid">
+                
+                <!-- Veterano 1 -->
+                <div class="veteran-card">
+                    <div class="veteran-glow"></div>
+                    <img src="https://mc-heads.net/body/yNeoo/100" alt="yNeoo" class="veteran-skin">
+                    <div class="veteran-info">
+                        <span class="veteran-name">yNeoo</span>
+                        <span class="veteran-badge">Pioneiro</span>
+                        <span class="veteran-desc">Desde a versão alfa</span>
+                    </div>
+                </div>
+
+                <!-- Veterano 2 -->
+                <div class="veteran-card">
+                    <div class="veteran-glow"></div>
+                    <img src="https://mc-heads.net/body/XDarkzin1_1X/100" alt="XDarkzin1_1X" class="veteran-skin">
+                    <div class="veteran-info">
+                        <span class="veteran-name">XDarkzin1_1X</span>
+                        <span class="veteran-badge">Fundador</span>
+                        <span class="veteran-desc">Primeiro construtor</span>
+                    </div>
+                </div>
+
+                <!-- Veterano 3 -->
+                <div class="veteran-card">
+                    <div class="veteran-glow"></div>
+                    <img src="https://mc-heads.net/body/juniordagoiba/100" alt="juniordagoiba" class="veteran-skin">
+                    <div class="veteran-info">
+                        <span class="veteran-name">juniordagoiba</span>
+                        <span class="veteran-badge">Lenda</span>
+                        <span class="veteran-desc">Explorador incansável</span>
+                    </div>
+                </div>
+
+                <!-- Veterano 4 -->
+                <div class="veteran-card">
+                    <div class="veteran-glow"></div>
+                    <img src="https://mc-heads.net/body/eriick_silvaxs/100" alt="eriick_silvaxs" class="veteran-skin">
+                    <div class="veteran-info">
+                        <span class="veteran-name">eriick_silvaxs</span>
+                        <span class="veteran-badge">Fiel</span>
+                        <span class="veteran-desc">Guerreiro do alfa</span>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Seção de Galeria por Temporadas -->
+        <div class="gallery-section">
+            <h2 class="gallery-title">Galeria de Construções</h2>
+            <p class="gallery-subtitle">Confira o legado e a evolução das nossas temporadas.</p>
+
+            <!-- Seletor de Temporadas -->
+            <div class="season-tabs">
+                <button class="season-tab active" data-target-season="9">Temporada 9</button>
+                <button class="season-tab" data-target-season="8">Temporada 8</button>
+                <button class="season-tab" data-target-season="7">Temporada 7</button>
+                <button class="season-tab" data-target-season="6">Temporada 6</button>
+                <button class="season-tab" data-target-season="5">Temporada 5</button>
+            </div>
+
+            <!-- Estado Vazio para Temporadas sem Fotos -->
+            <div id="emptyState" class="empty-state hidden">
+                <div class="flex justify-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-14 w-14 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="width: 56px; height: 56px; margin: 0 auto; color: #ff1493;">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                    </svg>
+                </div>
+                <h3 id="emptyStateTitle" class="empty-state-title">Temporada Sem Registros</h3>
+                <p class="empty-state-desc">
+                    Ainda não temos registros nesta galeria para esta temporada. Se você tem lembranças incríveis, envie para nós no Discord!
+                </p>
+                <a href="https://discord.gg/UyCbh4PQZJ" target="_blank" class="btn btn-primary btn-empty-state">Enviar no Discord</a>
+            </div>
+
+            <!-- Grid de Álbuns -->
+            <div id="galleryGrid" class="gallery-grid">
+                
+                <!-- ================= TEMPORADA 9 ================= -->
+
+                <!-- Álbum: Junin Boss (Temporada 9) -->
+                <div class="album-card" data-season="9" data-images="Images/9_Temporada/Junin_Boss1.png, Images/9_Temporada/junin_Boss2.png">
+                    <div class="album-cover">
+                        <img src="Images/9_Temporada/Junin_Boss1.png" alt="Capa do álbum Junin Boss">
+                        <div class="album-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="width: 16px; height: 16px; display: block; color: white;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" /></svg>
+                        </div>
+                    </div>
+                    <h3 class="album-title">Junin Boss</h3>
+                    <div class="album-author-info">
+                        <img class="album-author-avatar" src="https://mc-heads.net/avatar/juninww7/16" alt="Avatar juninww7">
+                        <span class="album-author-name">juninww7</span>
+                    </div>
+                </div>
+
+                <!-- ================= TEMPORADA 8 ================= -->
+
+                <!-- Álbum 1: Dominantbat8868 (Temporada 8) -->
+                <div class="album-card" data-season="8" data-images="Images/8_Temporada/Dominantbat8868.png, Images/8_Temporada/Dominantbat8868_LucasGG21_Kasumiplayer_Teddit3.png">
+                    <div class="album-cover">
+                        <img src="Images/8_Temporada/Dominantbat8868.png" alt="Capa do álbum Dominantbat8868">
+                        <div class="album-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="width: 16px; height: 16px; display: block; color: white;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" /></svg>
+                        </div>
+                    </div>
+                    <h3 class="album-title">Álbum Dominantbat8868</h3>
+                    <div class="album-author-info">
+                        <img class="album-author-avatar" src="https://mc-heads.net/avatar/Dominantbat8868/16" alt="Avatar Dominantbat8868">
+                        <span class="album-author-name">Dominantbat8868</span>
+                    </div>
+                </div>
+
+                <!-- Álbum 2: Donos (Temporada 8) -->
+                <div class="album-card" data-season="8" data-images="Images/8_Temporada/Fabiofr32_&_KellCerejinha.png">
+                    <div class="album-cover">
+                        <img src="Images/8_Temporada/Fabiofr32_&_KellCerejinha.png" alt="Capa do álbum dos Donos">
+                    </div>
+                    <h3 class="album-title">Álbum dos Donos</h3>
+                    <div class="album-author-info">
+                        <img class="album-author-avatar" src="https://mc-heads.net/avatar/fabiofr32/16" alt="Avatar fabiofr32">
+                        <span class="album-author-name">fabiofr32 & Kell</span>
+                    </div>
+                </div>
+
+                <!-- Álbum 3: Lizamior (Temporada 8) -->
+                <div class="album-card" data-season="8" data-images="Images/8_Temporada/Lizamior.png">
+                    <div class="album-cover">
+                        <img src="Images/8_Temporada/Lizamior.png" alt="Capa do álbum Lizamior">
+                    </div>
+                    <h3 class="album-title">Álbum Lizamior</h3>
+                    <div class="album-author-info">
+                        <img class="album-author-avatar" src="https://mc-heads.net/avatar/Lizamior/16" alt="Avatar Lizamior">
+                        <span class="album-author-name">Lizamior</span>
+                    </div>
+                </div>
+
+                <!-- Álbum 4: MagoGG (Temporada 8) -->
+                <div class="album-card" data-season="8" data-images="Images/8_Temporada/MagoGG .png">
+                    <div class="album-cover">
+                        <img src="Images/8_Temporada/MagoGG .png" alt="Capa do álbum MagoGG">
+                    </div>
+                    <h3 class="album-title">Álbum MagoGG</h3>
+                    <div class="album-author-info">
+                        <img class="album-author-avatar" src="https://mc-heads.net/avatar/MagoGG/16" alt="Avatar MagoGG">
+                        <span class="album-author-name">MagoGG</span>
+                    </div>
+                </div>
+
+                <!-- Álbum 5: MenottinhoGG (Temporada 8) -->
+                <div class="album-card" data-season="8" data-images="Images/8_Temporada/MenottinhoGG.png">
+                    <div class="album-cover">
+                        <img src="Images/8_Temporada/MenottinhoGG.png" alt="Capa do álbum MenottinhoGG">
+                    </div>
+                    <h3 class="album-title">Álbum MenottinhoGG</h3>
+                    <div class="album-author-info">
+                        <img class="album-author-avatar" src="https://mc-heads.net/avatar/MenottinhoGG/16" alt="Avatar MenottinhoGG">
+                        <span class="album-author-name">MenottinhoGG</span>
+                    </div>
+                </div>
+
+                <!-- Álbum 6: Paulo_minoso128 (Temporada 8) -->
+                <div class="album-card" data-season="8" data-images="Images/8_Temporada/Paulo_minoso128.png, Images/8_Temporada/Paulo_minoso128_1.png">
+                    <div class="album-cover">
+                        <img src="Images/8_Temporada/Paulo_minoso128.png" alt="Capa do álbum Paulo_minoso128">
+                        <div class="album-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="width: 16px; height: 16px; display: block; color: white;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" /></svg>
+                        </div>
+                    </div>
+                    <h3 class="album-title">Álbum Paulo_minoso128</h3>
+                    <div class="album-author-info">
+                        <img class="album-author-avatar" src="https://mc-heads.net/avatar/Paulo_minoso128/16" alt="Avatar Paulo_minoso128">
+                        <span class="album-author-name">Paulo_minoso128</span>
+                    </div>
+                </div>
+
+                <!-- Álbum 7: Teddit3 (Temporada 8) -->
+                <div class="album-card" data-season="8" data-images="Images/8_Temporada/Teddit3.png">
+                    <div class="album-cover">
+                        <img src="Images/8_Temporada/Teddit3.png" alt="Capa do álbum Teddit3">
+                    </div>
+                    <h3 class="album-title">Álbum Teddit3</h3>
+                    <div class="album-author-info">
+                        <img class="album-author-avatar" src="https://mc-heads.net/avatar/Teddit3/16" alt="Avatar Teddit3">
+                        <span class="album-author-name">Teddit3</span>
+                    </div>
+                </div>
+
+                <!-- Álbum 8: klausconzati (Temporada 8) -->
+                <div class="album-card" data-season="8" data-images="Images/8_Temporada/klausconzati.png">
+                    <div class="album-cover">
+                        <img src="Images/8_Temporada/klausconzati.png" alt="Capa do álbum klausconzati">
+                    </div>
+                    <h3 class="album-title">Álbum klausconzati</h3>
+                    <div class="album-author-info">
+                        <img class="album-author-avatar" src="https://mc-heads.net/avatar/klausconzati/16" alt="Avatar klausconzati">
+                        <span class="album-author-name">klausconzati</span>
+                    </div>
+                </div>
+
+                <!-- ================= TEMPORADA 7 ================= -->
+                
+                <!-- Álbum 1: Vale do Yneeo -->
+                <div class="album-card" data-season="7" data-images="Images/7_Temporada/lago_do_vale_yneeo.png, Images/7_Temporada/vale_yneoo_up.png, Images/7_Temporada/casa_hotbit_vale_yneoo.png">
+                    <div class="album-cover">
+                        <img src="Images/7_Temporada/lago_do_vale_yneeo.png" alt="Capa do Vale do Yneeo">
+                        <div class="album-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="width: 16px; height: 16px; display: block; color: white;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" /></svg>
+                        </div>
+                    </div>
+                    <h3 class="album-title">Álbum yNeoo</h3>
+                    <div class="album-author-info">
+                        <img class="album-author-avatar" src="https://mc-heads.net/avatar/yNeoo/16" alt="Avatar yNeoo">
+                        <span class="album-author-name">yNeoo</span>
+                    </div>
+                </div>
+
+                <!-- Álbum 3: Casa de Xdarkzin -->
+                <div class="album-card" data-season="7" data-images="Images/7_Temporada/dark_house_1.png, Images/7_Temporada/dark_house2.png">
+                    <div class="album-cover">
+                        <img src="Images/7_Temporada/dark_house_1.png" alt="Capa da Casa de Xdarkzin">
+                        <div class="album-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="width: 16px; height: 16px; display: block; color: white;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" /></svg>
+                        </div>
+                    </div>
+                    <h3 class="album-title">Álbum Xdarkzin</h3>
+                    <div class="album-author-info">
+                        <img class="album-author-avatar" src="https://mc-heads.net/avatar/XDarkzin1_1X/16" alt="Avatar XDarkzin1_1X">
+                        <span class="album-author-name">XDarkzin1_1X</span>
+                    </div>
+                </div>
+
+                <!-- Álbum 4: Spawn -->
+                <div class="album-card" data-season="7" data-images="Images/7_Temporada/iamgem_fundo.png, Images/7_Temporada/junin_dragon.png, Images/7_Temporada/Kraken_kellcerejinha.png, Images/7_Temporada/Garota_anime_dark.png">
+                    <div class="album-cover">
+                        <img src="Images/7_Temporada/iamgem_fundo.png" alt="Capa do Spawn">
+                        <div class="album-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="width: 16px; height: 16px; display: block; color: white;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" /></svg>
+                        </div>
+                    </div>
+                    <h3 class="album-title">Spawn</h3>
+                    <div class="album-author-info">
+                        <img class="album-author-avatar" src="https://mc-heads.net/avatar/fabiofr32/16" alt="Avatar Admin">
+                        <span class="album-author-name">Admin</span>
+                    </div>
+                </div>
+
+                <!-- Álbum 5: Casa do Admin -->
+                <div class="album-card" data-season="7" data-images="Images/7_Temporada/vila_grega_kell_fabio.png, Images/7_Temporada/vila_grega2_fabio_kell.png, Images/7_Temporada/vila_grega3_kell_fabio.png">
+                    <div class="album-cover">
+                        <img src="Images/7_Temporada/vila_grega_kell_fabio.png" alt="Capa da Casa do Admin">
+                        <div class="album-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="width: 16px; height: 16px; display: block; color: white;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" /></svg>
+                        </div>
+                    </div>
+                    <h3 class="album-title">Álbum dos Admin</h3>
+                    <div class="album-author-info">
+                        <img class="album-author-avatar" src="https://mc-heads.net/avatar/Kellcerejinha/16" alt="Avatar Kellcerejinha">
+                        <span class="album-author-name">Kellcerejinha</span>
+                    </div>
+                </div>
+
+                <!-- Álbum 6: Casa junin -->
+                <div class="album-card" data-season="7" data-images="Images/7_Temporada/junin_House.png">
+                    <div class="album-cover">
+                        <img src="Images/7_Temporada/junin_House.png" alt="Capa da Casa junin">
+                    </div>
+                    <h3 class="album-title">Álbum junin</h3>
+                    <div class="album-author-info">
+                        <img class="album-author-avatar" src="https://mc-heads.net/avatar/juniordagoiba/16" alt="Avatar juniordagoiba">
+                        <span class="album-author-name">juniordagoiba</span>
+                    </div>
+                </div>
+
+                <!-- Álbum 7: Casa Master -->
+                <div class="album-card" data-season="7" data-images="Images/7_Temporada/Master_house.png">
+                    <div class="album-cover">
+                        <img src="Images/7_Temporada/Master_house.png" alt="Capa da Casa Master">
+                    </div>
+                    <h3 class="album-title">Álbum masterdobudhaa</h3>
+                    <div class="album-author-info">
+                        <img class="album-author-avatar" src="https://mc-heads.net/avatar/masterdobudhaa/16" alt="Avatar masterdobudhaa">
+                        <span class="album-author-name">masterdobudhaa</span>
+                    </div>
+                </div>
+
+                <!-- Álbum 8: Casa Lxzin -->
+                <div class="album-card" data-season="7" data-images="Images/7_Temporada/templo_lxzin.png">
+                    <div class="album-cover">
+                        <img src="Images/7_Temporada/templo_lxzin.png" alt="Capa da Casa Lxzin">
+                    </div>
+                    <h3 class="album-title">Álbum Lxzinho4261</h3>
+                    <div class="album-author-info">
+                        <img class="album-author-avatar" src="https://mc-heads.net/avatar/Lxzinho4261/16" alt="Avatar Lxzinho4261">
+                        <span class="album-author-name">Lxzinho4261</span>
+                    </div>
+                </div>
+
+                <!-- Álbum 9: Casa eriick_silvaxs -->
+                <div class="album-card" data-season="7" data-images="Images/7_Temporada/erick_silvas_House.png">
+                    <div class="album-cover">
+                        <img src="Images/7_Temporada/erick_silvas_House.png" alt="Capa da Casa eriick_silvaxs">
+                    </div>
+                    <h3 class="album-title">Álbum eriick_silvaxs</h3>
+                    <div class="album-author-info">
+                        <img class="album-author-avatar" src="https://mc-heads.net/avatar/eriick_silvaxs/16" alt="Avatar eriick_silvaxs">
+                        <span class="album-author-name">eriick_silvaxs</span>
                     </div>
                 </div>
 
@@ -660,6 +1468,153 @@
             requestAnimationFrame(animateParticles);
         }
         animateParticles();
+
+        // --- LÓGICA DA GALERIA DE FOTOS ---
+        function setupGallery() {
+            const modal = document.getElementById('albumModal');
+            if (!modal) return;
+
+            const modalImg = document.getElementById('modalImage');
+            const closeModalBtn = document.querySelector('.close-modal');
+            const prevBtn = document.querySelector('.prev-slide');
+            const nextBtn = document.querySelector('.next-slide');
+            const counter = document.querySelector('.slide-counter');
+            const albumCards = document.querySelectorAll('.album-card');
+            const seasonTabs = document.querySelectorAll('.season-tab');
+            const emptyState = document.getElementById('emptyState');
+            const emptyStateTitle = document.getElementById('emptyStateTitle');
+            const galleryGrid = document.getElementById('galleryGrid');
+
+            let currentAlbumImages = [];
+            let currentImageIndex = 0;
+
+            // Auto-slideshow de capa para álbuns com múltiplas imagens
+            albumCards.forEach(card => {
+                const images = card.dataset.images.split(',');
+                if (images.length > 1) {
+                    card.setAttribute('data-multiple-images', 'true');
+                    let coverIndex = 0;
+                    const coverImage = card.querySelector('.album-cover img');
+                    setInterval(() => {
+                        if (card.classList.contains('hidden')) return;
+                        coverIndex = (coverIndex + 1) % images.length;
+                        coverImage.style.opacity = '0';
+                        setTimeout(() => {
+                            coverImage.src = images[coverIndex].trim();
+                            coverImage.style.opacity = '1';
+                        }, 500);
+                    }, 4000);
+                }
+            });
+
+            // Filtragem de Temporadas
+            function filterSeason(season) {
+                let foundAny = false;
+                albumCards.forEach(card => {
+                    const cardSeason = card.getAttribute('data-season');
+                    if (cardSeason === season) {
+                        card.classList.remove('hidden');
+                        foundAny = true;
+                    } else {
+                        card.classList.add('hidden');
+                    }
+                });
+
+                if (foundAny) {
+                    if (emptyState) emptyState.classList.add('hidden');
+                    if (galleryGrid) galleryGrid.classList.remove('hidden');
+                } else {
+                    if (galleryGrid) galleryGrid.classList.add('hidden');
+                    if (emptyState) {
+                        if (emptyStateTitle) {
+                            emptyStateTitle.textContent = `Temporada ${season} Sem Registros`;
+                        }
+                        emptyState.classList.remove('hidden');
+                    }
+                }
+            }
+
+            // Configuração dos ouvintes nas abas de temporada
+            seasonTabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    const season = tab.getAttribute('data-target-season');
+                    if (!season) return;
+
+                    // Atualizar abas
+                    seasonTabs.forEach(t => t.classList.remove('active'));
+                    tab.classList.add('active');
+
+                    // Filtrar álbuns
+                    filterSeason(season);
+                });
+            });
+
+            // Inicializar com a Temporada 9 selecionada
+            filterSeason("9");
+
+            function showImage(index) {
+                modalImg.src = currentAlbumImages[index];
+                counter.textContent = `${index + 1} / ${currentAlbumImages.length}`;
+            }
+
+            function openModalWithAlbum(albumCard) {
+                currentAlbumImages = albumCard.dataset.images.split(',').map(img => img.trim());
+                currentImageIndex = 0;
+
+                if (currentAlbumImages.length <= 1) {
+                    if(prevBtn) prevBtn.style.display = 'none';
+                    if(nextBtn) nextBtn.style.display = 'none';
+                    if(counter) counter.style.display = 'none';
+                } else {
+                    if(prevBtn) prevBtn.style.display = 'block';
+                    if(nextBtn) nextBtn.style.display = 'block';
+                    if(counter) counter.style.display = 'block';
+                }
+
+                showImage(currentImageIndex);
+                modal.classList.add('show');
+            }
+
+            albumCards.forEach(card => {
+                card.addEventListener('click', () => openModalWithAlbum(card));
+            });
+
+            if(nextBtn) nextBtn.addEventListener('click', () => {
+                if (currentAlbumImages.length === 0) return;
+                currentImageIndex = (currentImageIndex + 1) % currentAlbumImages.length;
+                showImage(currentImageIndex);
+            });
+
+            if(prevBtn) prevBtn.addEventListener('click', () => {
+                if (currentAlbumImages.length === 0) return;
+                currentImageIndex = (currentImageIndex - 1 + currentAlbumImages.length) % currentAlbumImages.length;
+                showImage(currentImageIndex);
+            });
+
+            const closeModal = () => modal.classList.remove('show');
+            if(closeModalBtn) closeModalBtn.addEventListener('click', closeModal);
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    closeModal();
+                }
+            });
+        }
+
+        // Inicializa a Galeria
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', setupGallery);
+        } else {
+            setupGallery();
+        }
     </script>
+
+    <!-- O Modal (Slideshow de Fotos) -->
+    <div id="albumModal" class="modal">
+        <span class="close-modal">&times;</span>
+        <img class="modal-content" id="modalImage">
+        <a class="prev-slide">&#10094;</a>
+        <a class="next-slide">&#10095;</a>
+        <div class="slide-counter"></div>
+    </div>
 </body>
 </html>

@@ -40,10 +40,15 @@ document.addEventListener('DOMContentLoaded', () => {
         const nextBtn = document.querySelector('.next-slide');
         const counter = document.querySelector('.slide-counter');
         const albumCards = document.querySelectorAll('.album-card');
+        const seasonTabs = document.querySelectorAll('.season-tab');
+        const emptyState = document.getElementById('emptyState');
+        const emptyStateTitle = document.getElementById('emptyStateTitle');
+        const galleryGrid = document.getElementById('galleryGrid');
 
         let currentAlbumImages = [];
         let currentImageIndex = 0;
 
+        // Auto-slideshow de capa para álbuns com múltiplas imagens
         albumCards.forEach(card => {
             const images = card.dataset.images.split(',');
             if (images.length > 1) {
@@ -51,6 +56,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 let coverIndex = 0;
                 const coverImage = card.querySelector('.album-cover img');
                 setInterval(() => {
+                    // Só rotaciona se a capa estiver visível
+                    if (card.classList.contains('hidden')) return;
                     coverIndex = (coverIndex + 1) % images.length;
                     coverImage.style.opacity = '0';
                     setTimeout(() => {
@@ -60,6 +67,59 @@ document.addEventListener('DOMContentLoaded', () => {
                 }, 4000);
             }
         });
+
+        // Filtragem de Temporadas
+        function filterSeason(season) {
+            let foundAny = false;
+            albumCards.forEach(card => {
+                const cardSeason = card.getAttribute('data-season');
+                if (cardSeason === season) {
+                    card.classList.remove('hidden');
+                    foundAny = true;
+                } else {
+                    card.classList.add('hidden');
+                }
+            });
+
+            if (foundAny) {
+                if (emptyState) emptyState.classList.add('hidden');
+                if (galleryGrid) galleryGrid.classList.remove('hidden');
+            } else {
+                if (galleryGrid) galleryGrid.classList.add('hidden');
+                if (emptyState) {
+                    if (emptyStateTitle) {
+                        emptyStateTitle.textContent = `Temporada ${season} Sem Registros`;
+                    }
+                    emptyState.classList.remove('hidden');
+                }
+            }
+        }
+
+        // Configuração dos ouvintes nas abas de temporada
+        seasonTabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                const season = tab.getAttribute('data-target-season');
+                if (!season) return;
+
+                // Atualizar abas
+                seasonTabs.forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+
+                // Filtrar álbuns
+                filterSeason(season);
+            });
+        });
+
+        // Filtrar a Temporada 9 por padrão no carregamento
+        const activeTab = document.querySelector('.season-tab.active');
+        if (activeTab) {
+            const defaultSeason = activeTab.getAttribute('data-target-season');
+            if (defaultSeason) {
+                filterSeason(defaultSeason);
+            }
+        } else {
+            filterSeason("9"); // Fallback
+        }
 
         function showImage(index) {
             modalImg.src = currentAlbumImages[index];
