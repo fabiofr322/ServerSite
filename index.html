@@ -956,6 +956,397 @@
                 font-size: 18px;
             }
         }
+
+        /* Seção de Rankings */
+        .rankings-section {
+            margin-top: 5rem;
+            text-align: center;
+            animation: fadeInUp 1s ease 2.0s both;
+            width: 100%;
+            max-width: 1000px;
+        }
+
+        .rankings-title {
+            font-family: 'Press Start 2P', cursive;
+            font-size: clamp(0.9rem, 2vw, 1.2rem);
+            color: #8b00ff;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            margin-bottom: 0.5rem;
+            text-shadow: 0 0 10px rgba(139, 0, 255, 0.4);
+            background: linear-gradient(135deg, #8b00ff, #ff1493);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .rankings-subtitle {
+            font-size: clamp(0.75rem, 1.5vw, 0.95rem);
+            color: rgba(255, 255, 255, 0.5);
+            margin-bottom: 2.5rem;
+            font-weight: 300;
+            letter-spacing: 1px;
+        }
+
+        .rankings-controls {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            align-items: center;
+            margin-bottom: 2.5rem;
+        }
+
+        /* Abas de Tracker */
+        .tracker-tabs {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            width: 100%;
+        }
+
+        .tracker-tab {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(139, 0, 255, 0.08);
+            border: 1px solid rgba(139, 0, 255, 0.25);
+            padding: 10px 16px;
+            border-radius: 12px;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.85rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
+            backdrop-filter: blur(8px);
+        }
+
+        .tracker-tab:hover {
+            border-color: rgba(255, 20, 147, 0.5);
+            color: #fff;
+            transform: translateY(-2px);
+            background: rgba(255, 20, 147, 0.1);
+            box-shadow: 0 5px 15px rgba(255, 20, 147, 0.2);
+        }
+
+        .tracker-tab.active {
+            background: linear-gradient(135deg, rgba(139, 0, 255, 0.25), rgba(255, 20, 147, 0.25));
+            border-color: #ff1493;
+            color: #fff;
+            box-shadow: 0 0 20px rgba(255, 20, 147, 0.35);
+            font-weight: 700;
+        }
+
+        /* Abas de Período */
+        .period-tabs {
+            display: flex;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            padding: 4px;
+            border-radius: 30px;
+            gap: 4px;
+        }
+
+        .period-btn {
+            background: transparent;
+            border: none;
+            padding: 8px 18px;
+            color: rgba(255, 255, 255, 0.6);
+            font-family: 'Outfit', sans-serif;
+            font-weight: 700;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .period-btn:hover {
+            color: #fff;
+        }
+
+        .period-btn.active {
+            background: #ff1493;
+            color: #fff;
+            box-shadow: 0 4px 15px rgba(255, 20, 147, 0.4);
+        }
+
+        /* Rankings Container */
+        .rankings-content {
+            position: relative;
+            background: rgba(13, 0, 26, 0.4);
+            border: 1px solid rgba(139, 0, 255, 0.15);
+            border-radius: 24px;
+            padding: 2.5rem;
+            backdrop-filter: blur(15px);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
+            min-height: 400px;
+            width: 100%;
+        }
+
+        /* Podium */
+        .podium-container {
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+            gap: 2rem;
+            margin-bottom: 3rem;
+            padding-top: 1rem;
+        }
+
+        .podium-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 180px;
+            transition: transform 0.3s ease;
+        }
+
+        .podium-item:hover {
+            transform: translateY(-5px);
+        }
+
+        .podium-item .avatar-wrapper {
+            position: relative;
+            margin-bottom: 1rem;
+        }
+
+        .podium-item .avatar-wrapper img {
+            width: 80px;
+            height: 80px;
+            border-radius: 16px;
+            image-rendering: pixelated;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+            transition: transform 0.3s ease;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .podium-item:hover .avatar-wrapper img {
+            transform: scale(1.05);
+        }
+
+        .podium-item .avatar-crown {
+            position: absolute;
+            top: -24px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 1.8rem;
+            filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.5));
+            animation: floatCrown 3s ease-in-out infinite;
+        }
+
+        @keyframes floatCrown {
+            0%, 100% { transform: translate(-50%, 0); }
+            50% { transform: translate(-50%, -4px); }
+        }
+
+        .podium-item .rank-badge {
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 10px;
+            color: #fff;
+            border: 2px solid;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        /* 1st Place specific styling */
+        .podium-item.first {
+            order: 2;
+            transform: scale(1.1) translateY(-10px);
+        }
+        .podium-item.first:hover {
+            transform: scale(1.1) translateY(-15px);
+        }
+        .podium-item.first .avatar-wrapper img {
+            width: 96px;
+            height: 96px;
+            border: 3px solid #ffaa00;
+            box-shadow: 0 0 25px rgba(255, 170, 0, 0.4);
+        }
+        .podium-item.first .rank-badge {
+            background: #ffaa00;
+            border-color: #ffaa00;
+            color: #0d001a;
+            font-size: 11px;
+            width: 32px;
+            height: 32px;
+        }
+        .podium-item.first .player-name {
+            color: #ffaa00;
+            text-shadow: 0 0 10px rgba(255, 170, 0, 0.3);
+        }
+
+        /* 2nd Place specific styling */
+        .podium-item.second {
+            order: 1;
+        }
+        .podium-item.second .avatar-wrapper img {
+            border: 2.5px solid #d1d5db;
+            box-shadow: 0 0 15px rgba(209, 213, 220, 0.25);
+        }
+        .podium-item.second .rank-badge {
+            background: #d1d5db;
+            border-color: #d1d5db;
+            color: #0d001a;
+        }
+
+        /* 3rd Place specific styling */
+        .podium-item.third {
+            order: 3;
+        }
+        .podium-item.third .avatar-wrapper img {
+            border: 2.5px solid #cd7f32;
+            box-shadow: 0 0 15px rgba(205, 127, 50, 0.25);
+        }
+        .podium-item.third .rank-badge {
+            background: #cd7f32;
+            border-color: #cd7f32;
+            color: #ffffff;
+        }
+
+        .podium-item .player-name {
+            font-family: 'Press Start 2P', cursive;
+            font-size: 0.75rem;
+            margin-top: 0.8rem;
+            color: #fff;
+            letter-spacing: 1px;
+            word-break: break-all;
+            max-width: 100%;
+        }
+
+        .podium-item .player-score {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: rgba(255, 255, 255, 0.7);
+            margin-top: 0.3rem;
+        }
+
+        /* Ranks 4-10 list */
+        .rank-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        .rank-list-item {
+            display: flex;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 12px 20px;
+            border-radius: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .rank-list-item:hover {
+            transform: translateX(5px);
+            background: rgba(139, 0, 255, 0.05);
+            border-color: rgba(139, 0, 255, 0.2);
+        }
+
+        .rank-list-item .item-position {
+            font-family: 'Press Start 2P', cursive;
+            font-size: 0.75rem;
+            width: 40px;
+            color: rgba(255, 255, 255, 0.4);
+            text-align: left;
+        }
+
+        .rank-list-item .item-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            image-rendering: pixelated;
+            margin-right: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .rank-list-item .item-name {
+            font-family: 'Outfit', sans-serif;
+            font-weight: 700;
+            font-size: 1rem;
+            color: #fff;
+            text-align: left;
+            flex-grow: 1;
+        }
+
+        .rank-list-item .item-score {
+            font-family: 'Outfit', sans-serif;
+            font-weight: 900;
+            font-size: 1.1rem;
+            color: #ff1493;
+            text-shadow: 0 0 10px rgba(255, 20, 147, 0.3);
+        }
+
+        /* Loading / Error styles */
+        .rankings-loading {
+            padding: 3rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+        }
+        .rankings-loading p {
+            color: rgba(255,255,255,0.6);
+        }
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(139, 0, 255, 0.1);
+            border-top-color: #ff1493;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .rankings-empty {
+            padding: 4rem 2rem;
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 0.95rem;
+        }
+
+        @media (max-width: 768px) {
+            .podium-container {
+                flex-direction: column;
+                align-items: center;
+                gap: 3rem;
+            }
+            .podium-item {
+                width: 100%;
+                max-width: 220px;
+            }
+            .podium-item.first {
+                order: 1;
+                transform: none;
+            }
+            .podium-item.first:hover {
+                transform: translateY(-5px);
+            }
+            .podium-item.second {
+                order: 2;
+            }
+            .podium-item.third {
+                order: 3;
+            }
+            .rankings-content {
+                padding: 1.5rem 1rem;
+            }
+        }
     </style>
 <base target="_blank">
 </head>
@@ -1048,47 +1439,127 @@
                 <!-- Veterano 1 -->
                 <div class="veteran-card">
                     <div class="veteran-glow"></div>
-                    <img src="https://mc-heads.net/body/yNeoo/100" alt="yNeoo" class="veteran-skin">
+                    <img src="https://mc-heads.net/body/lownezz11/100" alt="lownezz11" class="veteran-skin">
                     <div class="veteran-info">
-                        <span class="veteran-name">yNeoo</span>
+                        <span class="veteran-name">lownezz11</span>
                         <span class="veteran-badge">Pioneiro</span>
-                        <span class="veteran-desc">Desde a versão alfa</span>
+                        <span class="veteran-desc">Mestre da economia</span>
                     </div>
                 </div>
 
                 <!-- Veterano 2 -->
                 <div class="veteran-card">
                     <div class="veteran-glow"></div>
-                    <img src="https://mc-heads.net/body/XDarkzin1_1X/100" alt="XDarkzin1_1X" class="veteran-skin">
+                    <img src="https://mc-heads.net/body/AfterDarknz/100" alt="AfterDarknz" class="veteran-skin">
                     <div class="veteran-info">
-                        <span class="veteran-name">XDarkzin1_1X</span>
+                        <span class="veteran-name">AfterDarknz</span>
                         <span class="veteran-badge">Fundador</span>
-                        <span class="veteran-desc">Primeiro construtor</span>
+                        <span class="veteran-desc">Desde a versão alfa</span>
                     </div>
                 </div>
 
                 <!-- Veterano 3 -->
                 <div class="veteran-card">
                     <div class="veteran-glow"></div>
-                    <img src="https://mc-heads.net/body/juniordagoiba/100" alt="juniordagoiba" class="veteran-skin">
+                    <img src="https://mc-heads.net/body/juninww7/100" alt="juninww7" class="veteran-skin">
                     <div class="veteran-info">
-                        <span class="veteran-name">juniordagoiba</span>
+                        <span class="veteran-name">juninww7</span>
                         <span class="veteran-badge">Lenda</span>
-                        <span class="veteran-desc">Explorador incansável</span>
+                        <span class="veteran-desc">Líder</span>
                     </div>
                 </div>
 
                 <!-- Veterano 4 -->
                 <div class="veteran-card">
                     <div class="veteran-glow"></div>
-                    <img src="https://mc-heads.net/body/eriick_silvaxs/100" alt="eriick_silvaxs" class="veteran-skin">
+                    <img src="https://mc-heads.net/body/raquel5939/100" alt="raquel5939" class="veteran-skin">
                     <div class="veteran-info">
-                        <span class="veteran-name">eriick_silvaxs</span>
-                        <span class="veteran-badge">Fiel</span>
-                        <span class="veteran-desc">Guerreiro do alfa</span>
+                        <span class="veteran-name">raquel5939</span>
+                        <span class="veteran-badge">Veterana</span>
+                        <span class="veteran-desc">Construtora</span>
                     </div>
                 </div>
 
+                <!-- Veterano 5 -->
+                <div class="veteran-card">
+                    <div class="veteran-glow"></div>
+                    <img src="https://mc-heads.net/body/queirozkk/100" alt="queirozkk" class="veteran-skin">
+                    <div class="veteran-info">
+                        <span class="veteran-name">queirozkk</span>
+                        <span class="veteran-badge">Elite</span>
+                        <span class="veteran-desc">Guerreiro implacável</span>
+                    </div>
+                </div>
+
+                <!-- Veterano 6 -->
+                <div class="veteran-card">
+                    <div class="veteran-glow"></div>
+                    <img src="https://mc-heads.net/body/mikey/100" alt="mikey" class="veteran-skin">
+                    <div class="veteran-info">
+                        <span class="veteran-name">mikey</span>
+                        <span class="veteran-badge">Veterano</span>
+                        <span class="veteran-desc">Bobo da corte</span>
+                    </div>
+                </div>
+
+                <!-- Veterano 7 -->
+                <div class="veteran-card">
+                    <div class="veteran-glow"></div>
+                    <img src="https://mc-heads.net/body/lx_fr32/100" alt="lx_fr32" class="veteran-skin">
+                    <div class="veteran-info">
+                        <span class="veteran-name">lx_fr32</span>
+                        <span class="veteran-badge">Desbravador</span>
+                        <span class="veteran-desc">Explorador incansável</span>
+                    </div>
+                </div>
+
+                <!-- Veterano 8 -->
+                <div class="veteran-card">
+                    <div class="veteran-glow"></div>
+                    <img src="https://mc-heads.net/body/masterdobudhaa/100" alt="masterdobudhaa" class="veteran-skin">
+                    <div class="veteran-info">
+                        <span class="veteran-name">masterdobudhaa</span>
+                        <span class="veteran-badge">Sábio</span>
+                        <span class="veteran-desc">Mestre dos magos</span>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Seção de Rankings -->
+        <div class="rankings-section">
+            <h2 class="rankings-title">Estatísticas & Rankings</h2>
+            <p class="rankings-subtitle">Acompanhe os melhores jogadores do servidor em tempo real.</p>
+            
+            <div class="rankings-controls">
+                <div class="tracker-tabs" id="trackerTabs">
+                    <!-- Abas de tracker geradas dinamicamente -->
+                </div>
+                <div class="period-tabs" id="periodTabs">
+                    <button class="period-btn active" data-target-period="weekly">Semanal</button>
+                    <button class="period-btn" data-target-period="monthly">Mensal</button>
+                    <button class="period-btn" data-target-period="alltime">Geral</button>
+                </div>
+            </div>
+
+            <div class="rankings-content">
+                <!-- Podium para o Top 3 -->
+                <div class="podium-container" id="rankPodium"></div>
+
+                <!-- Lista para Ranks 4-10 -->
+                <div class="rank-list" id="rankList"></div>
+
+                <!-- Loading State -->
+                <div id="rankLoading" class="rankings-loading hidden">
+                    <div class="spinner"></div>
+                    <p>Carregando dados dos rankings...</p>
+                </div>
+
+                <!-- Empty State -->
+                <div id="rankEmpty" class="rankings-empty hidden">
+                    <p>Nenhum dado registrado para esta categoria.</p>
+                </div>
             </div>
         </div>
 
@@ -1600,11 +2071,223 @@
             });
         }
 
-        // Inicializa a Galeria
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', setupGallery);
-        } else {
+        // --- LÓGICA DOS RANKINGS ---
+        function setupRankings() {
+            const trackerTabsContainer = document.getElementById('trackerTabs');
+            const periodBtns = document.querySelectorAll('.period-btn');
+            const podiumContainer = document.getElementById('rankPodium');
+            const listContainer = document.getElementById('rankList');
+            const loadingState = document.getElementById('rankLoading');
+            const emptyState = document.getElementById('rankEmpty');
+
+            if (!trackerTabsContainer) return;
+
+            // Configuração dos Trackers
+            const TRACKER_META = {
+                minerador: { name: 'Minerador', icon: '⛏️' },
+                assassino: { name: 'Assassino', icon: '⚔️' },
+                sobrevivente: { name: 'Playtime', icon: '⏱️' },
+                pescador: { name: 'Pescador', icon: '🎣' },
+                construtor: { name: 'Construtor', icon: '🏗️' },
+                domador: { name: 'Domador', icon: '🐾' },
+                explorador: { name: 'Explorador', icon: '🗺️' },
+                cacador: { name: 'Caçador', icon: '🏹' }
+            };
+
+            // URL do Servidor Minecraft - Exposto via embedded HTTP Server
+            // O frontend tenta primeiro buscar os dados em tempo real através do proxy do Netlify (/api/ranks).
+            // Se falhar (ex: rodando localmente sem o proxy), tenta o arquivo estático ranks.json e depois deixa em branco.
+            const API_URL = '/api/ranks'; 
+
+            let ranksData = null;
+            let activeTracker = 'minerador';
+            let activePeriod = 'weekly';
+
+            // Gerar Abas de Tracker
+            let trackerTabsHtml = '';
+            Object.keys(TRACKER_META).forEach(key => {
+                const meta = TRACKER_META[key];
+                trackerTabsHtml += `<button class="tracker-tab" data-tracker="${key}">${meta.icon} ${meta.name}</button>`;
+            });
+            trackerTabsContainer.innerHTML = trackerTabsHtml;
+
+            const trackerTabs = document.querySelectorAll('.tracker-tab');
+            if (trackerTabs.length > 0) trackerTabs[0].classList.add('active');
+
+            // Renderização
+            function renderActiveRank() {
+                podiumContainer.innerHTML = '';
+                listContainer.innerHTML = '';
+                emptyState.classList.add('hidden');
+
+                let entries = [];
+                let isPlaceholder = false;
+
+                if (ranksData && ranksData[activeTracker]?.[activePeriod]) {
+                    entries = ranksData[activeTracker][activePeriod];
+                }
+
+                if (entries.length === 0) {
+                    isPlaceholder = true;
+                    // Se não estiver linkado ou não houver dados, gera 10 slots vazios ("Aguardando...")
+                    entries = Array.from({ length: 10 }, (_, i) => ({
+                        position: i + 1,
+                        playerName: 'MHF_Question',
+                        playerDisplayName: 'Aguardando...',
+                        score: 0,
+                        formattedScore: '-'
+                    }));
+                } else {
+                    entries = entries.map(e => ({
+                        ...e,
+                        playerDisplayName: e.playerName
+                    }));
+                }
+
+                // Top 3 (Podium)
+                const first = entries.find(e => e.position === 1);
+                const second = entries.find(e => e.position === 2);
+                const third = entries.find(e => e.position === 3);
+
+                let podiumHtml = '';
+
+                // 2º Lugar
+                if (second) {
+                    podiumHtml += `
+                        <div class="podium-item second" style="${isPlaceholder ? 'opacity: 0.3; filter: grayscale(1);' : ''}">
+                            <div class="avatar-wrapper">
+                                <img src="https://mc-heads.net/avatar/${second.playerName}/80" alt="${second.playerDisplayName}">
+                                <span class="rank-badge">2</span>
+                            </div>
+                            <span class="player-name">${second.playerDisplayName}</span>
+                            <span class="player-score">${second.formattedScore || second.score}</span>
+                        </div>
+                    `;
+                }
+
+                // 1º Lugar
+                if (first) {
+                    podiumHtml += `
+                        <div class="podium-item first" style="${isPlaceholder ? 'opacity: 0.3; filter: grayscale(1);' : ''}">
+                            <div class="avatar-wrapper">
+                                <span class="avatar-crown" style="${isPlaceholder ? 'opacity: 0.2;' : ''}">👑</span>
+                                <img src="https://mc-heads.net/avatar/${first.playerName}/96" alt="${first.playerDisplayName}">
+                                <span class="rank-badge">1</span>
+                            </div>
+                            <span class="player-name">${first.playerDisplayName}</span>
+                            <span class="player-score">${first.formattedScore || first.score}</span>
+                        </div>
+                    `;
+                }
+
+                // 3º Lugar
+                if (third) {
+                    podiumHtml += `
+                        <div class="podium-item third" style="${isPlaceholder ? 'opacity: 0.3; filter: grayscale(1);' : ''}">
+                            <div class="avatar-wrapper">
+                                <img src="https://mc-heads.net/avatar/${third.playerName}/80" alt="${third.playerDisplayName}">
+                                <span class="rank-badge">3</span>
+                            </div>
+                            <span class="player-name">${third.playerDisplayName}</span>
+                            <span class="player-score">${third.formattedScore || third.score}</span>
+                        </div>
+                    `;
+                }
+
+                podiumContainer.innerHTML = podiumHtml;
+
+                // Ranks 4-10 (List)
+                const listEntries = entries.filter(e => e.position > 3);
+                let listHtml = '';
+                listEntries.forEach(entry => {
+                    listHtml += `
+                        <div class="rank-list-item" style="${isPlaceholder ? 'opacity: 0.3; filter: grayscale(1);' : ''}">
+                            <span class="item-position">${entry.position}º</span>
+                            <img class="item-avatar" src="https://mc-heads.net/avatar/${entry.playerName}/32" alt="${entry.playerDisplayName}">
+                            <span class="item-name">${entry.playerDisplayName}</span>
+                            <span class="item-score">${entry.formattedScore || entry.score}</span>
+                        </div>
+                    `;
+                });
+                listContainer.innerHTML = listHtml;
+            }
+
+            // Buscar Dados
+            async function fetchRanks() {
+                loadingState.classList.remove('hidden');
+                podiumContainer.classList.add('hidden');
+                listContainer.classList.add('hidden');
+
+                try {
+                    // Tenta a API real-time do servidor de Minecraft
+                    const controller = new AbortController();
+                    const timeoutId = setTimeout(() => controller.abort(), 3000);
+                    const response = await fetch(API_URL, { signal: controller.signal });
+                    clearTimeout(timeoutId);
+                    
+                    if (!response.ok) throw new Error('API do Minecraft offline');
+                    const data = await response.json();
+                    ranksData = data.ranks;
+                    console.log("Rankings carregados em tempo real do servidor Minecraft!");
+                } catch (error) {
+                    console.warn("Sem conexão direta com a API do servidor de Minecraft, tentando fallback ranks.json...", error);
+                    try {
+                        // Tenta arquivo estático de fallback
+                        const controller = new AbortController();
+                        const timeoutId = setTimeout(() => controller.abort(), 2000);
+                        const fallbackResponse = await fetch('ranks.json', { signal: controller.signal });
+                        clearTimeout(timeoutId);
+
+                        if (!fallbackResponse.ok) throw new Error('ranks.json indisponível');
+                        const data = await fallbackResponse.json();
+                        ranksData = data.ranks;
+                        console.log("Rankings carregados do fallback estático ranks.json!");
+                    } catch (fallbackError) {
+                        console.warn("Sem arquivos de ranking detectados. Deixando os rankings em branco conforme solicitado.", fallbackError);
+                        ranksData = null; // Mantém nulo para deixar em branco
+                    }
+                } finally {
+                    loadingState.classList.add('hidden');
+                    podiumContainer.classList.remove('hidden');
+                    listContainer.classList.remove('hidden');
+                    renderActiveRank();
+                }
+            }
+
+            // Ouvintes de Clique nos Trackers
+            trackerTabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    trackerTabs.forEach(t => t.classList.remove('active'));
+                    tab.classList.add('active');
+                    activeTracker = tab.dataset.tracker;
+                    renderActiveRank();
+                });
+            });
+
+            // Ouvintes de Clique nos Períodos
+            periodBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    periodBtns.forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    activePeriod = btn.dataset.targetPeriod;
+                    renderActiveRank();
+                });
+            });
+
+            // Carregamento Inicial
+            fetchRanks();
+        }
+
+        // Inicializa a Galeria e os Rankings
+        function initializeApp() {
             setupGallery();
+            setupRankings();
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initializeApp);
+        } else {
+            initializeApp();
         }
     </script>
 
