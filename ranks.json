@@ -1,0 +1,308 @@
+{
+  "ranks": {
+    "minerador": {
+      "weekly": [
+        { "position": 1, "playerName": "lownezz11", "score": 25420, "formattedScore": "25,420 blocos" },
+        { "position": 2, "playerName": "queirozkk", "score": 18230, "formattedScore": "18,230 blocos" },
+        { "position": 3, "playerName": "lx_fr32", "score": 15900, "formattedScore": "15,900 blocos" },
+        { "position": 4, "playerName": "juninww7", "score": 12450, "formattedScore": "12,450 blocos" },
+        { "position": 5, "playerName": "masterdobudhaa", "score": 10980, "formattedScore": "10,980 blocos" },
+        { "position": 6, "playerName": "AfterDarknz", "score": 8760, "formattedScore": "8,760 blocos" },
+        { "position": 7, "playerName": "Mikey_G2J", "score": 7540, "formattedScore": "7,540 blocos" },
+        { "position": 8, "playerName": "raquel5939", "score": 6430, "formattedScore": "6,430 blocos" },
+        { "position": 9, "playerName": "fabiofr32", "score": 5210, "formattedScore": "5,210 blocos" },
+        { "position": 10, "playerName": "KellCerejinha", "score": 4120, "formattedScore": "4,120 blocos" }
+      ],
+      "monthly": [
+        { "position": 1, "playerName": "lownezz11", "score": 98450, "formattedScore": "98,450 blocos" },
+        { "position": 2, "playerName": "lx_fr32", "score": 74500, "formattedScore": "74,500 blocos" },
+        { "position": 3, "playerName": "queirozkk", "score": 69200, "formattedScore": "69,200 blocos" },
+        { "position": 4, "playerName": "masterdobudhaa", "score": 54100, "formattedScore": "54,100 blocos" },
+        { "position": 5, "playerName": "juninww7", "score": 43200, "formattedScore": "43,200 blocos" },
+        { "position": 6, "playerName": "AfterDarknz", "score": 38900, "formattedScore": "38,900 blocos" },
+        { "position": 7, "playerName": "raquel5939", "score": 29800, "formattedScore": "29,800 blocos" },
+        { "position": 8, "playerName": "Mikey_G2J", "score": 24100, "formattedScore": "24,100 blocos" },
+        { "position": 9, "playerName": "fabiofr32", "score": 19800, "formattedScore": "19,800 blocos" },
+        { "position": 10, "playerName": "KellCerejinha", "score": 15400, "formattedScore": "15,400 blocos" }
+      ],
+      "alltime": [
+        { "position": 1, "playerName": "lownezz11", "score": 1540200, "formattedScore": "1,540,200 blocos" },
+        { "position": 2, "playerName": "lx_fr32", "score": 1210400, "formattedScore": "1,210,400 blocos" },
+        { "position": 3, "playerName": "queirozkk", "score": 984200, "formattedScore": "984,200 blocos" },
+        { "position": 4, "playerName": "masterdobudhaa", "score": 843900, "formattedScore": "843,900 blocos" },
+        { "position": 5, "playerName": "juninww7", "score": 759000, "formattedScore": "759,000 blocos" },
+        { "position": 6, "playerName": "AfterDarknz", "score": 690200, "formattedScore": "690,200 blocos" },
+        { "position": 7, "playerName": "raquel5939", "score": 542000, "formattedScore": "542,000 blocos" },
+        { "position": 8, "playerName": "Mikey_G2J", "score": 398000, "formattedScore": "398,000 blocos" },
+        { "position": 9, "playerName": "fabiofr32", "score": 341000, "formattedScore": "341,000 blocos" },
+        { "position": 10, "playerName": "KellCerejinha", "score": 298000, "formattedScore": "298,000 blocos" }
+      ]
+    },
+    "assassino": {
+      "weekly": [
+        { "position": 1, "playerName": "queirozkk", "score": 87, "formattedScore": "87 Kills" },
+        { "position": 2, "playerName": "lownezz11", "score": 54, "formattedScore": "54 Kills" },
+        { "position": 3, "playerName": "juninww7", "score": 42, "formattedScore": "42 Kills" },
+        { "position": 4, "playerName": "AfterDarknz", "score": 31, "formattedScore": "31 Kills" },
+        { "position": 5, "playerName": "lx_fr32", "score": 25, "formattedScore": "25 Kills" },
+        { "position": 6, "playerName": "Mikey_G2J", "score": 18, "formattedScore": "18 Kills" },
+        { "position": 7, "playerName": "masterdobudhaa", "score": 14, "formattedScore": "14 Kills" },
+        { "position": 8, "playerName": "fabiofr32", "score": 9, "formattedScore": "9 Kills" },
+        { "position": 9, "playerName": "raquel5939", "score": 5, "formattedScore": "5 Kills" },
+        { "position": 10, "playerName": "KellCerejinha", "score": 2, "formattedScore": "2 Kills" }
+      ],
+      "monthly": [
+        { "position": 1, "playerName": "queirozkk", "score": 342, "formattedScore": "342 Kills" },
+        { "position": 2, "playerName": "lownezz11", "score": 210, "formattedScore": "210 Kills" },
+        { "position": 3, "playerName": "juninww7", "score": 165, "formattedScore": "165 Kills" },
+        { "position": 4, "playerName": "AfterDarknz", "score": 124, "formattedScore": "124 Kills" },
+        { "position": 5, "playerName": "lx_fr32", "score": 98, "formattedScore": "98 Kills" },
+        { "position": 6, "playerName": "Mikey_G2J", "score": 75, "formattedScore": "75 Kills" },
+        { "position": 7, "playerName": "masterdobudhaa", "score": 53, "formattedScore": "53 Kills" },
+        { "position": 8, "playerName": "fabiofr32", "score": 34, "formattedScore": "34 Kills" },
+        { "position": 9, "playerName": "raquel5939", "score": 18, "formattedScore": "18 Kills" },
+        { "position": 10, "playerName": "KellCerejinha", "score": 10, "formattedScore": "10 Kills" }
+      ],
+      "alltime": [
+        { "position": 1, "playerName": "queirozkk", "score": 4510, "formattedScore": "4,510 Kills" },
+        { "position": 2, "playerName": "lownezz11", "score": 2980, "formattedScore": "2,980 Kills" },
+        { "position": 3, "playerName": "juninww7", "score": 1890, "formattedScore": "1,890 Kills" },
+        { "position": 4, "playerName": "AfterDarknz", "score": 1540, "formattedScore": "1,540 Kills" },
+        { "position": 5, "playerName": "lx_fr32", "score": 1210, "formattedScore": "1,210 Kills" },
+        { "position": 6, "playerName": "Mikey_G2J", "score": 870, "formattedScore": "870 Kills" },
+        { "position": 7, "playerName": "masterdobudhaa", "score": 640, "formattedScore": "640 Kills" },
+        { "position": 8, "playerName": "fabiofr32", "score": 430, "formattedScore": "430 Kills" },
+        { "position": 9, "playerName": "raquel5939", "score": 210, "formattedScore": "210 Kills" },
+        { "position": 10, "playerName": "KellCerejinha", "score": 105, "formattedScore": "105 Kills" }
+      ]
+    },
+    "sobrevivente": {
+      "weekly": [
+        { "position": 1, "playerName": "masterdobudhaa", "score": 3840, "formattedScore": "64h" },
+        { "position": 2, "playerName": "AfterDarknz", "score": 3480, "formattedScore": "58h" },
+        { "position": 3, "playerName": "raquel5939", "score": 2880, "formattedScore": "48h" },
+        { "position": 4, "playerName": "lownezz11", "score": 2700, "formattedScore": "45h" },
+        { "position": 5, "playerName": "lx_fr32", "score": 2160, "formattedScore": "36h" },
+        { "position": 6, "playerName": "queirozkk", "score": 1920, "formattedScore": "32h" },
+        { "position": 7, "playerName": "juninww7", "score": 1680, "formattedScore": "28h" },
+        { "position": 8, "playerName": "fabiofr32", "score": 1440, "formattedScore": "24h" },
+        { "position": 9, "playerName": "KellCerejinha", "score": 1080, "formattedScore": "18h" },
+        { "position": 10, "playerName": "Mikey_G2J", "score": 900, "formattedScore": "15h" }
+      ],
+      "monthly": [
+        { "position": 1, "playerName": "masterdobudhaa", "score": 14400, "formattedScore": "240h" },
+        { "position": 2, "playerName": "AfterDarknz", "score": 13200, "formattedScore": "220h" },
+        { "position": 3, "playerName": "raquel5939", "score": 11400, "formattedScore": "190h" },
+        { "position": 4, "playerName": "lownezz11", "score": 10200, "formattedScore": "170h" },
+        { "position": 5, "playerName": "lx_fr32", "score": 9000, "formattedScore": "150h" },
+        { "position": 6, "playerName": "queirozkk", "score": 8400, "formattedScore": "140h" },
+        { "position": 7, "playerName": "juninww7", "score": 7200, "formattedScore": "120h" },
+        { "position": 8, "playerName": "fabiofr32", "score": 6000, "formattedScore": "100h" },
+        { "position": 9, "playerName": "KellCerejinha", "score": 4800, "formattedScore": "80h" },
+        { "position": 10, "playerName": "Mikey_G2J", "score": 3600, "formattedScore": "60h" }
+      ],
+      "alltime": [
+        { "position": 1, "playerName": "masterdobudhaa", "score": 210000, "formattedScore": "3,500h" },
+        { "position": 2, "playerName": "AfterDarknz", "score": 192000, "formattedScore": "3,200h" },
+        { "position": 3, "playerName": "raquel5939", "score": 168000, "formattedScore": "2,800h" },
+        { "position": 4, "playerName": "lownezz11", "score": 150000, "formattedScore": "2,500h" },
+        { "position": 5, "playerName": "lx_fr32", "score": 132000, "formattedScore": "2,200h" },
+        { "position": 6, "playerName": "queirozkk", "score": 120000, "formattedScore": "2,000h" },
+        { "position": 7, "playerName": "juninww7", "score": 108000, "formattedScore": "1,800h" },
+        { "position": 8, "playerName": "fabiofr32", "score": 96000, "formattedScore": "1,600h" },
+        { "position": 9, "playerName": "KellCerejinha", "score": 84000, "formattedScore": "1,400h" },
+        { "position": 10, "playerName": "Mikey_G2J", "score": 72000, "formattedScore": "1,200h" }
+      ]
+    },
+    "pescador": {
+      "weekly": [
+        { "position": 1, "playerName": "raquel5939", "score": 890, "formattedScore": "890 peixes" },
+        { "position": 2, "playerName": "lownezz11", "score": 650, "formattedScore": "650 peixes" },
+        { "position": 3, "playerName": "AfterDarknz", "score": 580, "formattedScore": "580 peixes" },
+        { "position": 4, "playerName": "masterdobudhaa", "score": 420, "formattedScore": "420 peixes" },
+        { "position": 5, "playerName": "fabiofr32", "score": 380, "formattedScore": "380 peixes" },
+        { "position": 6, "playerName": "lx_fr32", "score": 310, "formattedScore": "310 peixes" },
+        { "position": 7, "playerName": "queirozkk", "score": 240, "formattedScore": "240 peixes" },
+        { "position": 8, "playerName": "juninww7", "score": 190, "formattedScore": "190 peixes" },
+        { "position": 9, "playerName": "Mikey_G2J", "score": 150, "formattedScore": "150 peixes" },
+        { "position": 10, "playerName": "KellCerejinha", "score": 90, "formattedScore": "90 peixes" }
+      ],
+      "monthly": [
+        { "position": 1, "playerName": "raquel5939", "score": 3400, "formattedScore": "3,400 peixes" },
+        { "position": 2, "playerName": "lownezz11", "score": 2800, "formattedScore": "2,800 peixes" },
+        { "position": 3, "playerName": "AfterDarknz", "score": 2400, "formattedScore": "2,400 peixes" },
+        { "position": 4, "playerName": "masterdobudhaa", "score": 1900, "formattedScore": "1,900 peixes" },
+        { "position": 5, "playerName": "fabiofr32", "score": 1600, "formattedScore": "1,600 peixes" },
+        { "position": 6, "playerName": "lx_fr32", "score": 1300, "formattedScore": "1,300 peixes" },
+        { "position": 7, "playerName": "queirozkk", "score": 1100, "formattedScore": "1,100 peixes" },
+        { "position": 8, "playerName": "juninww7", "score": 950, "formattedScore": "950 peixes" },
+        { "position": 9, "playerName": "Mikey_G2J", "score": 700, "formattedScore": "700 peixes" },
+        { "position": 10, "playerName": "KellCerejinha", "score": 450, "formattedScore": "450 peixes" }
+      ],
+      "alltime": [
+        { "position": 1, "playerName": "raquel5939", "score": 45800, "formattedScore": "45,800 peixes" },
+        { "position": 2, "playerName": "lownezz11", "score": 38900, "formattedScore": "38,900 peixes" },
+        { "position": 3, "playerName": "AfterDarknz", "score": 32100, "formattedScore": "32,100 peixes" },
+        { "position": 4, "playerName": "masterdobudhaa", "score": 27400, "formattedScore": "27,400 peixes" },
+        { "position": 5, "playerName": "fabiofr32", "score": 22100, "formattedScore": "22,100 peixes" },
+        { "position": 6, "playerName": "lx_fr32", "score": 18400, "formattedScore": "18,400 peixes" },
+        { "position": 7, "playerName": "queirozkk", "score": 15600, "formattedScore": "15,600 peixes" },
+        { "position": 8, "playerName": "juninww7", "score": 13400, "formattedScore": "13,400 peixes" },
+        { "position": 9, "playerName": "Mikey_G2J", "score": 11200, "formattedScore": "11,200 peixes" },
+        { "position": 10, "playerName": "KellCerejinha", "score": 8900, "formattedScore": "8,900 peixes" }
+      ]
+    },
+    "construtor": {
+      "weekly": [
+        { "position": 1, "playerName": "raquel5939", "score": 14200, "formattedScore": "14,200 blocos" },
+        { "position": 2, "playerName": "masterdobudhaa", "score": 9800, "formattedScore": "9,800 blocos" },
+        { "position": 3, "playerName": "lownezz11", "score": 8500, "formattedScore": "8,500 blocos" },
+        { "position": 4, "playerName": "AfterDarknz", "score": 6400, "formattedScore": "6,400 blocos" },
+        { "position": 5, "playerName": "juninww7", "score": 5200, "formattedScore": "5,200 blocos" },
+        { "position": 6, "playerName": "fabiofr32", "score": 4900, "formattedScore": "4,900 blocos" },
+        { "position": 7, "playerName": "lx_fr32", "score": 3800, "formattedScore": "3,800 blocos" },
+        { "position": 8, "playerName": "queirozkk", "score": 2700, "formattedScore": "2,700 blocos" },
+        { "position": 9, "playerName": "KellCerejinha", "score": 1900, "formattedScore": "1,900 blocos" },
+        { "position": 10, "playerName": "Mikey_G2J", "score": 1200, "formattedScore": "1,200 blocos" }
+      ],
+      "monthly": [
+        { "position": 1, "playerName": "raquel5939", "score": 59400, "formattedScore": "59,400 blocos" },
+        { "position": 2, "playerName": "masterdobudhaa", "score": 41200, "formattedScore": "41,200 blocos" },
+        { "position": 3, "playerName": "lownezz11", "score": 38500, "formattedScore": "38,500 blocos" },
+        { "position": 4, "playerName": "AfterDarknz", "score": 28400, "formattedScore": "28,400 blocos" },
+        { "position": 5, "playerName": "juninww7", "score": 24900, "formattedScore": "24,900 blocos" },
+        { "position": 6, "playerName": "fabiofr32", "score": 21800, "formattedScore": "21,800 blocos" },
+        { "position": 7, "playerName": "lx_fr32", "score": 18200, "formattedScore": "18,200 blocos" },
+        { "position": 8, "playerName": "queirozkk", "score": 12500, "formattedScore": "12,500 blocos" },
+        { "position": 9, "playerName": "KellCerejinha", "score": 8900, "formattedScore": "8,900 blocos" },
+        { "position": 10, "playerName": "Mikey_G2J", "score": 5400, "formattedScore": "5,400 blocos" }
+      ],
+      "alltime": [
+        { "position": 1, "playerName": "raquel5939", "score": 890400, "formattedScore": "890,400 blocos" },
+        { "position": 2, "playerName": "masterdobudhaa", "score": 643200, "formattedScore": "643,200 blocos" },
+        { "position": 3, "playerName": "lownezz11", "score": 594000, "formattedScore": "594,000 blocos" },
+        { "position": 4, "playerName": "AfterDarknz", "score": 451900, "formattedScore": "451,900 blocos" },
+        { "position": 5, "playerName": "juninww7", "score": 398200, "formattedScore": "398,200 blocos" },
+        { "position": 6, "playerName": "fabiofr32", "score": 354100, "formattedScore": "354,100 blocos" },
+        { "position": 7, "playerName": "lx_fr32", "score": 298000, "formattedScore": "298,000 blocos" },
+        { "position": 8, "playerName": "queirozkk", "score": 210300, "formattedScore": "210,300 blocos" },
+        { "position": 9, "playerName": "KellCerejinha", "score": 154000, "formattedScore": "154,000 blocos" },
+        { "position": 10, "playerName": "Mikey_G2J", "score": 98000, "formattedScore": "98,000 blocos" }
+      ]
+    },
+    "domador": {
+      "weekly": [
+        { "position": 1, "playerName": "KellCerejinha", "score": 25, "formattedScore": "25 pets" },
+        { "position": 2, "playerName": "raquel5939", "score": 14, "formattedScore": "14 pets" },
+        { "position": 3, "playerName": "lownezz11", "score": 12, "formattedScore": "12 pets" },
+        { "position": 4, "playerName": "masterdobudhaa", "score": 9, "formattedScore": "9 pets" },
+        { "position": 5, "playerName": "AfterDarknz", "score": 7, "formattedScore": "7 pets" },
+        { "position": 6, "playerName": "fabiofr32", "score": 5, "formattedScore": "5 pets" },
+        { "position": 7, "playerName": "juninww7", "score": 4, "formattedScore": "4 pets" },
+        { "position": 8, "playerName": "lx_fr32", "score": 3, "formattedScore": "3 pets" },
+        { "position": 9, "playerName": "queirozkk", "score": 2, "formattedScore": "2 pets" },
+        { "position": 10, "playerName": "Mikey_G2J", "score": 1, "formattedScore": "1 pet" }
+      ],
+      "monthly": [
+        { "position": 1, "playerName": "KellCerejinha", "score": 84, "formattedScore": "84 pets" },
+        { "position": 2, "playerName": "raquel5939", "score": 53, "formattedScore": "53 pets" },
+        { "position": 3, "playerName": "lownezz11", "score": 41, "formattedScore": "41 pets" },
+        { "position": 4, "playerName": "masterdobudhaa", "score": 32, "formattedScore": "32 pets" },
+        { "position": 5, "playerName": "AfterDarknz", "score": 26, "formattedScore": "26 pets" },
+        { "position": 6, "playerName": "fabiofr32", "score": 19, "formattedScore": "19 pets" },
+        { "position": 7, "playerName": "juninww7", "score": 15, "formattedScore": "15 pets" },
+        { "position": 8, "playerName": "lx_fr32", "score": 11, "formattedScore": "11 pets" },
+        { "position": 9, "playerName": "queirozkk", "score": 8, "formattedScore": "8 pets" },
+        { "position": 10, "playerName": "Mikey_G2J", "score": 4, "formattedScore": "4 pets" }
+      ],
+      "alltime": [
+        { "position": 1, "playerName": "KellCerejinha", "score": 540, "formattedScore": "540 pets" },
+        { "position": 2, "playerName": "raquel5939", "score": 380, "formattedScore": "380 pets" },
+        { "position": 3, "playerName": "lownezz11", "score": 290, "formattedScore": "290 pets" },
+        { "position": 4, "playerName": "masterdobudhaa", "score": 210, "formattedScore": "210 pets" },
+        { "position": 5, "playerName": "AfterDarknz", "score": 180, "formattedScore": "180 pets" },
+        { "position": 6, "playerName": "fabiofr32", "score": 140, "formattedScore": "140 pets" },
+        { "position": 7, "playerName": "juninww7", "score": 110, "formattedScore": "110 pets" },
+        { "position": 8, "playerName": "lx_fr32", "score": 85, "formattedScore": "85 pets" },
+        { "position": 9, "playerName": "queirozkk", "score": 62, "formattedScore": "62 pets" },
+        { "position": 10, "playerName": "Mikey_G2J", "score": 35, "formattedScore": "35 pets" }
+      ]
+    },
+    "explorador": {
+      "weekly": [
+        { "position": 1, "playerName": "lx_fr32", "score": 18450, "formattedScore": "18,450 blocos" },
+        { "position": 2, "playerName": "AfterDarknz", "score": 14200, "formattedScore": "14,200 blocos" },
+        { "position": 3, "playerName": "masterdobudhaa", "score": 12100, "formattedScore": "12,100 blocos" },
+        { "position": 4, "playerName": "lownezz11", "score": 9800, "formattedScore": "9,800 blocos" },
+        { "position": 5, "playerName": "juninww7", "score": 8500, "formattedScore": "8,500 blocos" },
+        { "position": 6, "playerName": "queirozkk", "score": 7300, "formattedScore": "7,300 blocos" },
+        { "position": 7, "playerName": "fabiofr32", "score": 6400, "formattedScore": "6,400 blocos" },
+        { "position": 8, "playerName": "raquel5939", "score": 4500, "formattedScore": "4,500 blocos" },
+        { "position": 9, "playerName": "KellCerejinha", "score": 3800, "formattedScore": "3,800 blocos" },
+        { "position": 10, "playerName": "Mikey_G2J", "score": 2500, "formattedScore": "2,500 blocos" }
+      ],
+      "monthly": [
+        { "position": 1, "playerName": "lx_fr32", "score": 78900, "formattedScore": "78,900 blocos" },
+        { "position": 2, "playerName": "AfterDarknz", "score": 62500, "formattedScore": "62,500 blocos" },
+        { "position": 3, "playerName": "masterdobudhaa", "score": 54200, "formattedScore": "54,200 blocos" },
+        { "position": 4, "playerName": "lownezz11", "score": 43800, "formattedScore": "43,800 blocos" },
+        { "position": 5, "playerName": "juninww7", "score": 38500, "formattedScore": "38,500 blocos" },
+        { "position": 6, "playerName": "queirozkk", "score": 32100, "formattedScore": "32,100 blocos" },
+        { "position": 7, "playerName": "fabiofr32", "score": 28400, "formattedScore": "28,400 blocos" },
+        { "position": 8, "playerName": "raquel5939", "score": 21000, "formattedScore": "21,000 blocos" },
+        { "position": 9, "playerName": "KellCerejinha", "score": 17500, "formattedScore": "17,500 blocos" },
+        { "position": 10, "playerName": "Mikey_G2J", "score": 11200, "formattedScore": "11,200 blocos" }
+      ],
+      "alltime": [
+        { "position": 1, "playerName": "lx_fr32", "score": 1245000, "formattedScore": "1,245,000 blocos" },
+        { "position": 2, "playerName": "AfterDarknz", "score": 984000, "formattedScore": "984,000 blocos" },
+        { "position": 3, "playerName": "masterdobudhaa", "score": 843000, "formattedScore": "843,000 blocos" },
+        { "position": 4, "playerName": "lownezz11", "score": 690200, "formattedScore": "690,200 blocos" },
+        { "position": 5, "playerName": "juninww7", "score": 594000, "formattedScore": "594,000 blocos" },
+        { "position": 6, "playerName": "queirozkk", "score": 512000, "formattedScore": "512,000 blocos" },
+        { "position": 7, "playerName": "fabiofr32", "score": 451000, "formattedScore": "451,000 blocos" },
+        { "position": 8, "playerName": "raquel5939", "score": 341000, "formattedScore": "341,000 blocos" },
+        { "position": 9, "playerName": "KellCerejinha", "score": 298000, "formattedScore": "298,000 blocos" },
+        { "position": 10, "playerName": "Mikey_G2J", "score": 185000, "formattedScore": "185,000 blocos" }
+      ]
+    },
+    "cacador": {
+      "weekly": [
+        { "position": 1, "playerName": "queirozkk", "score": 420, "formattedScore": "420 mobs" },
+        { "position": 2, "playerName": "lownezz11", "score": 310, "formattedScore": "310 mobs" },
+        { "position": 3, "playerName": "juninww7", "score": 280, "formattedScore": "280 mobs" },
+        { "position": 4, "playerName": "AfterDarknz", "score": 210, "formattedScore": "210 mobs" },
+        { "position": 5, "playerName": "lx_fr32", "score": 190, "formattedScore": "190 mobs" },
+        { "position": 6, "playerName": "masterdobudhaa", "score": 150, "formattedScore": "150 mobs" },
+        { "position": 7, "playerName": "Mikey_G2J", "score": 110, "formattedScore": "110 mobs" },
+        { "position": 8, "playerName": "fabiofr32", "score": 80, "formattedScore": "80 mobs" },
+        { "position": 9, "playerName": "raquel5939", "score": 50, "formattedScore": "50 mobs" },
+        { "position": 10, "playerName": "KellCerejinha", "score": 30, "formattedScore": "30 mobs" }
+      ],
+      "monthly": [
+        { "position": 1, "playerName": "queirozkk", "score": 1840, "formattedScore": "1,840 mobs" },
+        { "position": 2, "playerName": "lownezz11", "score": 1420, "formattedScore": "1,420 mobs" },
+        { "position": 3, "playerName": "juninww7", "score": 1250, "formattedScore": "1,250 mobs" },
+        { "position": 4, "playerName": "AfterDarknz", "score": 980, "formattedScore": "980 mobs" },
+        { "position": 5, "playerName": "lx_fr32", "score": 850, "formattedScore": "850 mobs" },
+        { "position": 6, "playerName": "masterdobudhaa", "score": 690, "formattedScore": "690 mobs" },
+        { "position": 7, "playerName": "Mikey_G2J", "score": 540, "formattedScore": "540 mobs" },
+        { "position": 8, "playerName": "fabiofr32", "score": 380, "formattedScore": "380 mobs" },
+        { "position": 9, "playerName": "raquel5939", "score": 240, "formattedScore": "240 mobs" },
+        { "position": 10, "playerName": "KellCerejinha", "score": 150, "formattedScore": "150 mobs" }
+      ],
+      "alltime": [
+        { "position": 1, "playerName": "queirozkk", "score": 28400, "formattedScore": "28,400 mobs" },
+        { "position": 2, "playerName": "lownezz11", "score": 21900, "formattedScore": "21,900 mobs" },
+        { "position": 3, "playerName": "juninww7", "score": 18400, "formattedScore": "18,400 mobs" },
+        { "position": 4, "playerName": "AfterDarknz", "score": 15200, "formattedScore": "15,200 mobs" },
+        { "position": 5, "playerName": "lx_fr32", "score": 13100, "formattedScore": "13,100 mobs" },
+        { "position": 6, "playerName": "masterdobudhaa", "score": 10900, "formattedScore": "10,900 mobs" },
+        { "position": 7, "playerName": "Mikey_G2J", "score": 8700, "formattedScore": "8,700 mobs" },
+        { "position": 8, "playerName": "fabiofr32", "score": 6400, "formattedScore": "6,400 mobs" },
+        { "position": 9, "playerName": "raquel5939", "score": 4100, "formattedScore": "4,100 mobs" },
+        { "position": 10, "playerName": "KellCerejinha", "score": 2800, "formattedScore": "2,800 mobs" }
+      ]
+    }
+  }
+}

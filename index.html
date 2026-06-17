@@ -3,1394 +3,165 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FR32SURVIVAL - Em Breve</title>
+    <title>FR32SURVIVAL - Melhor Servidor Survival 1.21+</title>
+    <meta name="description" content="Melhor servidor survival 1.21+, jogue agora com os amigos">
+    <meta name="keywords" content="fr32survival, minecraft survival, servidor minecraft 1.21, melhor servidor survival, jogar minecraft com amigos">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://fr32survival.com/">
+    <meta property="og:title" content="FR32SURVIVAL - Melhor Servidor Survival 1.21+">
+    <meta property="og:description" content="Melhor servidor survival 1.21+, jogue agora com os amigos">
+    <meta property="og:image" content="https://fr32survival.com/icon/Fr32_Icon.png">
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://fr32survival.com/">
+    <meta property="twitter:title" content="FR32SURVIVAL - Melhor Servidor Survival 1.21+">
+    <meta property="twitter:description" content="Melhor servidor survival 1.21+, jogue agora com os amigos">
+    <meta property="twitter:image" content="https://fr32survival.com/icon/Fr32_Icon.png">
+
     <link rel="icon" href="icon/Fr32_Icon.png" type="image/png">
-    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Outfit:wght@300;500;700;900&display=swap" rel="stylesheet">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Outfit', sans-serif;
-            background: #0d001a;
-            min-height: 100vh;
-            overflow-x: hidden;
-            color: #fff;
-            position: relative;
-        }
-
-        /* Fundo animado com gradiente */
-        .bg-gradient {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: radial-gradient(ellipse at 20% 50%, rgba(139, 0, 255, 0.25) 0%, transparent 50%),
-                        radial-gradient(ellipse at 80% 50%, rgba(255, 20, 147, 0.25) 0%, transparent 50%),
-                        radial-gradient(ellipse at 50% 100%, rgba(139, 0, 255, 0.15) 0%, transparent 50%);
-            z-index: 0;
-            animation: bgPulse 8s ease-in-out infinite;
-        }
-
-        @keyframes bgPulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.7; }
-        }
-
-        /* Grid de fundo */
-        .grid-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-image: 
-                linear-gradient(rgba(139, 0, 255, 0.06) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(255, 20, 147, 0.06) 1px, transparent 1px);
-            background-size: 50px 50px;
-            z-index: 1;
-            pointer-events: none;
-        }
-
-        /* Canvas de partículas */
-        #particles {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 2;
-            pointer-events: none;
-        }
-
-        /* Container principal */
-        .container {
-            position: relative;
-            z-index: 10;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 2rem;
-            text-align: center;
-        }
-
-        /* Logo / Título */
-        .logo {
-            font-family: 'Press Start 2P', cursive;
-            font-size: clamp(1.5rem, 5vw, 3rem);
-            background: linear-gradient(135deg, #ff1493, #8b00ff, #ff1493);
-            background-size: 200% 200%;
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            animation: gradientShift 3s ease infinite, glitch 4s infinite;
-            text-shadow: none;
-            margin-bottom: 0.5rem;
-            letter-spacing: 2px;
-            position: relative;
-        }
-
-        .logo::after {
-            content: 'FR32SURVIVAL';
-            position: absolute;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(135deg, #ff1493, #8b00ff);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            opacity: 0.3;
-            animation: glitchOffset 4s infinite;
-            clip-path: polygon(0 0, 100% 0, 100% 45%, 0 45%);
-        }
-
-        @keyframes gradientShift {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
-
-        @keyframes glitch {
-            0%, 90%, 100% { transform: translate(0); }
-            91% { transform: translate(-2px, 1px); }
-            92% { transform: translate(2px, -1px); }
-            93% { transform: translate(0); }
-        }
-
-        @keyframes glitchOffset {
-            0%, 90%, 100% { transform: translate(0); }
-            91% { transform: translate(3px, -1px); }
-            92% { transform: translate(-3px, 1px); }
-            93% { transform: translate(0); }
-        }
-
-        .subtitle {
-            font-size: clamp(0.9rem, 2vw, 1.3rem);
-            color: #ff1493;
-            font-weight: 300;
-            letter-spacing: 8px;
-            text-transform: uppercase;
-            margin-bottom: 3rem;
-            animation: fadeInUp 1s ease 0.3s both;
-        }
-
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        /* Contagem Regressiva */
-        .countdown-container {
-            display: flex;
-            gap: clamp(0.5rem, 2vw, 1.5rem);
-            margin-bottom: 3rem;
-            flex-wrap: wrap;
-            justify-content: center;
-            animation: fadeInUp 1s ease 0.6s both;
-        }
-
-        .countdown-item {
-            background: rgba(139, 0, 255, 0.15);
-            border: 1px solid rgba(255, 20, 147, 0.4);
-            border-radius: 16px;
-            padding: clamp(1rem, 3vw, 2rem);
-            min-width: clamp(80px, 15vw, 140px);
-            backdrop-filter: blur(10px);
-            position: relative;
-            overflow: hidden;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-
-        .countdown-item::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 20, 147, 0.15), transparent);
-            transition: left 0.5s ease;
-        }
-
-        .countdown-item:hover::before {
-            left: 100%;
-        }
-
-        .countdown-item:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 40px rgba(139, 0, 255, 0.4);
-            border-color: rgba(255, 20, 147, 0.7);
-        }
-
-        .countdown-item.blurred {
-            position: relative;
-            background: rgba(255, 255, 255, 0.06);
-            border-color: rgba(255, 20, 147, 0.2);
-            user-select: none;
-            cursor: default;
-        }
-
-        .countdown-item.blurred .countdown-number,
-        .countdown-item.blurred .countdown-label {
-            opacity: 0 !important;
-            color: transparent !important;
-            pointer-events: none;
-        }
-
-        .countdown-item.blurred::after {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background: rgba(13, 0, 26, 0.45);
-            backdrop-filter: blur(16px);
-            pointer-events: auto;
-        }
-
-        .countdown-item.blurred:hover {
-            transform: none;
-            box-shadow: none;
-            border-color: rgba(255, 20, 147, 0.2);
-        }
-
-        .countdown-number {
-            font-family: 'Press Start 2P', cursive;
-            font-size: clamp(1.5rem, 4vw, 2.5rem);
-            background: linear-gradient(135deg, #ff1493, #8b00ff);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            display: block;
-            margin-bottom: 0.5rem;
-        }
-
-        .countdown-label {
-            font-size: clamp(0.7rem, 1.5vw, 0.9rem);
-            color: rgba(255, 255, 255, 0.6);
-            text-transform: uppercase;
-            letter-spacing: 3px;
-        }
-
-        /* Data de lançamento */
-        .launch-date {
-            font-size: clamp(1rem, 2vw, 1.3rem);
-            color: rgba(255, 255, 255, 0.7);
-            margin-bottom: 3rem;
-            animation: fadeInUp 1s ease 0.9s both;
-        }
-
-        .launch-date span {
-            color: #ff1493;
-            font-weight: 700;
-        }
-
-        /* Botões / Links */
-        .buttons {
-            display: flex;
-            gap: 1rem;
-            flex-wrap: wrap;
-            justify-content: center;
-            animation: fadeInUp 1s ease 1.2s both;
-        }
-
-        .btn {
-            padding: 1rem 2.5rem;
-            border-radius: 50px;
-            font-family: 'Outfit', sans-serif;
-            font-weight: 700;
-            font-size: 1rem;
-            text-decoration: none;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            transition: all 0.3s ease;
-            cursor: pointer;
-            border: none;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, #ff1493, #8b00ff);
-            color: #fff;
-            box-shadow: 0 4px 30px rgba(255, 20, 147, 0.5);
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 40px rgba(255, 20, 147, 0.7);
-        }
-
-        .btn-secondary {
-            background: transparent;
-            color: #fff;
-            border: 2px solid rgba(139, 0, 255, 0.6);
-        }
-
-        .btn-secondary:hover {
-            background: rgba(139, 0, 255, 0.25);
-            border-color: #ff1493;
-            transform: translateY(-3px);
-        }
-
-        /* Staff Section */
-        .staff-section {
-            margin-top: 4rem;
-            text-align: center;
-            animation: fadeInUp 1s ease 1.8s both;
-        }
-
-        .staff-title {
-            font-size: 0.9rem;
-            color: rgba(255, 255, 255, 0.5);
-            text-transform: uppercase;
-            letter-spacing: 4px;
-            margin-bottom: 1.5rem;
-        }
-
-        .staff-grid {
-            display: flex;
-            gap: 1.5rem;
-            justify-content: center;
-            flex-wrap: wrap;
-        }
-
-        .staff-member {
-            position: relative;
-            background: rgba(139, 0, 255, 0.1);
-            border: 1px solid rgba(139, 0, 255, 0.3);
-            border-radius: 12px;
-            padding: 0.8rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .staff-member:hover {
-            border-color: #ff1493;
-            box-shadow: 0 0 20px rgba(255, 20, 147, 0.3);
-            transform: translateY(-5px);
-            background: rgba(255, 20, 147, 0.1);
-        }
-
-        .staff-avatar {
-            width: 64px;
-            height: 64px;
-            border-radius: 8px;
-            image-rendering: pixelated;
-            transition: transform 0.3s ease;
-        }
-
-        .staff-member:hover .staff-avatar {
-            transform: scale(1.1);
-        }
-
-        .staff-info {
-            position: absolute;
-            bottom: 120%; /* Fica acima da cabeça */
-            left: 50%;
-            transform: translateX(-50%) translateY(10px);
-            background: rgba(13, 0, 26, 0.95);
-            border: 1px solid rgba(255, 20, 147, 0.5);
-            padding: 0.8rem 1rem;
-            border-radius: 8px;
-            white-space: nowrap;
-            opacity: 0;
-            visibility: hidden;
-            transition: all 0.3s ease;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
-            z-index: 20;
-            pointer-events: none;
-        }
-
-        /* Setinha do tooltip */
-        .staff-info::after {
-            content: '';
-            position: absolute;
-            top: 100%;
-            left: 50%;
-            transform: translateX(-50%);
-            border-width: 6px;
-            border-style: solid;
-            border-color: rgba(255, 20, 147, 0.5) transparent transparent transparent;
-        }
-
-        .staff-member:hover .staff-info {
-            opacity: 1;
-            visibility: visible;
-            transform: translateX(-50%) translateY(0);
-        }
-
-        .staff-role {
-            display: block;
-            font-size: 0.75rem;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            margin-bottom: 0.4rem;
-        }
-
-        .role-owner { color: #ff1493; font-weight: 900; }
-        .role-admin { color: #ff4800; font-weight: 900; } /* Ciano para contrastar */
-
-        .staff-name {
-            font-family: 'Press Start 2P', cursive;
-            font-size: 0.7rem;
-            color: #fff;
-        }
-
-        /* Footer */
-        footer {
-            position: relative;
-            z-index: 10;
-            text-align: center;
-            padding: 2rem;
-            color: rgba(255, 255, 255, 0.3);
-            font-size: 0.85rem;
-        }
-
-        footer a {
-            color: rgba(255, 20, 147, 0.7);
-            text-decoration: none;
-        }
-
-        /* Toast notification */
-        .toast {
-            position: fixed;
-            bottom: 2rem;
-            left: 50%;
-            transform: translateX(-50%) translateY(100px);
-            background: linear-gradient(135deg, #ff1493, #8b00ff);
-            color: #fff;
-            padding: 1rem 2rem;
-            border-radius: 50px;
-            font-weight: 700;
-            box-shadow: 0 10px 40px rgba(255, 20, 147, 0.5);
-            opacity: 0;
-            transition: all 0.4s ease;
-            z-index: 1000;
-            pointer-events: none;
-        }
-
-        .toast.show {
-            transform: translateX(-50%) translateY(0);
-            opacity: 1;
-        }
-
-        /* Responsivo */
-        @media (max-width: 600px) {
-            .countdown-container {
-                gap: 0.5rem;
-            }
-            .countdown-item {
-                min-width: 70px;
-                padding: 1rem;
-            }
-            .buttons {
-                flex-direction: column;
-                width: 100%;
-                max-width: 300px;
-            }
-            .btn {
-                width: 100%;
-                text-align: center;
-            }
-        }
-
-        /* Seção de Veteranos / Menções Honrosas */
-        .veterans-section {
-            margin-top: 5rem;
-            text-align: center;
-            animation: fadeInUp 1s ease 2.2s both;
-            width: 100%;
-            max-width: 1000px;
-        }
-
-        .veterans-title {
-            font-family: 'Press Start 2P', cursive;
-            font-size: clamp(0.9rem, 2vw, 1.2rem);
-            color: #ffaa00;
-            text-transform: uppercase;
-            letter-spacing: 4px;
-            margin-bottom: 0.5rem;
-            text-shadow: 0 0 10px rgba(255, 170, 0, 0.4);
-        }
-
-        .veterans-subtitle {
-            font-size: clamp(0.75rem, 1.5vw, 0.95rem);
-            color: rgba(255, 255, 255, 0.5);
-            margin-bottom: 3rem;
-            font-weight: 300;
-            letter-spacing: 1px;
-        }
-
-        .veterans-grid {
-            display: flex;
-            gap: 2rem;
-            justify-content: center;
-            flex-wrap: wrap;
-            margin-top: 1.5rem;
-        }
-
-        .veteran-card {
-            position: relative;
-            background: rgba(255, 170, 0, 0.04);
-            border: 1px solid rgba(255, 170, 0, 0.25);
-            border-radius: 16px;
-            padding: 2rem 1.5rem;
-            min-width: 200px;
-            flex: 1 1 200px;
-            max-width: 240px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            backdrop-filter: blur(10px);
-            transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
-            overflow: hidden;
-        }
-
-        .veteran-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 170, 0, 0.1), transparent);
-            transition: left 0.6s ease;
-        }
-
-        .veteran-card:hover::before {
-            left: 100%;
-        }
-
-        .veteran-card:hover {
-            transform: translateY(-8px);
-            border-color: rgba(255, 170, 0, 0.8);
-            box-shadow: 0 15px 35px rgba(255, 170, 0, 0.2);
-            background: rgba(255, 170, 0, 0.08);
-        }
-
-        .veteran-skin {
-            height: 130px;
-            width: auto;
-            object-fit: contain;
-            image-rendering: pixelated;
-            transition: transform 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
-            z-index: 2;
-            filter: drop-shadow(0 10px 15px rgba(0, 0, 0, 0.5));
-        }
-
-        .veteran-card:hover .veteran-skin {
-            transform: scale(1.1) translateY(-5px);
-        }
-
-        .veteran-glow {
-            position: absolute;
-            width: 90px;
-            height: 90px;
-            background: radial-gradient(circle, rgba(255, 170, 0, 0.15) 0%, rgba(255, 170, 0, 0) 70%);
-            top: 35px;
-            border-radius: 50%;
-            pointer-events: none;
-            z-index: 1;
-            transition: all 0.4s ease;
-        }
-
-        .veteran-card:hover .veteran-glow {
-            transform: scale(1.3);
-            background: radial-gradient(circle, rgba(255, 170, 0, 0.3) 0%, rgba(255, 170, 0, 0) 70%);
-        }
-
-        .veteran-info {
-            margin-top: 1.2rem;
-            display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
-            z-index: 2;
-            width: 100%;
-        }
-
-        .veteran-name {
-            font-family: 'Press Start 2P', cursive;
-            font-size: 0.7rem;
-            color: #fff;
-            letter-spacing: 1px;
-            word-break: break-all;
-        }
-
-        .veteran-badge {
-            font-size: 0.6rem;
-            color: #ffaa00;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            background: rgba(255, 170, 0, 0.1);
-            padding: 0.2rem 0.5rem;
-            border-radius: 4px;
-            border: 1px solid rgba(255, 170, 0, 0.3);
-            align-self: center;
-        }
-
-        .veteran-desc {
-            font-size: 0.75rem;
-            color: rgba(255, 255, 255, 0.45);
-            font-weight: 300;
-            line-height: 1.3;
-        }
-
-        @media (max-width: 600px) {
-            .veterans-section {
-                margin-top: 4rem;
-            }
-            .veteran-card {
-                min-width: 100%;
-                max-width: 100%;
-                padding: 1.5rem 1rem;
-            }
-        }
-
-        /* Gallery Section */
-        .gallery-section {
-            margin-top: 5rem;
-            text-align: center;
-            animation: fadeInUp 1s ease 2.4s both;
-            width: 100%;
-            max-width: 1000px;
-        }
-
-        .gallery-title {
-            font-family: 'Press Start 2P', cursive;
-            font-size: clamp(0.9rem, 2vw, 1.2rem);
-            color: #ff1493;
-            text-transform: uppercase;
-            letter-spacing: 4px;
-            margin-bottom: 0.5rem;
-            text-shadow: 0 0 10px rgba(255, 20, 147, 0.4);
-        }
-
-        .gallery-subtitle {
-            font-size: clamp(0.75rem, 1.5vw, 0.95rem);
-            color: rgba(255, 255, 255, 0.5);
-            margin-bottom: 3rem;
-            font-weight: 300;
-            letter-spacing: 1px;
-        }
-
-        /* Season Selector */
-        .season-tabs {
-            display: flex;
-            justify-content: center;
-            gap: 12px;
-            margin-bottom: 2.5rem;
-            flex-wrap: wrap;
-        }
-
-        .season-tab {
-            font-family: 'Press Start 2P', cursive;
-            font-size: 9px;
-            padding: 12px 20px;
-            border-radius: 50px;
-            border: 1px solid rgba(139, 0, 255, 0.4);
-            background: rgba(139, 0, 255, 0.1);
-            color: rgba(255, 255, 255, 0.6);
-            cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-            text-transform: uppercase;
-        }
-
-        .season-tab:hover {
-            border-color: #ff1493;
-            color: #fff;
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(255, 20, 147, 0.4);
-            background: rgba(255, 20, 147, 0.15);
-        }
-
-        .season-tab.active {
-            border-color: #ff1493;
-            background: linear-gradient(135deg, #ff1493, #8b00ff);
-            color: #fff;
-            box-shadow: 0 5px 20px rgba(255, 20, 147, 0.6);
-        }
-
-        /* Album Grid */
-        .gallery-grid {
-            display: flex;
-            gap: 2rem;
-            justify-content: center;
-            flex-wrap: wrap;
-            margin-top: 1.5rem;
-        }
-
-        .album-card {
-            position: relative;
-            background: rgba(139, 0, 255, 0.04);
-            border: 1px solid rgba(139, 0, 255, 0.25);
-            border-radius: 16px;
-            padding: 1.2rem;
-            min-width: 220px;
-            flex: 1 1 220px;
-            max-width: 280px;
-            display: flex;
-            flex-direction: column;
-            backdrop-filter: blur(10px);
-            transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
-            overflow: hidden;
-            text-align: left;
-            cursor: pointer;
-        }
-
-        .album-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(139, 0, 255, 0.1), transparent);
-            transition: left 0.6s ease;
-        }
-
-        .album-card:hover::before {
-            left: 100%;
-        }
-
-        .album-card:hover {
-            transform: translateY(-8px);
-            border-color: rgba(255, 20, 147, 0.6);
-            box-shadow: 0 15px 35px rgba(255, 20, 147, 0.25);
-            background: rgba(139, 0, 255, 0.08);
-        }
-
-        .album-card.hidden {
-            display: none;
-        }
-
-        .album-cover {
-            position: relative;
-            width: 100%;
-            height: 160px;
-            border-radius: 10px;
-            overflow: hidden;
-            cursor: pointer;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
-            margin-bottom: 1rem;
-        }
-
-        .album-cover img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            transition: transform 0.4s cubic-bezier(0.165, 0.84, 0.44, 1), opacity 0.5s ease-in-out;
-            image-rendering: auto;
-        }
-
-        .album-card:hover .album-cover img {
-            transform: scale(1.08);
-        }
-
-        .album-icon {
-            position: absolute;
-            top: 8px;
-            right: 8px;
-            background-color: rgba(0,0,0,0.6);
-            color: white;
-            padding: 6px;
-            border-radius: 5px;
-            display: none;
-            z-index: 2;
-        }
-
-        .album-card[data-multiple-images="true"] .album-icon {
-            display: block;
-        }
-
-        .album-title {
-            font-size: 0.95rem;
-            font-weight: 700;
-            color: #fff;
-            margin-bottom: 0.5rem;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
-        }
-
-        .album-author-info {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            margin-top: auto;
-        }
-
-        .album-author-avatar {
-            width: 20px;
-            height: 20px;
-            border-radius: 4px;
-            image-rendering: pixelated;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
-        }
-
-        .album-author-name {
-            font-size: 0.75rem;
-            color: rgba(255, 255, 255, 0.6);
-            font-weight: 500;
-        }
-
-        /* Empty State */
-        .empty-state {
-            background: rgba(139, 0, 255, 0.03);
-            border: 2px dashed rgba(139, 0, 255, 0.3);
-            border-radius: 16px;
-            padding: 3rem 2rem;
-            max-width: 600px;
-            margin: 2rem auto;
-            backdrop-filter: blur(10px);
-            text-align: center;
-            transition: all 0.4s ease;
-            animation: pulseBorder 3s infinite alternate;
-        }
-
-        .empty-state.hidden {
-            display: none;
-        }
-
-        @keyframes pulseBorder {
-            0% { border-color: rgba(139, 0, 255, 0.25); box-shadow: 0 0 10px rgba(139, 0, 255, 0.05); }
-            100% { border-color: rgba(255, 20, 147, 0.5); box-shadow: 0 0 20px rgba(255, 20, 147, 0.15); }
-        }
-
-        .empty-state-title {
-            font-size: 1.1rem;
-            font-weight: 700;
-            color: #fff;
-            margin-top: 1rem;
-            margin-bottom: 0.5rem;
-        }
-
-        .empty-state-desc {
-            font-size: 0.85rem;
-            color: rgba(255, 255, 255, 0.5);
-            margin-bottom: 1.5rem;
-            line-height: 1.4;
-        }
-
-        .btn-empty-state {
-            padding: 0.6rem 1.5rem;
-            font-size: 0.8rem;
-        }
-
-        /* Slideshow Modal */
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-            background-color: rgba(13, 0, 26, 0.95);
-            align-items: center;
-            justify-content: center;
-            backdrop-filter: blur(8px);
-        }
-
-        .modal.show {
-            display: flex;
-        }
-
-        .modal-content {
-            margin: auto;
-            display: block;
-            max-width: 85%;
-            max-height: 80vh;
-            border: 2px solid rgba(255, 20, 147, 0.5);
-            box-shadow: 0 0 40px rgba(139, 0, 255, 0.5);
-            border-radius: 12px;
-            animation: modalZoom 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
-        }
-
-        @keyframes modalZoom {
-            from { transform: scale(0.9); opacity: 0; }
-            to { transform: scale(1); opacity: 1; }
-        }
-
-        .close-modal {
-            position: absolute;
-            top: 20px;
-            right: 35px;
-            color: rgba(255, 255, 255, 0.7);
-            font-size: 40px;
-            font-weight: bold;
-            transition: 0.3s;
-            cursor: pointer;
-            line-height: 1;
-        }
-
-        .close-modal:hover {
-            color: #ff1493;
-        }
-
-        .prev-slide, .next-slide {
-            cursor: pointer;
-            position: absolute;
-            top: 50%;
-            width: auto;
-            padding: 16px;
-            margin-top: -30px;
-            color: white;
-            font-weight: bold;
-            font-size: 24px;
-            transition: 0.3s ease;
-            border-radius: 4px;
-            user-select: none;
-            background-color: rgba(0,0,0,0.3);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .prev-slide { left: 20px; }
-        .next-slide { right: 20px; }
-
-        .prev-slide:hover, .next-slide:hover {
-            background-color: rgba(255, 20, 147, 0.8);
-            border-color: #ff1493;
-            box-shadow: 0 0 15px rgba(255, 20, 147, 0.6);
-        }
-
-        .slide-counter {
-            position: absolute;
-            bottom: 25px;
-            left: 50%;
-            transform: translateX(-50%);
-            color: rgba(255, 255, 255, 0.8);
-            font-size: 0.85rem;
-            padding: 8px 16px;
-            background-color: rgba(13, 0, 26, 0.8);
-            border: 1px solid rgba(139, 0, 255, 0.3);
-            border-radius: 30px;
-            font-family: 'Press Start 2P', cursive;
-            font-size: 9px;
-        }
-
-        @media (max-width: 600px) {
-            .gallery-section {
-                margin-top: 4rem;
-            }
-            .album-card {
-                min-width: 100%;
-                max-width: 100%;
-            }
-            .prev-slide, .next-slide {
-                padding: 12px;
-                font-size: 18px;
-            }
-        }
-
-        /* Seção de Rankings */
-        .rankings-section {
-            margin-top: 5rem;
-            text-align: center;
-            animation: fadeInUp 1s ease 2.0s both;
-            width: 100%;
-            max-width: 1000px;
-        }
-
-        .rankings-title {
-            font-family: 'Press Start 2P', cursive;
-            font-size: clamp(0.9rem, 2vw, 1.2rem);
-            color: #8b00ff;
-            text-transform: uppercase;
-            letter-spacing: 4px;
-            margin-bottom: 0.5rem;
-            text-shadow: 0 0 10px rgba(139, 0, 255, 0.4);
-            background: linear-gradient(135deg, #8b00ff, #ff1493);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .rankings-subtitle {
-            font-size: clamp(0.75rem, 1.5vw, 0.95rem);
-            color: rgba(255, 255, 255, 0.5);
-            margin-bottom: 2.5rem;
-            font-weight: 300;
-            letter-spacing: 1px;
-        }
-
-        .rankings-controls {
-            display: flex;
-            flex-direction: column;
-            gap: 1.5rem;
-            align-items: center;
-            margin-bottom: 2.5rem;
-        }
-
-        /* Abas de Tracker */
-        .tracker-tabs {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            flex-wrap: wrap;
-            width: 100%;
-        }
-
-        .tracker-tab {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            background: rgba(139, 0, 255, 0.08);
-            border: 1px solid rgba(139, 0, 255, 0.25);
-            padding: 10px 16px;
-            border-radius: 12px;
-            color: rgba(255, 255, 255, 0.7);
-            font-size: 0.85rem;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
-            backdrop-filter: blur(8px);
-        }
-
-        .tracker-tab:hover {
-            border-color: rgba(255, 20, 147, 0.5);
-            color: #fff;
-            transform: translateY(-2px);
-            background: rgba(255, 20, 147, 0.1);
-            box-shadow: 0 5px 15px rgba(255, 20, 147, 0.2);
-        }
-
-        .tracker-tab.active {
-            background: linear-gradient(135deg, rgba(139, 0, 255, 0.25), rgba(255, 20, 147, 0.25));
-            border-color: #ff1493;
-            color: #fff;
-            box-shadow: 0 0 20px rgba(255, 20, 147, 0.35);
-            font-weight: 700;
-        }
-
-        /* Abas de Período */
-        .period-tabs {
-            display: flex;
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            padding: 4px;
-            border-radius: 30px;
-            gap: 4px;
-        }
-
-        .period-btn {
-            background: transparent;
-            border: none;
-            padding: 8px 18px;
-            color: rgba(255, 255, 255, 0.6);
-            font-family: 'Outfit', sans-serif;
-            font-weight: 700;
-            font-size: 0.8rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            border-radius: 20px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .period-btn:hover {
-            color: #fff;
-        }
-
-        .period-btn.active {
-            background: #ff1493;
-            color: #fff;
-            box-shadow: 0 4px 15px rgba(255, 20, 147, 0.4);
-        }
-
-        /* Rankings Container */
-        .rankings-content {
-            position: relative;
-            background: rgba(13, 0, 26, 0.4);
-            border: 1px solid rgba(139, 0, 255, 0.15);
-            border-radius: 24px;
-            padding: 2.5rem;
-            backdrop-filter: blur(15px);
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
-            min-height: 400px;
-            width: 100%;
-        }
-
-        /* Podium */
-        .podium-container {
-            display: flex;
-            justify-content: center;
-            align-items: flex-end;
-            gap: 2rem;
-            margin-bottom: 3rem;
-            padding-top: 1rem;
-        }
-
-        .podium-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            width: 180px;
-            transition: transform 0.3s ease;
-        }
-
-        .podium-item:hover {
-            transform: translateY(-5px);
-        }
-
-        .podium-item .avatar-wrapper {
-            position: relative;
-            margin-bottom: 1rem;
-        }
-
-        .podium-item .avatar-wrapper img {
-            width: 80px;
-            height: 80px;
-            border-radius: 16px;
-            image-rendering: pixelated;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
-            transition: transform 0.3s ease;
-            background: rgba(255, 255, 255, 0.05);
-        }
-
-        .podium-item:hover .avatar-wrapper img {
-            transform: scale(1.05);
-        }
-
-        .podium-item .avatar-crown {
-            position: absolute;
-            top: -24px;
-            left: 50%;
-            transform: translateX(-50%);
-            font-size: 1.8rem;
-            filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.5));
-            animation: floatCrown 3s ease-in-out infinite;
-        }
-
-        @keyframes floatCrown {
-            0%, 100% { transform: translate(-50%, 0); }
-            50% { transform: translate(-50%, -4px); }
-        }
-
-        .podium-item .rank-badge {
-            position: absolute;
-            bottom: -10px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 28px;
-            height: 28px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-family: 'Press Start 2P', cursive;
-            font-size: 10px;
-            color: #fff;
-            border: 2px solid;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-        }
-
-        /* 1st Place specific styling */
-        .podium-item.first {
-            order: 2;
-            transform: scale(1.1) translateY(-10px);
-        }
-        .podium-item.first:hover {
-            transform: scale(1.1) translateY(-15px);
-        }
-        .podium-item.first .avatar-wrapper img {
-            width: 96px;
-            height: 96px;
-            border: 3px solid #ffaa00;
-            box-shadow: 0 0 25px rgba(255, 170, 0, 0.4);
-        }
-        .podium-item.first .rank-badge {
-            background: #ffaa00;
-            border-color: #ffaa00;
-            color: #0d001a;
-            font-size: 11px;
-            width: 32px;
-            height: 32px;
-        }
-        .podium-item.first .player-name {
-            color: #ffaa00;
-            text-shadow: 0 0 10px rgba(255, 170, 0, 0.3);
-        }
-
-        /* 2nd Place specific styling */
-        .podium-item.second {
-            order: 1;
-        }
-        .podium-item.second .avatar-wrapper img {
-            border: 2.5px solid #d1d5db;
-            box-shadow: 0 0 15px rgba(209, 213, 220, 0.25);
-        }
-        .podium-item.second .rank-badge {
-            background: #d1d5db;
-            border-color: #d1d5db;
-            color: #0d001a;
-        }
-
-        /* 3rd Place specific styling */
-        .podium-item.third {
-            order: 3;
-        }
-        .podium-item.third .avatar-wrapper img {
-            border: 2.5px solid #cd7f32;
-            box-shadow: 0 0 15px rgba(205, 127, 50, 0.25);
-        }
-        .podium-item.third .rank-badge {
-            background: #cd7f32;
-            border-color: #cd7f32;
-            color: #ffffff;
-        }
-
-        .podium-item .player-name {
-            font-family: 'Press Start 2P', cursive;
-            font-size: 0.75rem;
-            margin-top: 0.8rem;
-            color: #fff;
-            letter-spacing: 1px;
-            word-break: break-all;
-            max-width: 100%;
-        }
-
-        .podium-item .player-score {
-            font-size: 0.95rem;
-            font-weight: 700;
-            color: rgba(255, 255, 255, 0.7);
-            margin-top: 0.3rem;
-        }
-
-        /* Ranks 4-10 list */
-        .rank-list {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            max-width: 700px;
-            margin: 0 auto;
-        }
-
-        .rank-list-item {
-            display: flex;
-            align-items: center;
-            background: rgba(255, 255, 255, 0.02);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            padding: 12px 20px;
-            border-radius: 16px;
-            transition: all 0.3s ease;
-        }
-
-        .rank-list-item:hover {
-            transform: translateX(5px);
-            background: rgba(139, 0, 255, 0.05);
-            border-color: rgba(139, 0, 255, 0.2);
-        }
-
-        .rank-list-item .item-position {
-            font-family: 'Press Start 2P', cursive;
-            font-size: 0.75rem;
-            width: 40px;
-            color: rgba(255, 255, 255, 0.4);
-            text-align: left;
-        }
-
-        .rank-list-item .item-avatar {
-            width: 36px;
-            height: 36px;
-            border-radius: 8px;
-            image-rendering: pixelated;
-            margin-right: 15px;
-            background: rgba(255, 255, 255, 0.05);
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-        }
-
-        .rank-list-item .item-name {
-            font-family: 'Outfit', sans-serif;
-            font-weight: 700;
-            font-size: 1rem;
-            color: #fff;
-            text-align: left;
-            flex-grow: 1;
-        }
-
-        .rank-list-item .item-score {
-            font-family: 'Outfit', sans-serif;
-            font-weight: 900;
-            font-size: 1.1rem;
-            color: #ff1493;
-            text-shadow: 0 0 10px rgba(255, 20, 147, 0.3);
-        }
-
-        /* Loading / Error styles */
-        .rankings-loading {
-            padding: 3rem;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 1rem;
-        }
-        .rankings-loading p {
-            color: rgba(255,255,255,0.6);
-        }
-        .spinner {
-            width: 40px;
-            height: 40px;
-            border: 4px solid rgba(139, 0, 255, 0.1);
-            border-top-color: #ff1493;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        .rankings-empty {
-            padding: 4rem 2rem;
-            color: rgba(255, 255, 255, 0.5);
-            font-size: 0.95rem;
-        }
-
-        @media (max-width: 768px) {
-            .podium-container {
-                flex-direction: column;
-                align-items: center;
-                gap: 3rem;
-            }
-            .podium-item {
-                width: 100%;
-                max-width: 220px;
-            }
-            .podium-item.first {
-                order: 1;
-                transform: none;
-            }
-            .podium-item.first:hover {
-                transform: translateY(-5px);
-            }
-            .podium-item.second {
-                order: 2;
-            }
-            .podium-item.third {
-                order: 3;
-            }
-            .rankings-content {
-                padding: 1.5rem 1rem;
-            }
-        }
-    </style>
-<base target="_blank">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Outfit:wght@300;400;500;700;800;900&display=swap" rel="stylesheet">
+    
+    <!-- FontAwesome para Ícones -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Estilos Externos -->
+    <link rel="stylesheet" href="style.css">
+    
+    <base target="_blank">
 </head>
 <body>
     <div class="bg-gradient"></div>
     <div class="grid-overlay"></div>
     <canvas id="particles"></canvas>
 
-    <div class="container">
-        <h1 class="logo">FR32SURVIVAL</h1>
-        <img src="icon/Fr32_Icon.png" alt="Logo FR32" style="width: 400px; height: auto; display: block; margin: 10px auto;">
-        <p class="subtitle">O Survival vai mudar</p>
-        <div class="countdown-container">
-            <div class="countdown-item blurred">
-                <span class="countdown-number" id="days">00</span>
-                <span class="countdown-label">Dias</span>
+    <!-- Cabeçalho / Menu Flutuante -->
+    <header class="navbar-container">
+        <nav class="navbar">
+            <div class="nav-logo" onclick="window.scrollTo({top: 0, behavior: 'smooth'})" style="cursor: pointer;">
+                <img src="icon/Fr32_Icon.png" alt="FR32 Logo">
+                <span class="nav-logo-text">FR32SURVIVAL</span>
             </div>
-            <div class="countdown-item blurred">
-                <span class="countdown-number" id="hours">00</span>
-                <span class="countdown-label">Horas</span>
+            <ul class="nav-menu">
+                <li><a href="#home" class="nav-link" target="_self">Início</a></li>
+                <li><a href="#staff" class="nav-link" target="_self">Equipe</a></li>
+                <li><a href="#mural" class="nav-link" target="_self">Veteranos</a></li>
+                <li><a href="#estatisticas" class="nav-link" target="_self">Rankings</a></li>
+                <li><a href="#galeria" class="nav-link" target="_self">Galeria</a></li>
+            </ul>
+            <div class="nav-actions">
+                <button class="btn-nav-ip" onclick="copyIP()">
+                    <span class="offline-dot"></span>
+                    <span class="nav-ip-text">IP: fr32survival.com</span>
+                    <i class="fa-regular fa-copy"></i>
+                </button>
+                <button class="mobile-menu-btn" id="mobileMenuBtn">
+                    <i class="fa-solid fa-bars"></i>
+                </button>
             </div>
-            <div class="countdown-item blurred">
-                <span class="countdown-number" id="minutes">00</span>
-                <span class="countdown-label">Minutos</span>
-            </div>
-            <div class="countdown-item">
-                <span class="countdown-number" id="seconds">00</span>
-                <span class="countdown-label">Segundos</span>
-            </div>
-        </div>
+        </nav>
+    </header>
 
-        <div class="buttons">
-            <a href="https://discord.gg/MNWtkEzM3B" target="_blank" class="btn btn-primary">Discord</a>
-        </div>
+    <!-- Menu Mobile Dropdown -->
+    <ul class="mobile-dropdown" id="mobileDropdown">
+        <li><a href="#home" class="nav-link" target="_self">Início</a></li>
+        <li><a href="#staff" class="nav-link" target="_self">Equipe</a></li>
+        <li><a href="#mural" class="nav-link" target="_self">Veteranos</a></li>
+        <li><a href="#estatisticas" class="nav-link" target="_self">Rankings</a></li>
+        <li><a href="#galeria" class="nav-link" target="_self">Galeria</a></li>
+    </ul>
+
+    <div class="container">
+        <!-- Seção Inicial / Hero -->
+        <section id="home">
+            <div class="hero-logo-container">
+                <img src="icon/Fr32_Icon.png" alt="Logo FR32" class="hero-icon">
+            </div>
+            <h1 class="logo">FR32SURVIVAL</h1>
+            <p class="subtitle">O Survival vai mudar</p>
+            
+            <div class="countdown-container">
+                <!-- Dias (1B Cliques) -->
+                <div class="countdown-item blurred" id="card-0" onclick="clickLock(0, event)">
+                    <span class="countdown-number" id="days">00</span>
+                    <span class="countdown-label">Dias</span>
+                    <div class="lock-overlay" id="overlay-0">
+                        <i class="fa-solid fa-lock lock-icon"></i>
+                        <span class="lock-progress" id="progress-0">0 / 1B</span>
+                        <div class="lock-progress-bar-bg">
+                            <div class="lock-progress-bar" id="bar-0" style="width: 0%;"></div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Horas (1M Cliques) -->
+                <div class="countdown-item blurred" id="card-1" onclick="clickLock(1, event)">
+                    <span class="countdown-number" id="hours">00</span>
+                    <span class="countdown-label">Horas</span>
+                    <div class="lock-overlay" id="overlay-1">
+                        <i class="fa-solid fa-lock lock-icon"></i>
+                        <span class="lock-progress" id="progress-1">0 / 1M</span>
+                        <div class="lock-progress-bar-bg">
+                            <div class="lock-progress-bar" id="bar-1" style="width: 0%;"></div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Minutos (100K Cliques) -->
+                <div class="countdown-item blurred" id="card-2" onclick="clickLock(2, event)">
+                    <span class="countdown-number" id="minutes">00</span>
+                    <span class="countdown-label">Minutos</span>
+                    <div class="lock-overlay" id="overlay-2">
+                        <i class="fa-solid fa-lock lock-icon"></i>
+                        <span class="lock-progress" id="progress-2">0 / 100K</span>
+                        <div class="lock-progress-bar-bg">
+                            <div class="lock-progress-bar" id="bar-2" style="width: 0%;"></div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Segundos -->
+                <div class="countdown-item" id="card-3">
+                    <span class="countdown-number" id="seconds">00</span>
+                    <span class="countdown-label">Segundos</span>
+                </div>
+            </div>
+
+            <div class="buttons">
+                <a href="https://discord.gg/MNWtkEzM3B" target="_blank" class="btn btn-primary">
+                    <i class="fa-brands fa-discord"></i> Entrar no Discord
+                </a>
+            </div>
+
+            <!-- Indicador do Discord -->
+            <div class="discord-widget-info" id="discordStats">
+                <span class="online-dot"></span>
+                <span id="discordStatsText">Carregando membros do Discord...</span>
+            </div>
+
+            <!-- Widget Prominente para Cópia de IP -->
+            <div class="server-ip-widget" onclick="copyIP()">
+                <div class="widget-label">
+                    <span class="offline-dot"></span> Servidor Offline (Desenvolvimento)
+                </div>
+                <div class="widget-ip-box">
+                    <span class="widget-ip" id="ipText">fr32survival.com</span>
+                    <i class="fa-regular fa-copy widget-icon"></i>
+                </div>
+                <div class="widget-hint">Clique para copiar o IP do servidor</div>
+            </div>
+        </section>
 
         <!-- Secção da Equipa -->
-        <div class="staff-section">
-            <h2 class="staff-title">Equipe Administrativa</h2>
+        <section id="staff" class="staff-section">
+            <h2 class="section-title">Equipe Administrativa</h2>
+            <p class="section-subtitle">Os administradores e fundadores dedicados ao desenvolvimento da comunidade.</p>
+            
             <div class="staff-grid">
-                
                 <!-- Dono 1 -->
                 <div class="staff-member">
-                    <!-- Substitua 'Notch' pelo nick real do Dono 1 -->
-                    <img src="https://mc-heads.net/avatar/fabiofr32/100" alt="Dono 1" class="staff-avatar">
+                    <img src="https://mc-heads.net/avatar/fabiofr32/100" alt="Dono fabiofr32" class="staff-avatar">
                     <div class="staff-info">
                         <span class="staff-role role-owner">Dono</span>
                         <span class="staff-name">fabiofr32</span>
@@ -1399,18 +170,16 @@
 
                 <!-- Dono 2 -->
                 <div class="staff-member">
-                    <!-- Substitua 'Steve' pelo nick real do Dono 2 -->
-                    <img src="https://mc-heads.net/avatar/KellCerejinha/100" alt="Dono 2" class="staff-avatar">
+                    <img src="https://mc-heads.net/avatar/KellCerejinha/100" alt="Dono KellCerejinha" class="staff-avatar">
                     <div class="staff-info">
-                        <span class="staff-role role-owner">Dono</span>
+                        <span class="staff-role role-owner">Dona</span>
                         <span class="staff-name">KellCerejinha</span>
                     </div>
                 </div>
 
                 <!-- Admin 1 -->
                 <div class="staff-member">
-                    <!-- Substitua 'Alex' pelo nick real do Admin 1 -->
-                    <img src="https://mc-heads.net/avatar/juninww7/100" alt="Admin 1" class="staff-avatar">
+                    <img src="https://mc-heads.net/avatar/juninww7/100" alt="Admin juninww7" class="staff-avatar">
                     <div class="staff-info">
                         <span class="staff-role role-admin">Admin</span>
                         <span class="staff-name">juninww7</span>
@@ -1419,29 +188,43 @@
 
                 <!-- Admin 2 -->
                 <div class="staff-member">
-                    <!-- Substitua 'Herobrine' pelo nick real do Admin 2 -->
-                    <img src="https://mc-heads.net/avatar/masterdobudhaa/100" alt="Admin 2" class="staff-avatar">
+                    <img src="https://mc-heads.net/avatar/masterdobudhaa/100" alt="Admin masterdobudhaa" class="staff-avatar">
                     <div class="staff-info">
                         <span class="staff-role role-admin">Admin</span>
                         <span class="staff-name">masterdobudhaa</span>
                     </div>
                 </div>
-
             </div>
-        </div>
+        </section>
+
+        <!-- Seção de Streamers (Descomente e configure quando necessário)
+        <section id="streamers" class="streamers-section" style="margin-top: 4rem;">
+            <h2 class="section-title">Streamers do Servidor</h2>
+            <p class="section-subtitle">Acompanhe as transmissões ao vivo da nossa comunidade.</p>
+            <div class="streamers-grid">
+                <a href="https://twitch.tv/NOME_DO_CANAL" target="_blank" class="streamer-member">
+                    <img src="https://mc-heads.net/avatar/NICKNAME/100" alt="NICKNAME" class="streamer-avatar">
+                    <div class="streamer-info">
+                        <span class="streamer-platform platform-twitch">Twitch</span>
+                        <span class="streamer-name">NICKNAME</span>
+                    </div>
+                </a>
+            </div>
+        </section>
+        -->
 
         <!-- Seção de Menções Honrosas -->
-        <div class="veterans-section">
-            <h2 class="veterans-title">Mural dos Veteranos</h2>
-            <p class="veterans-subtitle">Aqueles que construíram a nossa história desde o primeiro bloco.</p>
+        <section id="mural" class="veterans-section">
+            <h2 class="section-title">Mural dos Veteranos</h2>
+            <p class="section-subtitle">Aqueles que construíram a nossa história desde o primeiro bloco.</p>
+            
             <div class="veterans-grid">
-                
                 <!-- Veterano 1 -->
                 <div class="veteran-card">
                     <div class="veteran-glow"></div>
-                    <img src="https://mc-heads.net/body/lownezz11/100" alt="lownezz11" class="veteran-skin">
+                    <img src="https://mc-heads.net/body/vNeoo/100" alt="vNeoo" class="veteran-skin">
                     <div class="veteran-info">
-                        <span class="veteran-name">lownezz11</span>
+                        <span class="veteran-name">vNeoo</span>
                         <span class="veteran-badge">Pioneiro</span>
                         <span class="veteran-desc">Mestre da economia</span>
                     </div>
@@ -1483,9 +266,9 @@
                 <!-- Veterano 5 -->
                 <div class="veteran-card">
                     <div class="veteran-glow"></div>
-                    <img src="https://mc-heads.net/body/queirozkk/100" alt="queirozkk" class="veteran-skin">
+                    <img src="https://mc-heads.net/body/queirozkkk/100" alt="queirozkkk" class="veteran-skin">
                     <div class="veteran-info">
-                        <span class="veteran-name">queirozkk</span>
+                        <span class="veteran-name">queirozkkk</span>
                         <span class="veteran-badge">Elite</span>
                         <span class="veteran-desc">Guerreiro implacável</span>
                     </div>
@@ -1494,9 +277,9 @@
                 <!-- Veterano 6 -->
                 <div class="veteran-card">
                     <div class="veteran-glow"></div>
-                    <img src="https://mc-heads.net/body/mikey/100" alt="mikey" class="veteran-skin">
+                    <img src="https://mc-heads.net/body/Mikey_G2J/100" alt="Mikey_G2J" class="veteran-skin">
                     <div class="veteran-info">
-                        <span class="veteran-name">mikey</span>
+                        <span class="veteran-name">Mikey_G2J</span>
                         <span class="veteran-badge">Veterano</span>
                         <span class="veteran-desc">Bobo da corte</span>
                     </div>
@@ -1523,18 +306,17 @@
                         <span class="veteran-desc">Mestre dos magos</span>
                     </div>
                 </div>
-
             </div>
-        </div>
+        </section>
 
         <!-- Seção de Rankings -->
-        <div class="rankings-section">
-            <h2 class="rankings-title">Estatísticas & Rankings</h2>
-            <p class="rankings-subtitle">Acompanhe os melhores jogadores do servidor em tempo real.</p>
+        <section id="estatisticas" class="rankings-section">
+            <h2 class="section-title">Estatísticas & Rankings</h2>
+            <p class="section-subtitle">Acompanhe a classificação dos jogadores em tempo real.</p>
             
             <div class="rankings-controls">
                 <div class="tracker-tabs" id="trackerTabs">
-                    <!-- Abas de tracker geradas dinamicamente -->
+                    <!-- Abas de tracker geradas dinamicamente via JS -->
                 </div>
                 <div class="period-tabs" id="periodTabs">
                     <button class="period-btn active" data-target-period="weekly">Semanal</button>
@@ -1544,11 +326,15 @@
             </div>
 
             <div class="rankings-content">
-                <!-- Podium para o Top 3 -->
-                <div class="podium-container" id="rankPodium"></div>
+                <!-- Pódio para o Top 3 -->
+                <div class="podium-container" id="rankPodium">
+                    <!-- Gerado dinamicamente via JS -->
+                </div>
 
                 <!-- Lista para Ranks 4-10 -->
-                <div class="rank-list" id="rankList"></div>
+                <div class="rank-list" id="rankList">
+                    <!-- Gerado dinamicamente via JS -->
+                </div>
 
                 <!-- Loading State -->
                 <div id="rankLoading" class="rankings-loading hidden">
@@ -1561,12 +347,12 @@
                     <p>Nenhum dado registrado para esta categoria.</p>
                 </div>
             </div>
-        </div>
+        </section>
 
-        <!-- Seção de Galeria por Temporadas -->
-        <div class="gallery-section">
-            <h2 class="gallery-title">Galeria de Construções</h2>
-            <p class="gallery-subtitle">Confira o legado e a evolução das nossas temporadas.</p>
+        <!-- Seção de Galeria de Construções -->
+        <section id="galeria" class="gallery-section">
+            <h2 class="section-title">Galeria de Construções</h2>
+            <p class="section-subtitle">Confira o legado e a evolução das nossas temporadas.</p>
 
             <!-- Seletor de Temporadas -->
             <div class="season-tabs">
@@ -1579,29 +365,28 @@
 
             <!-- Estado Vazio para Temporadas sem Fotos -->
             <div id="emptyState" class="empty-state hidden">
-                <div class="flex justify-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-14 w-14 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="width: 56px; height: 56px; margin: 0 auto; color: #ff1493;">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                    </svg>
+                <div style="display: flex; justify-content: center; margin-bottom: 1rem;">
+                    <i class="fa-solid fa-images" style="font-size: 3rem; color: var(--primary);"></i>
                 </div>
                 <h3 id="emptyStateTitle" class="empty-state-title">Temporada Sem Registros</h3>
                 <p class="empty-state-desc">
                     Ainda não temos registros nesta galeria para esta temporada. Se você tem lembranças incríveis, envie para nós no Discord!
                 </p>
-                <a href="https://discord.gg/MNWtkEzM3B" target="_blank" class="btn btn-primary btn-empty-state">Enviar no Discord</a>
+                <a href="https://discord.gg/MNWtkEzM3B" target="_blank" class="btn btn-primary btn-empty-state">
+                    <i class="fa-brands fa-discord"></i> Enviar no Discord
+                </a>
             </div>
 
             <!-- Grid de Álbuns -->
             <div id="galleryGrid" class="gallery-grid">
                 
                 <!-- ================= TEMPORADA 9 ================= -->
-
                 <!-- Álbum: Junin Boss (Temporada 9) -->
                 <div class="album-card" data-season="9" data-images="Images/9_Temporada/Junin_Boss1.png, Images/9_Temporada/junin_Boss2.png">
                     <div class="album-cover">
                         <img src="Images/9_Temporada/Junin_Boss1.png" alt="Capa do álbum Junin Boss">
                         <div class="album-icon">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="width: 16px; height: 16px; display: block; color: white;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" /></svg>
+                            <i class="fa-regular fa-images"></i>
                         </div>
                     </div>
                     <h3 class="album-title">Junin Boss</h3>
@@ -1612,13 +397,12 @@
                 </div>
 
                 <!-- ================= TEMPORADA 8 ================= -->
-
                 <!-- Álbum 1: Dominantbat8868 (Temporada 8) -->
                 <div class="album-card" data-season="8" data-images="Images/8_Temporada/Dominantbat8868.png, Images/8_Temporada/Dominantbat8868_LucasGG21_Kasumiplayer_Teddit3.png">
                     <div class="album-cover">
                         <img src="Images/8_Temporada/Dominantbat8868.png" alt="Capa do álbum Dominantbat8868">
                         <div class="album-icon">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="width: 16px; height: 16px; display: block; color: white;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" /></svg>
+                            <i class="fa-regular fa-images"></i>
                         </div>
                     </div>
                     <h3 class="album-title">Álbum Dominantbat8868</h3>
@@ -1681,7 +465,7 @@
                     <div class="album-cover">
                         <img src="Images/8_Temporada/Paulo_minoso128.png" alt="Capa do álbum Paulo_minoso128">
                         <div class="album-icon">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="width: 16px; height: 16px; display: block; color: white;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" /></svg>
+                            <i class="fa-regular fa-images"></i>
                         </div>
                     </div>
                     <h3 class="album-title">Álbum Paulo_minoso128</h3>
@@ -1716,13 +500,12 @@
                 </div>
 
                 <!-- ================= TEMPORADA 7 ================= -->
-                
                 <!-- Álbum 1: Vale do Yneeo -->
                 <div class="album-card" data-season="7" data-images="Images/7_Temporada/lago_do_vale_yneeo.png, Images/7_Temporada/vale_yneoo_up.png, Images/7_Temporada/casa_hotbit_vale_yneoo.png">
                     <div class="album-cover">
                         <img src="Images/7_Temporada/lago_do_vale_yneeo.png" alt="Capa do Vale do Yneeo">
                         <div class="album-icon">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="width: 16px; height: 16px; display: block; color: white;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" /></svg>
+                            <i class="fa-regular fa-images"></i>
                         </div>
                     </div>
                     <h3 class="album-title">Álbum yNeoo</h3>
@@ -1737,7 +520,7 @@
                     <div class="album-cover">
                         <img src="Images/7_Temporada/dark_house_1.png" alt="Capa da Casa de Xdarkzin">
                         <div class="album-icon">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="width: 16px; height: 16px; display: block; color: white;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" /></svg>
+                            <i class="fa-regular fa-images"></i>
                         </div>
                     </div>
                     <h3 class="album-title">Álbum Xdarkzin</h3>
@@ -1752,7 +535,7 @@
                     <div class="album-cover">
                         <img src="Images/7_Temporada/iamgem_fundo.png" alt="Capa do Spawn">
                         <div class="album-icon">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="width: 16px; height: 16px; display: block; color: white;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" /></svg>
+                            <i class="fa-regular fa-images"></i>
                         </div>
                     </div>
                     <h3 class="album-title">Spawn</h3>
@@ -1767,7 +550,7 @@
                     <div class="album-cover">
                         <img src="Images/7_Temporada/vila_grega_kell_fabio.png" alt="Capa da Casa do Admin">
                         <div class="album-icon">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="width: 16px; height: 16px; display: block; color: white;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" /></svg>
+                            <i class="fa-regular fa-images"></i>
                         </div>
                     </div>
                     <h3 class="album-title">Álbum dos Admin</h3>
@@ -1826,478 +609,29 @@
                 </div>
 
             </div>
-        </div>
+        </section>
     </div>
-
-    <footer>
-        FR32SURVIVAL &copy; 2026.
-    </footer>
-
-    <div class="toast" id="toast">IP copiado para a área de transferência!</div>
-
-    <script>
-        // Contagem Regressiva para 10 de Julho de 2026 às 13:00
-        const targetDate = new Date('2026-07-10T13:00:00').getTime();
-
-        function updateCountdown() {
-            const now = new Date().getTime();
-            const distance = targetDate - now;
-
-            if (distance < 0) {
-                document.getElementById('days').textContent = '00';
-                document.getElementById('hours').textContent = '00';
-                document.getElementById('minutes').textContent = '00';
-                document.getElementById('seconds').textContent = '00';
-                return;
-            }
-
-            const days = Math.floor(distance / (1000 * 60 * 60 * 24));
-            const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-
-            document.getElementById('days').textContent = String(days).padStart(2, '0');
-            document.getElementById('hours').textContent = String(hours).padStart(2, '0');
-            document.getElementById('minutes').textContent = String(minutes).padStart(2, '0');
-            document.getElementById('seconds').textContent = String(seconds).padStart(2, '0');
-        }
-
-        setInterval(updateCountdown, 1000);
-        updateCountdown();
-
-        // Copiar IP - Utilizando uma forma compatível com a pré-visualização (document.execCommand)
-        function copyIP() {
-            const ipText = document.getElementById('ipText').textContent;
-            
-            // Criar um elemento temporário para copiar o texto
-            const tempInput = document.createElement("input");
-            tempInput.value = ipText;
-            document.body.appendChild(tempInput);
-            tempInput.select();
-            document.execCommand("copy");
-            document.body.removeChild(tempInput);
-
-            const toast = document.getElementById('toast');
-            toast.classList.add('show');
-            setTimeout(() => toast.classList.remove('show'), 2500);
-        }
-
-        // Partículas de fundo
-        const canvas = document.getElementById('particles');
-        const ctx = canvas.getContext('2d');
-        let particles = [];
-
-        function resizeCanvas() {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-        }
-        resizeCanvas();
-        window.addEventListener('resize', resizeCanvas);
-
-        class Particle {
-            constructor() {
-                this.reset();
-            }
-
-            reset() {
-                this.x = Math.random() * canvas.width;
-                this.y = Math.random() * canvas.height;
-                this.size = Math.random() * 2 + 0.5;
-                this.speedX = (Math.random() - 0.5) * 0.5;
-                this.speedY = (Math.random() - 0.5) * 0.5;
-                this.opacity = Math.random() * 0.5 + 0.1;
-                this.color = Math.random() > 0.5 ? '255, 20, 147' : '139, 0, 255';
-            }
-
-            update() {
-                this.x += this.speedX;
-                this.y += this.speedY;
-
-                if (this.x < 0 || this.x > canvas.width || this.y < 0 || this.y > canvas.height) {
-                    this.reset();
-                }
-            }
-
-            draw() {
-                ctx.beginPath();
-                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-                ctx.fillStyle = `rgba(${this.color}, ${this.opacity})`;
-                ctx.fill();
-            }
-        }
-
-        for (let i = 0; i < 80; i++) {
-            particles.push(new Particle());
-        }
-
-        function animateParticles() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            particles.forEach(p => {
-                p.update();
-                p.draw();
-            });
-            requestAnimationFrame(animateParticles);
-        }
-        animateParticles();
-
-        // --- LÓGICA DA GALERIA DE FOTOS ---
-        function setupGallery() {
-            const modal = document.getElementById('albumModal');
-            if (!modal) return;
-
-            const modalImg = document.getElementById('modalImage');
-            const closeModalBtn = document.querySelector('.close-modal');
-            const prevBtn = document.querySelector('.prev-slide');
-            const nextBtn = document.querySelector('.next-slide');
-            const counter = document.querySelector('.slide-counter');
-            const albumCards = document.querySelectorAll('.album-card');
-            const seasonTabs = document.querySelectorAll('.season-tab');
-            const emptyState = document.getElementById('emptyState');
-            const emptyStateTitle = document.getElementById('emptyStateTitle');
-            const galleryGrid = document.getElementById('galleryGrid');
-
-            let currentAlbumImages = [];
-            let currentImageIndex = 0;
-
-            // Auto-slideshow de capa para álbuns com múltiplas imagens
-            albumCards.forEach(card => {
-                const images = card.dataset.images.split(',');
-                if (images.length > 1) {
-                    card.setAttribute('data-multiple-images', 'true');
-                    let coverIndex = 0;
-                    const coverImage = card.querySelector('.album-cover img');
-                    setInterval(() => {
-                        if (card.classList.contains('hidden')) return;
-                        coverIndex = (coverIndex + 1) % images.length;
-                        coverImage.style.opacity = '0';
-                        setTimeout(() => {
-                            coverImage.src = images[coverIndex].trim();
-                            coverImage.style.opacity = '1';
-                        }, 500);
-                    }, 4000);
-                }
-            });
-
-            // Filtragem de Temporadas
-            function filterSeason(season) {
-                let foundAny = false;
-                albumCards.forEach(card => {
-                    const cardSeason = card.getAttribute('data-season');
-                    if (cardSeason === season) {
-                        card.classList.remove('hidden');
-                        foundAny = true;
-                    } else {
-                        card.classList.add('hidden');
-                    }
-                });
-
-                if (foundAny) {
-                    if (emptyState) emptyState.classList.add('hidden');
-                    if (galleryGrid) galleryGrid.classList.remove('hidden');
-                } else {
-                    if (galleryGrid) galleryGrid.classList.add('hidden');
-                    if (emptyState) {
-                        if (emptyStateTitle) {
-                            emptyStateTitle.textContent = `Temporada ${season} Sem Registros`;
-                        }
-                        emptyState.classList.remove('hidden');
-                    }
-                }
-            }
-
-            // Configuração dos ouvintes nas abas de temporada
-            seasonTabs.forEach(tab => {
-                tab.addEventListener('click', () => {
-                    const season = tab.getAttribute('data-target-season');
-                    if (!season) return;
-
-                    // Atualizar abas
-                    seasonTabs.forEach(t => t.classList.remove('active'));
-                    tab.classList.add('active');
-
-                    // Filtrar álbuns
-                    filterSeason(season);
-                });
-            });
-
-            // Inicializar com a Temporada 9 selecionada
-            filterSeason("9");
-
-            function showImage(index) {
-                modalImg.src = currentAlbumImages[index];
-                counter.textContent = `${index + 1} / ${currentAlbumImages.length}`;
-            }
-
-            function openModalWithAlbum(albumCard) {
-                currentAlbumImages = albumCard.dataset.images.split(',').map(img => img.trim());
-                currentImageIndex = 0;
-
-                if (currentAlbumImages.length <= 1) {
-                    if(prevBtn) prevBtn.style.display = 'none';
-                    if(nextBtn) nextBtn.style.display = 'none';
-                    if(counter) counter.style.display = 'none';
-                } else {
-                    if(prevBtn) prevBtn.style.display = 'block';
-                    if(nextBtn) nextBtn.style.display = 'block';
-                    if(counter) counter.style.display = 'block';
-                }
-
-                showImage(currentImageIndex);
-                modal.classList.add('show');
-            }
-
-            albumCards.forEach(card => {
-                card.addEventListener('click', () => openModalWithAlbum(card));
-            });
-
-            if(nextBtn) nextBtn.addEventListener('click', () => {
-                if (currentAlbumImages.length === 0) return;
-                currentImageIndex = (currentImageIndex + 1) % currentAlbumImages.length;
-                showImage(currentImageIndex);
-            });
-
-            if(prevBtn) prevBtn.addEventListener('click', () => {
-                if (currentAlbumImages.length === 0) return;
-                currentImageIndex = (currentImageIndex - 1 + currentAlbumImages.length) % currentAlbumImages.length;
-                showImage(currentImageIndex);
-            });
-
-            const closeModal = () => modal.classList.remove('show');
-            if(closeModalBtn) closeModalBtn.addEventListener('click', closeModal);
-            modal.addEventListener('click', (e) => {
-                if (e.target === modal) {
-                    closeModal();
-                }
-            });
-        }
-
-        // --- LÓGICA DOS RANKINGS ---
-        function setupRankings() {
-            const trackerTabsContainer = document.getElementById('trackerTabs');
-            const periodBtns = document.querySelectorAll('.period-btn');
-            const podiumContainer = document.getElementById('rankPodium');
-            const listContainer = document.getElementById('rankList');
-            const loadingState = document.getElementById('rankLoading');
-            const emptyState = document.getElementById('rankEmpty');
-
-            if (!trackerTabsContainer) return;
-
-            // Configuração dos Trackers
-            const TRACKER_META = {
-                minerador: { name: 'Minerador', icon: '⛏️' },
-                assassino: { name: 'Assassino', icon: '⚔️' },
-                sobrevivente: { name: 'Playtime', icon: '⏱️' },
-                pescador: { name: 'Pescador', icon: '🎣' },
-                construtor: { name: 'Construtor', icon: '🏗️' },
-                domador: { name: 'Domador', icon: '🐾' },
-                explorador: { name: 'Explorador', icon: '🗺️' },
-                cacador: { name: 'Caçador', icon: '🏹' }
-            };
-
-            // URL do Servidor Minecraft - Exposto via embedded HTTP Server
-            // O frontend tenta primeiro buscar os dados em tempo real através do proxy do Netlify (/api/ranks).
-            // Se falhar (ex: rodando localmente sem o proxy), tenta o arquivo estático ranks.json e depois deixa em branco.
-            const API_URL = '/api/ranks'; 
-
-            let ranksData = null;
-            let activeTracker = 'minerador';
-            let activePeriod = 'weekly';
-
-            // Gerar Abas de Tracker
-            let trackerTabsHtml = '';
-            Object.keys(TRACKER_META).forEach(key => {
-                const meta = TRACKER_META[key];
-                trackerTabsHtml += `<button class="tracker-tab" data-tracker="${key}">${meta.icon} ${meta.name}</button>`;
-            });
-            trackerTabsContainer.innerHTML = trackerTabsHtml;
-
-            const trackerTabs = document.querySelectorAll('.tracker-tab');
-            if (trackerTabs.length > 0) trackerTabs[0].classList.add('active');
-
-            // Renderização
-            function renderActiveRank() {
-                podiumContainer.innerHTML = '';
-                listContainer.innerHTML = '';
-                emptyState.classList.add('hidden');
-
-                let entries = [];
-                let isPlaceholder = false;
-
-                if (ranksData && ranksData[activeTracker]?.[activePeriod]) {
-                    entries = ranksData[activeTracker][activePeriod];
-                }
-
-                if (entries.length === 0) {
-                    isPlaceholder = true;
-                    // Se não estiver linkado ou não houver dados, gera 10 slots vazios ("Aguardando...")
-                    entries = Array.from({ length: 10 }, (_, i) => ({
-                        position: i + 1,
-                        playerName: 'MHF_Question',
-                        playerDisplayName: 'Aguardando...',
-                        score: 0,
-                        formattedScore: '-'
-                    }));
-                } else {
-                    entries = entries.map(e => ({
-                        ...e,
-                        playerDisplayName: e.playerName
-                    }));
-                }
-
-                // Top 3 (Podium)
-                const first = entries.find(e => e.position === 1);
-                const second = entries.find(e => e.position === 2);
-                const third = entries.find(e => e.position === 3);
-
-                let podiumHtml = '';
-
-                // 2º Lugar
-                if (second) {
-                    podiumHtml += `
-                        <div class="podium-item second" style="${isPlaceholder ? 'opacity: 0.3; filter: grayscale(1);' : ''}">
-                            <div class="avatar-wrapper">
-                                <img src="https://mc-heads.net/avatar/${second.playerName}/80" alt="${second.playerDisplayName}">
-                                <span class="rank-badge">2</span>
-                            </div>
-                            <span class="player-name">${second.playerDisplayName}</span>
-                            <span class="player-score">${second.formattedScore || second.score}</span>
-                        </div>
-                    `;
-                }
-
-                // 1º Lugar
-                if (first) {
-                    podiumHtml += `
-                        <div class="podium-item first" style="${isPlaceholder ? 'opacity: 0.3; filter: grayscale(1);' : ''}">
-                            <div class="avatar-wrapper">
-                                <span class="avatar-crown" style="${isPlaceholder ? 'opacity: 0.2;' : ''}">👑</span>
-                                <img src="https://mc-heads.net/avatar/${first.playerName}/96" alt="${first.playerDisplayName}">
-                                <span class="rank-badge">1</span>
-                            </div>
-                            <span class="player-name">${first.playerDisplayName}</span>
-                            <span class="player-score">${first.formattedScore || first.score}</span>
-                        </div>
-                    `;
-                }
-
-                // 3º Lugar
-                if (third) {
-                    podiumHtml += `
-                        <div class="podium-item third" style="${isPlaceholder ? 'opacity: 0.3; filter: grayscale(1);' : ''}">
-                            <div class="avatar-wrapper">
-                                <img src="https://mc-heads.net/avatar/${third.playerName}/80" alt="${third.playerDisplayName}">
-                                <span class="rank-badge">3</span>
-                            </div>
-                            <span class="player-name">${third.playerDisplayName}</span>
-                            <span class="player-score">${third.formattedScore || third.score}</span>
-                        </div>
-                    `;
-                }
-
-                podiumContainer.innerHTML = podiumHtml;
-
-                // Ranks 4-10 (List)
-                const listEntries = entries.filter(e => e.position > 3);
-                let listHtml = '';
-                listEntries.forEach(entry => {
-                    listHtml += `
-                        <div class="rank-list-item" style="${isPlaceholder ? 'opacity: 0.3; filter: grayscale(1);' : ''}">
-                            <span class="item-position">${entry.position}º</span>
-                            <img class="item-avatar" src="https://mc-heads.net/avatar/${entry.playerName}/32" alt="${entry.playerDisplayName}">
-                            <span class="item-name">${entry.playerDisplayName}</span>
-                            <span class="item-score">${entry.formattedScore || entry.score}</span>
-                        </div>
-                    `;
-                });
-                listContainer.innerHTML = listHtml;
-            }
-
-            // Buscar Dados
-            async function fetchRanks() {
-                loadingState.classList.remove('hidden');
-                podiumContainer.classList.add('hidden');
-                listContainer.classList.add('hidden');
-
-                try {
-                    // Tenta a API real-time do servidor de Minecraft
-                    const controller = new AbortController();
-                    const timeoutId = setTimeout(() => controller.abort(), 3000);
-                    const response = await fetch(API_URL, { signal: controller.signal });
-                    clearTimeout(timeoutId);
-                    
-                    if (!response.ok) throw new Error('API do Minecraft offline');
-                    const data = await response.json();
-                    ranksData = data.ranks;
-                    console.log("Rankings carregados em tempo real do servidor Minecraft!");
-                } catch (error) {
-                    console.warn("Sem conexão direta com a API do servidor de Minecraft, tentando fallback ranks.json...", error);
-                    try {
-                        // Tenta arquivo estático de fallback
-                        const controller = new AbortController();
-                        const timeoutId = setTimeout(() => controller.abort(), 2000);
-                        const fallbackResponse = await fetch('ranks.json', { signal: controller.signal });
-                        clearTimeout(timeoutId);
-
-                        if (!fallbackResponse.ok) throw new Error('ranks.json indisponível');
-                        const data = await fallbackResponse.json();
-                        ranksData = data.ranks;
-                        console.log("Rankings carregados do fallback estático ranks.json!");
-                    } catch (fallbackError) {
-                        console.warn("Sem arquivos de ranking detectados. Deixando os rankings em branco conforme solicitado.", fallbackError);
-                        ranksData = null; // Mantém nulo para deixar em branco
-                    }
-                } finally {
-                    loadingState.classList.add('hidden');
-                    podiumContainer.classList.remove('hidden');
-                    listContainer.classList.remove('hidden');
-                    renderActiveRank();
-                }
-            }
-
-            // Ouvintes de Clique nos Trackers
-            trackerTabs.forEach(tab => {
-                tab.addEventListener('click', () => {
-                    trackerTabs.forEach(t => t.classList.remove('active'));
-                    tab.classList.add('active');
-                    activeTracker = tab.dataset.tracker;
-                    renderActiveRank();
-                });
-            });
-
-            // Ouvintes de Clique nos Períodos
-            periodBtns.forEach(btn => {
-                btn.addEventListener('click', () => {
-                    periodBtns.forEach(b => b.classList.remove('active'));
-                    btn.classList.add('active');
-                    activePeriod = btn.dataset.targetPeriod;
-                    renderActiveRank();
-                });
-            });
-
-            // Carregamento Inicial
-            fetchRanks();
-        }
-
-        // Inicializa a Galeria e os Rankings
-        function initializeApp() {
-            setupGallery();
-            setupRankings();
-        }
-
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', initializeApp);
-        } else {
-            initializeApp();
-        }
-    </script>
 
     <!-- O Modal (Slideshow de Fotos) -->
     <div id="albumModal" class="modal">
         <span class="close-modal">&times;</span>
-        <img class="modal-content" id="modalImage">
+        <img class="modal-content" id="modalImage" alt="Visualização ampliada">
         <a class="prev-slide">&#10094;</a>
         <a class="next-slide">&#10095;</a>
         <div class="slide-counter"></div>
     </div>
+
+    <footer>
+        FR32SURVIVAL &copy; 2026. Todos os direitos reservados. Não somos afiliados à Mojang Studios.
+    </footer>
+
+    <!-- Toast de IP Copiado -->
+    <div class="toast" id="toast">
+        <div class="toast-success-icon"><i class="fa-solid fa-check"></i></div>
+        <span>IP copiado para a área de transferência!</span>
+    </div>
+
+    <!-- Scripts Externos -->
+    <script src="script.js"></script>
 </body>
 </html>
