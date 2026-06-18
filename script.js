@@ -19,7 +19,7 @@ document.addEventListener('DOMContentLoaded', () => {
 function setupNavigation() {
     const mobileMenuBtn = document.getElementById('mobileMenuBtn');
     const mobileDropdown = document.getElementById('mobileDropdown');
-    
+
     // Toggle Menu Mobile
     if (mobileMenuBtn && mobileDropdown) {
         mobileMenuBtn.addEventListener('click', (e) => {
@@ -52,10 +52,10 @@ function setupNavigation() {
 
     // Rolagem suave para links internos
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-        anchor.addEventListener('click', function(e) {
+        anchor.addEventListener('click', function (e) {
             const targetId = this.getAttribute('href');
             if (targetId === '#') return;
-            
+
             const targetElement = document.querySelector(targetId);
             if (targetElement) {
                 e.preventDefault();
@@ -92,10 +92,10 @@ function setupNavigation() {
 }
 
 // Lógica Global de Cópia de IP
-window.copyIP = function() {
+window.copyIP = function () {
     // Endereço oficial do servidor de Minecraft
     const ip = 'fr32survival.com';
-    
+
     // Método moderno de área de transferência
     if (navigator.clipboard && window.isSecureContext) {
         navigator.clipboard.writeText(ip).then(showToast).catch(fallbackCopyIP);
@@ -245,7 +245,7 @@ function setupGallery() {
     const prevBtn = modal.querySelector('.prev-slide');
     const nextBtn = modal.querySelector('.next-slide');
     const counter = modal.querySelector('.slide-counter');
-    
+
     const albumCards = document.querySelectorAll('.album-card');
     const seasonTabs = document.querySelectorAll('.season-tab');
     const emptyState = document.getElementById('emptyState');
@@ -313,7 +313,7 @@ function setupGallery() {
         tab.addEventListener('click', () => {
             seasonTabs.forEach(t => t.classList.remove('active'));
             tab.classList.add('active');
-            
+
             const targetSeason = tab.getAttribute('data-target-season');
             if (targetSeason) {
                 filterSeason(targetSeason);
@@ -365,7 +365,7 @@ function setupGallery() {
     });
 
     if (closeModalBtn) closeModalBtn.addEventListener('click', closeModal);
-    
+
     modal.addEventListener('click', (e) => {
         if (e.target === modal || e.target === modalImg) {
             closeModal();
@@ -431,7 +431,7 @@ function setupRankings() {
         cacador: { name: 'Caçador', icon: '🏹' }
     };
 
-    const API_URL = '/api/ranks'; 
+    const API_URL = '/api/ranks';
     let ranksData = null;
     let activeTracker = 'minerador';
     let activePeriod = 'weekly';
@@ -562,12 +562,12 @@ function setupRankings() {
             const timeoutId = setTimeout(() => controller.abort(), 3000);
             const response = await fetch(API_URL, { signal: controller.signal });
             clearTimeout(timeoutId);
-            
+
             if (!response.ok) throw new Error('API offline');
             const data = await response.json();
             ranksData = data.ranks;
             console.log("Estatísticas carregadas em tempo real!");
-            
+
             if (loadingState) loadingState.classList.add('hidden');
             renderActiveRank();
         } catch (error) {
@@ -616,10 +616,10 @@ async function setupDiscordStats() {
         const response = await fetch(`https://discord.com/api/v9/invites/${inviteCode}?with_counts=true`);
         if (!response.ok) throw new Error('API do Discord offline');
         const data = await response.json();
-        
+
         const members = data.approximate_member_count;
         const online = data.approximate_presence_count;
-        
+
         const fmt = new Intl.NumberFormat('pt-BR');
         statsText.textContent = `${fmt.format(members)} membros (${fmt.format(online)} online)`;
     } catch (err) {
@@ -633,6 +633,8 @@ async function setupDiscordStats() {
    ========================================== */
 const CLICKER_TARGETS = [1000000000, 1000000, 100000];
 const CLICKER_LABELS = ['1B', '1M', '100K'];
+let globalClicks = [0, 0, 0];
+let pendingClicks = [0, 0, 0];
 
 function formatClicks(num) {
     if (num >= 1000000000) return (num / 1000000000).toFixed(2).replace(/\.00$/, '') + 'B';
@@ -641,14 +643,56 @@ function formatClicks(num) {
     return num.toString();
 }
 
-function setupClicker() {
+async function setupClicker() {
+    // Inicializar os cliques locais imediatamente na UI
     for (let i = 0; i < 3; i++) {
-        const count = getClicks(i);
-        updateLockUI(i, count);
+        globalClicks[i] = getLocalClicks(i);
+        updateLockUI(i, globalClicks[i]);
     }
+
+    // Busca inicial do servidor
+    await fetchClicks();
+    
+    // Polling a cada 10 segundos para manter atualizado com outros usuários
+    setInterval(fetchClicks, 10000);
 }
 
-function getClicks(index) {
+async function fetchClicks() {
+    const promises = [];
+    for (let i = 0; i < 3; i++) {
+        promises.push((async (index) => {
+            try {
+                const response = await fetch(`https://api.counterapi.dev/v1/fr32survival/clicks_${index}`);
+                if (response.status === 400) {
+                    if (pendingClicks[index] === 0) {
+                        const localVal = getLocalClicks(index);
+                        globalClicks[index] = localVal;
+                        updateLockUI(index, localVal);
+                    }
+                    return;
+                }
+                if (!response.ok) throw new Error('API offline');
+                const data = await response.json();
+                if (data && data.count !== undefined) {
+                    const serverVal = parseInt(data.count, 10) || 0;
+                    if (pendingClicks[index] === 0) {
+                        globalClicks[index] = serverVal;
+                        updateLockUI(index, globalClicks[index]);
+                    }
+                }
+            } catch (err) {
+                console.warn(`Erro ao carregar cliques do índice ${index} do servidor, usando offline:`, err);
+                if (pendingClicks[index] === 0) {
+                    globalClicks[index] = getLocalClicks(index);
+                    updateLockUI(index, globalClicks[index]);
+                }
+            }
+        })(i));
+    }
+    await Promise.all(promises);
+}
+
+function getLocalClicks(index) {
     try {
         const val = localStorage.getItem(`fr32_clicks_${index}`);
         if (val === null) return 0;
@@ -659,7 +703,7 @@ function getClicks(index) {
     }
 }
 
-function saveClicks(index, val) {
+function saveLocalClicks(index, val) {
     try {
         localStorage.setItem(`fr32_clicks_${index}`, val);
     } catch (e) {}
@@ -680,7 +724,7 @@ function updateLockUI(index, clicks) {
     } else {
         card.classList.add('blurred');
         if (overlay) overlay.style.display = 'flex';
-        
+
         if (progress) {
             progress.textContent = `${formatClicks(clicks)} / ${CLICKER_LABELS[index]}`;
         }
@@ -691,35 +735,35 @@ function updateLockUI(index, clicks) {
     }
 }
 
-window.clickLock = function(index, event) {
+window.clickLock = async function (index, event) {
     const target = CLICKER_TARGETS[index];
-    let clicks = getClicks(index);
+    let clicks = globalClicks[index];
 
     // Regra Sequencial (Direita para Esquerda: Minutos [2] -> Horas [1] -> Dias [0])
     for (let prev = 2; prev > index; prev--) {
-        if (getClicks(prev) < CLICKER_TARGETS[prev]) {
+        if (globalClicks[prev] < CLICKER_TARGETS[prev]) {
             const prevCard = document.getElementById(`card-${prev}`);
             if (prevCard) {
                 prevCard.classList.add('shake');
                 setTimeout(() => prevCard.classList.remove('shake'), 250);
             }
-            
+
             const card = document.getElementById(`card-${index}`);
             if (card) {
                 card.classList.add('shake');
                 setTimeout(() => card.classList.remove('shake'), 250);
             }
-            
+
             const toast = document.getElementById('toast');
             if (toast) {
                 const textSpan = toast.querySelector('span');
                 const oldText = textSpan.textContent;
                 const oldIcon = toast.querySelector('.toast-success-icon i').className;
-                
+
                 toast.querySelector('.toast-success-icon i').className = 'fa-solid fa-lock';
                 textSpan.textContent = `Desbloqueie o bloco de ${prev === 0 ? 'Dias' : prev === 1 ? 'Horas' : 'Minutos'} primeiro!`;
                 toast.classList.add('show');
-                
+
                 setTimeout(() => {
                     toast.classList.remove('show');
                     setTimeout(() => {
@@ -733,14 +777,42 @@ window.clickLock = function(index, event) {
     }
 
     if (clicks < target) {
+        // Atualização otimista local imediata
         clicks += 1;
-        saveClicks(index, clicks);
+        globalClicks[index] = clicks;
+        pendingClicks[index] += 1;
         updateLockUI(index, clicks);
 
         createFloatingPlusOne(event);
 
         if (clicks >= target) {
             triggerUnlockAnimation(index);
+        }
+
+        // Registrar clique no servidor
+        try {
+            const response = await fetch(`https://api.counterapi.dev/v1/fr32survival/clicks_${index}/up`);
+            pendingClicks[index] = Math.max(0, pendingClicks[index] - 1);
+            if (response.ok) {
+                const data = await response.json();
+                if (data && data.count !== undefined) {
+                    const serverVal = parseInt(data.count, 10) || 0;
+                    globalClicks[index] = serverVal + pendingClicks[index];
+                    updateLockUI(index, globalClicks[index]);
+                }
+            } else {
+                const newLocal = getLocalClicks(index) + 1;
+                saveLocalClicks(index, newLocal);
+                globalClicks[index] = newLocal + pendingClicks[index];
+                updateLockUI(index, globalClicks[index]);
+            }
+        } catch (err) {
+            console.warn("Erro ao registrar clique no servidor, salvando localmente:", err);
+            pendingClicks[index] = Math.max(0, pendingClicks[index] - 1);
+            const newLocal = getLocalClicks(index) + 1;
+            saveLocalClicks(index, newLocal);
+            globalClicks[index] = newLocal + pendingClicks[index];
+            updateLockUI(index, globalClicks[index]);
         }
     }
 };
