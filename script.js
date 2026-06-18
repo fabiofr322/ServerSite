@@ -664,10 +664,10 @@ async function fetchClicks() {
             try {
                 const response = await fetch(`https://api.counterapi.dev/v1/fr32survival_countdown_locks/clicks_${index}/?cb=${Date.now()}`, { cache: 'no-store' });
                 if (response.status === 400) {
-                    saveLocalClicks(index, 0);
                     if (pendingClicks[index] === 0) {
-                        globalClicks[index] = 0;
-                        updateLockUI(index, 0);
+                        const localVal = getLocalClicks(index);
+                        globalClicks[index] = localVal;
+                        updateLockUI(index, localVal);
                     }
                     return;
                 }
