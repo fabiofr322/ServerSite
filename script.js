@@ -662,7 +662,7 @@ async function fetchClicks() {
     for (let i = 0; i < 3; i++) {
         promises.push((async (index) => {
             try {
-                const response = await fetch(`https://api.counterapi.dev/v1/fr32survival_countdown_locks/clicks_${index}`);
+                const response = await fetch(`https://api.counterapi.dev/v1/fr32survival_countdown_locks/clicks_${index}/?cb=${Date.now()}`, { cache: 'no-store' });
                 if (response.status === 400) {
                     saveLocalClicks(index, 0);
                     if (pendingClicks[index] === 0) {
@@ -792,7 +792,7 @@ window.clickLock = async function (index, event) {
 
         // Registrar clique no servidor
         try {
-            const response = await fetch(`https://api.counterapi.dev/v1/fr32survival_countdown_locks/clicks_${index}/up`);
+            const response = await fetch(`https://api.counterapi.dev/v1/fr32survival_countdown_locks/clicks_${index}/up?cb=${Date.now()}`, { cache: 'no-store' });
             pendingClicks[index] = Math.max(0, pendingClicks[index] - 1);
             if (response.ok) {
                 const data = await response.json();
