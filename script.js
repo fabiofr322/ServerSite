@@ -662,12 +662,12 @@ async function fetchClicks() {
     for (let i = 0; i < 3; i++) {
         promises.push((async (index) => {
             try {
-                const response = await fetch(`https://api.counterapi.dev/v1/fr32survival/clicks_${index}`);
+                const response = await fetch(`https://api.counterapi.dev/v1/fr32survival_countdown_locks/clicks_${index}`);
                 if (response.status === 400) {
+                    saveLocalClicks(index, 0);
                     if (pendingClicks[index] === 0) {
-                        const localVal = getLocalClicks(index);
-                        globalClicks[index] = localVal;
-                        updateLockUI(index, localVal);
+                        globalClicks[index] = 0;
+                        updateLockUI(index, 0);
                     }
                     return;
                 }
@@ -675,6 +675,7 @@ async function fetchClicks() {
                 const data = await response.json();
                 if (data && data.count !== undefined) {
                     const serverVal = parseInt(data.count, 10) || 0;
+                    saveLocalClicks(index, serverVal);
                     if (pendingClicks[index] === 0) {
                         globalClicks[index] = serverVal;
                         updateLockUI(index, globalClicks[index]);
@@ -791,12 +792,13 @@ window.clickLock = async function (index, event) {
 
         // Registrar clique no servidor
         try {
-            const response = await fetch(`https://api.counterapi.dev/v1/fr32survival/clicks_${index}/up`);
+            const response = await fetch(`https://api.counterapi.dev/v1/fr32survival_countdown_locks/clicks_${index}/up`);
             pendingClicks[index] = Math.max(0, pendingClicks[index] - 1);
             if (response.ok) {
                 const data = await response.json();
                 if (data && data.count !== undefined) {
                     const serverVal = parseInt(data.count, 10) || 0;
+                    saveLocalClicks(index, serverVal);
                     globalClicks[index] = serverVal + pendingClicks[index];
                     updateLockUI(index, globalClicks[index]);
                 }
