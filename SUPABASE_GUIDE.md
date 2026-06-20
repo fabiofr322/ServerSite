@@ -27,7 +27,7 @@ Siga os passos abaixo para configurar o Supabase gratuitamente para o seu site h
 
 ```sql
 -- 1. Tabela de Perfis de Usuários (Minecraft)
-create table public.profiles (
+create table if not exists public.profiles (
   id uuid references auth.users on delete cascade primary key,
   minecraft_username text unique not null,
   updated_at timestamp with time zone default timezone('utc'::text, now()) not null,
@@ -38,17 +38,21 @@ create table public.profiles (
 -- Ativar RLS para profiles
 alter table public.profiles enable row level security;
 
+-- Recriar políticas para profiles
+drop policy if exists "Perfis públicos são visíveis para todos" on public.profiles;
 create policy "Perfis públicos são visíveis para todos" on public.profiles
   for select using (true);
 
+drop policy if exists "Usuários autenticados podem criar seu próprio perfil" on public.profiles;
 create policy "Usuários autenticados podem criar seu próprio perfil" on public.profiles
   for insert with check (auth.uid() = id);
 
+drop policy if exists "Usuários podem atualizar seu próprio perfil" on public.profiles;
 create policy "Usuários podem atualizar seu próprio perfil" on public.profiles
   for update using (auth.uid() = id);
 
 -- 2. Tabela de Curtidas (Likes) nas Fotos
-create table public.likes (
+create table if not exists public.likes (
   id bigint generated always as identity primary key,
   user_id uuid references auth.users on delete cascade not null default auth.uid(),
   photo_path text not null, -- Caminho da imagem, ex: 'Images/9_Temporada/Junin_Boss1.png'
@@ -61,17 +65,21 @@ create table public.likes (
 -- Ativar RLS para likes
 alter table public.likes enable row level security;
 
+-- Recriar políticas para likes
+drop policy if exists "Curtidas são visíveis para todos" on public.likes;
 create policy "Curtidas são visíveis para todos" on public.likes
   for select using (true);
 
+drop policy if exists "Usuários autenticados podem curtir fotos" on public.likes;
 create policy "Usuários autenticados podem curtir fotos" on public.likes
   for insert with check (auth.uid() = user_id);
 
+drop policy if exists "Usuários podem remover suas próprias curtidas" on public.likes;
 create policy "Usuários podem remover suas próprias curtidas" on public.likes
   for delete using (auth.uid() = user_id);
 
 -- 3. Tabela de Comentários nas Fotos
-create table public.comments (
+create table if not exists public.comments (
   id bigint generated always as identity primary key,
   user_id uuid references auth.users on delete cascade not null default auth.uid(),
   photo_path text not null, -- Caminho da imagem
@@ -84,12 +92,16 @@ create table public.comments (
 -- Ativar RLS para comments
 alter table public.comments enable row level security;
 
+-- Recriar políticas para comments
+drop policy if exists "Comentários são visíveis para todos" on public.comments;
 create policy "Comentários são visíveis para todos" on public.comments
   for select using (true);
 
+drop policy if exists "Usuários autenticados podem comentar" on public.comments;
 create policy "Usuários autenticados podem comentar" on public.comments
   for insert with check (auth.uid() = user_id);
 
+drop policy if exists "Usuários podem deletar seus próprios comentários" on public.comments;
 create policy "Usuários podem deletar seus próprios comentários" on public.comments
   for delete using (auth.uid() = user_id);
 
@@ -101,13 +113,15 @@ begin
   values (
     new.id,
     coalesce(new.raw_user_meta_data->>'minecraft_username', 'Jogador_Indefinido')
-  );
+  )
+  on conflict (id) do nothing; -- Evita erros caso o perfil já tenha sido criado
   return new;
 end;
 $$ language plpgsql security definer;
 
 -- Trigger executado após criação de novo usuário na tabela auth.users
-create or replace trigger on_auth_user_created
+drop trigger if exists on_auth_user_created on auth.users;
+create trigger on_auth_user_created
   after insert on auth.users
   for each row execute procedure public.handle_new_user();
 ```
