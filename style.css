@@ -1921,3 +1921,582 @@ footer a:hover {
     gap: 8px;
     animation: fadeInUp 1s ease 0.55s both;
 }
+
+/* ==========================================
+   SISTEMA DE USUÁRIO & AUTENTICAÇÃO (CSS)
+   ========================================== */
+
+.nav-user-area {
+    display: flex;
+    align-items: center;
+    margin-right: 5px;
+}
+
+.btn-login-nav {
+    font-family: var(--font-main);
+    font-size: 0.85rem;
+    font-weight: 700;
+    padding: 8px 18px;
+    border-radius: 30px;
+    border: 1px solid rgba(255, 20, 147, 0.4);
+    background: rgba(255, 20, 147, 0.05);
+    color: #fff;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.3s var(--transition-bounce);
+}
+
+.btn-login-nav:hover {
+    border-color: var(--primary);
+    background: rgba(255, 20, 147, 0.15);
+    box-shadow: 0 4px 15px rgba(255, 20, 147, 0.3);
+    transform: translateY(-1px);
+}
+
+.user-profile-menu {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba(255, 255, 255, 0.03);
+    padding: 6px 14px;
+    border-radius: 30px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    transition: all 0.3s ease;
+}
+
+.user-profile-menu:hover {
+    border-color: rgba(139, 0, 255, 0.3);
+    background: rgba(139, 0, 255, 0.05);
+}
+
+.nav-user-avatar {
+    width: 22px;
+    height: 22px;
+    border-radius: 4px;
+    image-rendering: pixelated;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+}
+
+.nav-user-name {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: #fff;
+}
+
+.btn-logout-nav {
+    background: transparent;
+    border: none;
+    color: var(--text-dimmed);
+    cursor: pointer;
+    font-size: 0.85rem;
+    padding: 2px;
+    display: flex;
+    align-items: center;
+    transition: color 0.2s ease, transform 0.2s ease;
+}
+
+.btn-logout-nav:hover {
+    color: var(--primary);
+    transform: scale(1.1);
+}
+
+.mobile-user-li {
+    padding: 12px 20px;
+    border-top: 1px solid rgba(255, 255, 255, 0.03);
+    margin-top: 5px;
+    display: flex;
+    justify-content: center;
+    width: 100%;
+}
+
+.mobile-user-li .btn-login-nav {
+    width: 100%;
+    justify-content: center;
+    padding: 10px 20px;
+}
+
+.mobile-user-li .user-profile-menu {
+    width: 100%;
+    justify-content: space-between;
+    padding: 10px 18px;
+}
+
+.auth-modal {
+    background-color: rgba(5, 1, 12, 0.94);
+}
+
+.auth-container {
+    background: rgba(13, 0, 26, 0.85);
+    border: 1px solid rgba(139, 0, 255, 0.25);
+    border-radius: 24px;
+    width: 90%;
+    max-width: 400px;
+    padding: 2.2rem;
+    box-shadow: 0 0 50px rgba(139, 0, 255, 0.3), inset 0 0 20px rgba(255, 25, 147, 0.05);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    position: relative;
+    animation: modalZoom 0.35s cubic-bezier(0.165, 0.84, 0.44, 1);
+}
+
+.auth-header {
+    display: flex;
+    border-bottom: 2px solid rgba(255, 255, 255, 0.04);
+    margin-bottom: 2rem;
+    gap: 10px;
+}
+
+.auth-tab {
+    flex: 1;
+    background: transparent;
+    border: none;
+    color: var(--text-dimmed);
+    font-family: var(--font-main);
+    font-size: 1.05rem;
+    font-weight: 800;
+    padding: 12px 5px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-align: center;
+    position: relative;
+}
+
+.auth-tab::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: linear-gradient(90deg, var(--primary), var(--secondary));
+    transform: scaleX(0);
+    transition: transform 0.3s ease;
+}
+
+.auth-tab.active {
+    color: #fff;
+}
+
+.auth-tab.active::after {
+    transform: scaleX(1);
+}
+
+.auth-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    text-align: left;
+}
+
+.input-group label {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    letter-spacing: 0.5px;
+}
+
+.input-group input {
+    background: rgba(0, 0, 0, 0.45);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    padding: 12px 16px;
+    color: #fff;
+    font-family: var(--font-main);
+    font-size: 0.95rem;
+    transition: all 0.3s ease;
+}
+
+.input-group input:focus {
+    outline: none;
+    border-color: var(--primary);
+    background: rgba(255, 20, 147, 0.03);
+    box-shadow: 0 0 15px rgba(255, 20, 147, 0.15);
+}
+
+.input-hint {
+    font-size: 0.72rem;
+    color: var(--text-dimmed);
+    margin-top: 2px;
+}
+
+.btn-auth-submit {
+    padding: 12px 20px;
+    font-size: 0.95rem;
+    width: 100%;
+    margin-top: 1rem;
+    justify-content: center;
+    gap: 10px;
+}
+
+/* ==========================================
+   MODAL DE FOTOS COM INTERAÇÕES (CSS)
+   ========================================== */
+.modal-wrapper {
+    display: flex;
+    width: 90%;
+    max-width: 1100px;
+    height: 82vh;
+    background: rgba(7, 0, 14, 0.98);
+    border: 1px solid rgba(255, 20, 147, 0.25);
+    box-shadow: 0 0 60px rgba(139, 0, 255, 0.35);
+    border-radius: 24px;
+    overflow: hidden;
+    animation: modalZoom 0.35s cubic-bezier(0.165, 0.84, 0.44, 1);
+    position: relative;
+    z-index: 2010;
+}
+
+/* Painel da Imagem */
+.modal-image-panel {
+    flex: 1.6;
+    background-color: #030006;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.modal-image-panel .modal-content {
+    max-width: 100%;
+    max-height: 100%;
+    border: none;
+    box-shadow: none;
+    border-radius: 0;
+    margin: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.modal-image-panel .prev-slide, 
+.modal-image-panel .next-slide {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.modal-image-panel .slide-counter {
+    position: absolute;
+    bottom: 20px;
+}
+
+/* Painel de Interações (Curtidas e Comentários) */
+.modal-interaction-panel {
+    flex: 1;
+    background: rgba(13, 0, 26, 0.7);
+    border-left: 1px solid rgba(255, 255, 255, 0.06);
+    display: flex;
+    flex-direction: column;
+    padding: 1.8rem;
+    height: 100%;
+    box-sizing: border-box;
+}
+
+.interaction-header {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    padding-bottom: 1.2rem;
+    margin-bottom: 1rem;
+    text-align: left;
+}
+
+.interaction-album-title {
+    font-size: 1.15rem;
+    font-weight: 900;
+    color: #fff;
+    margin-bottom: 0.6rem;
+    line-height: 1.3;
+}
+
+.interaction-album-author {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255, 255, 255, 0.02);
+    padding: 5px 12px;
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.03);
+    align-self: flex-start;
+    display: inline-flex;
+}
+
+/* Seção de Curtidas */
+.likes-section {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 1.2rem;
+    background: rgba(255, 20, 147, 0.02);
+    padding: 10px 14px;
+    border-radius: 14px;
+    border: 1px solid rgba(255, 20, 147, 0.08);
+}
+
+.btn-like {
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    font-size: 1.4rem;
+    cursor: pointer;
+    transition: all 0.3s var(--transition-bounce);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+}
+
+.btn-like:hover {
+    color: var(--primary);
+    transform: scale(1.2);
+}
+
+.btn-like.liked {
+    color: var(--primary);
+    animation: heartBeat 0.4s ease;
+}
+
+.btn-like.liked i {
+    font-weight: 900; /* FontAwesome solid */
+}
+
+@keyframes heartBeat {
+    0% { transform: scale(1); }
+    35% { transform: scale(1.3); }
+    70% { transform: scale(0.9); }
+    100% { transform: scale(1); }
+}
+
+.likes-count {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: #fff;
+}
+
+/* Seção de Comentários */
+.comments-section {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0; /* Permite scroll no flex child */
+    margin-bottom: 1rem;
+    text-align: left;
+}
+
+.comments-title {
+    font-size: 0.85rem;
+    font-weight: 800;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 0.8rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.comments-list {
+    flex: 1;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding-right: 5px;
+}
+
+/* Custom Scrollbar para Comentários */
+.comments-list::-webkit-scrollbar {
+    width: 4px;
+}
+
+.comments-list::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.comments-list::-webkit-scrollbar-thumb {
+    background: rgba(139, 0, 255, 0.2);
+    border-radius: 10px;
+}
+
+.comments-list::-webkit-scrollbar-thumb:hover {
+    background: var(--primary);
+}
+
+/* Item de Comentário */
+.comment-item {
+    background: rgba(255, 255, 255, 0.015);
+    border: 1px solid rgba(255, 255, 255, 0.03);
+    border-radius: 14px;
+    padding: 10px 12px;
+    display: flex;
+    gap: 10px;
+    transition: background-color 0.2s ease;
+}
+
+.comment-item:hover {
+    background: rgba(255, 255, 255, 0.03);
+}
+
+.comment-avatar {
+    width: 26px;
+    height: 26px;
+    border-radius: 6px;
+    image-rendering: pixelated;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
+.comment-content-block {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    flex: 1;
+    min-width: 0; /* Impede quebra de layout */
+}
+
+.comment-header-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+}
+
+.comment-player-name {
+    font-size: 0.78rem;
+    font-weight: 800;
+    color: #fff;
+}
+
+.comment-date-time {
+    font-size: 0.68rem;
+    color: var(--text-dimmed);
+}
+
+.comment-text {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    line-height: 1.4;
+    word-break: break-word;
+    text-align: left;
+}
+
+.comment-empty-message {
+    color: var(--text-dimmed);
+    font-size: 0.85rem;
+    text-align: center;
+    padding: 2rem 1rem;
+    font-style: italic;
+}
+
+/* Área de Input de Comentário */
+.comment-input-area {
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    padding-top: 1rem;
+}
+
+.comment-auth-warning {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px dashed rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    padding: 10px 14px;
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    text-align: center;
+}
+
+.comment-auth-warning .auth-link {
+    color: var(--primary);
+    font-weight: 700;
+    cursor: pointer;
+    text-decoration: underline;
+}
+
+.comment-auth-warning .auth-link:hover {
+    color: #fff;
+    text-shadow: 0 0 5px rgba(255, 20, 147, 0.4);
+}
+
+.comment-form {
+    display: flex;
+    gap: 8px;
+    width: 100%;
+}
+
+.comment-form input {
+    flex: 1;
+    background: rgba(0, 0, 0, 0.35);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 12px;
+    padding: 10px 14px;
+    color: #fff;
+    font-family: var(--font-main);
+    font-size: 0.85rem;
+    transition: all 0.3s ease;
+}
+
+.comment-form input:focus {
+    outline: none;
+    border-color: var(--primary);
+    background: rgba(255, 20, 147, 0.02);
+    box-shadow: 0 0 10px rgba(255, 20, 147, 0.1);
+}
+
+.btn-send-comment {
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    border: none;
+    border-radius: 12px;
+    width: 38px;
+    height: 38px;
+    color: #fff;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 10px rgba(255, 20, 147, 0.2);
+}
+
+.btn-send-comment:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 5px 15px rgba(255, 20, 147, 0.45);
+}
+
+/* Responsividade do Modal */
+@media (max-width: 900px) {
+    .modal-wrapper {
+        flex-direction: column;
+        height: 90vh;
+        width: 95%;
+        max-width: 500px;
+        overflow-y: auto;
+    }
+    
+    .modal-image-panel {
+        flex: none;
+        height: 300px;
+    }
+    
+    .modal-interaction-panel {
+        flex: none;
+        border-left: none;
+        border-top: 1px solid rgba(255, 255, 255, 0.06);
+        padding: 1.2rem;
+    }
+    
+    .comments-list {
+        max-height: 250px;
+    }
+    
+    .close-modal {
+        top: 15px;
+        right: 15px;
+        font-size: 2.2rem;
+    }
+}

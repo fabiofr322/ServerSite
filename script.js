@@ -857,3 +857,790 @@ function triggerUnlockAnimation(index) {
         }, 300);
     }
 }
+
+/* ==========================================
+   LÓGICA: SUPABASE AUTH & INTERAÇÕES (DINÂMICO)
+   ========================================== */
+
+const SUPABASE_URL = 'https://dzfmtmlgbyxnqjdwutfp.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR6Zm10bWxnYnl4bnFqZHd1dGZwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE5ODE1MjcsImV4cCI6MjA5NzU1NzUyN30.8W_0L9OzmLSDH1ZMRtFFlc3Pyf54ENgVNV535TW1T7U';
+let supabaseClient = null;
+let currentUser = null;
+let currentProfile = null;
+
+// Curtidas & Comentários da foto ativa
+let currentPhotoLikesCount = 0;
+let userHasLikedCurrentPhoto = false;
+let activePhotoPath = '';
+let likeLock = false;
+
+// Injetar dinamicamente elementos de HTML no DOM
+function injectHtmlElements() {
+    // 1. Inserir navUserArea na navbar (.nav-actions)
+    const navActions = document.querySelector('.nav-actions');
+    if (navActions && !document.getElementById('navUserArea')) {
+        const userArea = document.createElement('div');
+        userArea.id = 'navUserArea';
+        userArea.className = 'nav-user-area';
+        userArea.innerHTML = `
+            <button class="btn-login-nav" onclick="openAuthModal()">
+                <i class="fa-regular fa-user"></i>
+                <span>Entrar</span>
+            </button>
+        `;
+        navActions.insertBefore(userArea, navActions.firstChild);
+    }
+
+    // 2. Inserir mobileUserLi no mobileDropdown
+    const mobileDropdown = document.getElementById('mobileDropdown');
+    if (mobileDropdown && !document.getElementById('mobileUserLi')) {
+        const mobileUserLi = document.createElement('li');
+        mobileUserLi.id = 'mobileUserLi';
+        mobileUserLi.className = 'mobile-user-li';
+        mobileUserLi.innerHTML = `
+            <button class="btn-login-nav" onclick="openAuthModal()">
+                <i class="fa-regular fa-user"></i> Entrar
+            </button>
+        `;
+        mobileDropdown.appendChild(mobileUserLi);
+    }
+
+    // 3. Inserir authModal no body
+    if (!document.getElementById('authModal')) {
+        const authModal = document.createElement('div');
+        authModal.id = 'authModal';
+        authModal.className = 'modal auth-modal';
+        authModal.innerHTML = `
+            <div class="auth-container">
+                <span class="close-modal" onclick="closeAuthModal()">&times;</span>
+                <div class="auth-header">
+                    <button class="auth-tab active" id="tabLogin" onclick="switchAuthTab('login')">Login</button>
+                    <button class="auth-tab" id="tabRegister" onclick="switchAuthTab('register')">Registrar</button>
+                </div>
+                <form id="loginForm" class="auth-form" onsubmit="handleLogin(event)" autocomplete="off">
+                    <div class="input-group">
+                        <label for="loginEmail">E-mail</label>
+                        <input type="email" id="loginEmail" required placeholder="seuemail@exemplo.com" autocomplete="username">
+                    </div>
+                    <div class="input-group">
+                        <label for="loginPassword">Senha</label>
+                        <input type="password" id="loginPassword" required placeholder="Digite sua senha" autocomplete="current-password">
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-auth-submit" id="btnLoginSubmit">
+                        Entrar <i class="fa-solid fa-right-to-bracket"></i>
+                    </button>
+                </form>
+                <form id="registerForm" class="auth-form hidden" onsubmit="handleRegister(event)" autocomplete="off">
+                    <div class="input-group">
+                        <label for="regMinecraft">Nick do Minecraft</label>
+                        <input type="text" id="regMinecraft" required minlength="3" placeholder="Seu Nick de jogo" autocomplete="off">
+                        <small class="input-hint">Necessário para carregar a skin da sua cabeça.</small>
+                    </div>
+                    <div class="input-group">
+                        <label for="regEmail">E-mail</label>
+                        <input type="email" id="regEmail" required placeholder="seuemail@exemplo.com" autocomplete="off">
+                    </div>
+                    <div class="input-group">
+                        <label for="regPassword">Senha</label>
+                        <input type="password" id="regPassword" required minlength="6" placeholder="Mínimo 6 caracteres" autocomplete="new-password">
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-auth-submit" id="btnRegisterSubmit">
+                        Criar Conta <i class="fa-solid fa-user-plus"></i>
+                    </button>
+                </form>
+            </div>
+        `;
+        document.body.appendChild(authModal);
+    }
+
+    // 4. Reestruturar #albumModal para split view
+    const albumModal = document.getElementById('albumModal');
+    if (albumModal && !albumModal.querySelector('.modal-wrapper')) {
+        const modalImg = document.getElementById('modalImage');
+        const prevBtn = albumModal.querySelector('.prev-slide');
+        const nextBtn = albumModal.querySelector('.next-slide');
+        const counter = albumModal.querySelector('.slide-counter');
+        const closeBtn = albumModal.querySelector('.close-modal');
+
+        if (closeBtn) closeBtn.remove();
+
+        const wrapper = document.createElement('div');
+        wrapper.className = 'modal-wrapper';
+
+        const imgPanel = document.createElement('div');
+        imgPanel.className = 'modal-image-panel';
+
+        const intPanel = document.createElement('div');
+        intPanel.className = 'modal-interaction-panel';
+
+        if (modalImg) imgPanel.appendChild(modalImg);
+        if (prevBtn) imgPanel.appendChild(prevBtn);
+        if (nextBtn) imgPanel.appendChild(nextBtn);
+        if (counter) imgPanel.appendChild(counter);
+
+        intPanel.innerHTML = `
+            <div class="interaction-header">
+                <h3 class="interaction-album-title" id="modalAlbumTitle">Título do Álbum</h3>
+                <div class="interaction-album-author" id="modalAlbumAuthor">
+                    <img src="https://mc-heads.net/avatar/steve/16" class="album-author-avatar" id="modalAuthorAvatar" alt="Avatar">
+                    <span class="album-author-name" id="modalAuthorName">Autor</span>
+                </div>
+            </div>
+            
+            <div class="likes-section">
+                <button class="btn-like" id="btnLike">
+                    <i class="fa-regular fa-heart"></i>
+                </button>
+                <span class="likes-count" id="likesCount">0 curtidas</span>
+            </div>
+
+            <div class="comments-section">
+                <h4 class="comments-title"><i class="fa-regular fa-comments"></i> Comentários</h4>
+                <div class="comments-list" id="commentsList"></div>
+            </div>
+
+            <div class="comment-input-area">
+                <div id="commentAuthWarning" class="comment-auth-warning">
+                    Faça <span class="auth-link" onclick="openAuthModal()">login</span> para curtir e comentar nesta foto.
+                </div>
+                <form id="commentForm" class="comment-form hidden" onsubmit="handleCommentSubmit(event)" autocomplete="off">
+                    <input type="text" id="commentInput" placeholder="Escreva um comentário..." required autocomplete="off">
+                    <button type="submit" class="btn-send-comment">
+                        <i class="fa-solid fa-paper-plane"></i>
+                    </button>
+                </form>
+            </div>
+        `;
+
+        wrapper.appendChild(imgPanel);
+        wrapper.appendChild(intPanel);
+
+        albumModal.innerHTML = '';
+        albumModal.innerHTML = '<span class="close-modal" id="closeAlbumModalBtn">&times;</span>';
+        albumModal.appendChild(wrapper);
+
+        // Re-associar botão fechar original
+        const newCloseBtn = document.getElementById('closeAlbumModalBtn');
+        if (newCloseBtn) {
+            newCloseBtn.addEventListener('click', () => {
+                albumModal.classList.remove('show');
+                document.body.style.overflow = 'auto';
+            });
+        }
+    }
+}
+
+function setupSupabaseAuthAndInteractions() {
+    if (!supabaseClient) return;
+
+    // Monitoramento do estado de login
+    supabaseClient.auth.onAuthStateChange(async (event, session) => {
+        currentUser = session?.user || null;
+        if (currentUser) {
+            try {
+                const { data, error } = await supabaseClient
+                    .from('profiles')
+                    .select('minecraft_username')
+                    .eq('id', currentUser.id)
+                    .single();
+                
+                if (!error && data) {
+                    currentProfile = data;
+                } else {
+                    currentProfile = { 
+                        minecraft_username: currentUser.user_metadata?.minecraft_username || 'Jogador' 
+                    };
+                }
+            } catch (err) {
+                currentProfile = { 
+                    minecraft_username: currentUser.user_metadata?.minecraft_username || 'Jogador' 
+                };
+            }
+        } else {
+            currentProfile = null;
+        }
+
+        updateUserInterface();
+
+        const modal = document.getElementById('albumModal');
+        const modalImg = document.getElementById('modalImage');
+        if (modal && modal.classList.contains('show') && modalImg && modalImg.src) {
+            const photoPath = getRelativePhotoPath(modalImg.src);
+            window.loadPhotoInteractions(photoPath);
+        }
+    });
+
+    // Registrar o click do botão de Like
+    const btnLike = document.getElementById('btnLike');
+    if (btnLike) {
+        btnLike.addEventListener('click', handleLikeToggle);
+    }
+
+    // Configurar observador para atualizações na troca de imagens (MutationObserver)
+    const modalImg = document.getElementById('modalImage');
+    if (modalImg) {
+        const observer = new MutationObserver((mutations) => {
+            mutations.forEach((mutation) => {
+                if (mutation.type === 'attributes' && mutation.attributeName === 'src') {
+                    const newSrc = modalImg.src;
+                    if (newSrc) {
+                        // Descobrir qual é o card ativo para preencher os dados do cabeçalho
+                        const relativePath = getRelativePhotoPath(newSrc);
+                        const card = Array.from(document.querySelectorAll('.album-card')).find(c => {
+                            const imagesAttr = c.getAttribute('data-images') || '';
+                            const images = imagesAttr.split(',').map(img => img.trim());
+                            return images.some(img => {
+                                let p = img;
+                                if (p.startsWith('/')) p = p.substring(1);
+                                return p === relativePath;
+                            });
+                        });
+
+                        if (card) {
+                            const title = card.querySelector('.album-title')?.textContent || 'Álbum de Construções';
+                            const authorName = card.querySelector('.album-author-name')?.textContent || 'Jogador';
+                            const authorAvatar = card.querySelector('.album-author-avatar')?.src || 'https://mc-heads.net/avatar/steve/16';
+
+                            const modalTitle = document.getElementById('modalAlbumTitle');
+                            const modalAuthorName = document.getElementById('modalAuthorName');
+                            const modalAuthorAvatar = document.getElementById('modalAuthorAvatar');
+
+                            if (modalTitle) modalTitle.textContent = title;
+                            if (modalAuthorName) modalAuthorName.textContent = authorName;
+                            if (modalAuthorAvatar) modalAuthorAvatar.src = authorAvatar;
+                        }
+
+                        window.loadPhotoInteractions(newSrc);
+                    }
+                }
+            });
+        });
+        observer.observe(modalImg, { attributes: true });
+    }
+}
+
+// Extrai o caminho relativo da imagem (ex: "Images/9_Temporada/Junin_Boss1.png")
+function getRelativePhotoPath(absoluteUrl) {
+    if (!absoluteUrl) return '';
+    try {
+        const urlObj = new URL(absoluteUrl);
+        let path = urlObj.pathname;
+        if (path.startsWith('/')) {
+            path = path.substring(1);
+        }
+        return decodeURIComponent(path);
+    } catch (e) {
+        let path = absoluteUrl;
+        if (path.startsWith('/')) {
+            path = path.substring(1);
+        }
+        return path;
+    }
+}
+
+// Atualizar cabeçalho e menu de usuário baseado no estado da sessão
+function updateUserInterface() {
+    const navUserArea = document.getElementById('navUserArea');
+    const mobileUserLi = document.getElementById('mobileUserLi');
+
+    if (!navUserArea) return;
+
+    if (currentUser && currentProfile) {
+        const nick = currentProfile.minecraft_username;
+        const userHtml = `
+            <div class="user-profile-menu">
+                <img src="https://mc-heads.net/avatar/${nick}/22" class="nav-user-avatar" alt="Avatar de ${nick}">
+                <span class="nav-user-name">${nick}</span>
+                <button class="btn-logout-nav" onclick="handleLogout()" title="Sair do painel">
+                    <i class="fa-solid fa-right-from-bracket"></i>
+                </button>
+            </div>
+        `;
+        navUserArea.innerHTML = userHtml;
+
+        if (mobileUserLi) {
+            mobileUserLi.innerHTML = `
+                <div class="user-profile-menu">
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <img src="https://mc-heads.net/avatar/${nick}/22" class="nav-user-avatar" alt="Avatar">
+                        <span class="nav-user-name">${nick}</span>
+                    </div>
+                    <button class="btn-logout-nav" onclick="handleLogout()">
+                        <i class="fa-solid fa-right-from-bracket"></i> Sair
+                    </button>
+                </div>
+            `;
+        }
+    } else {
+        const guestHtml = `
+            <button class="btn-login-nav" onclick="openAuthModal()">
+                <i class="fa-regular fa-user"></i>
+                <span>Entrar</span>
+            </button>
+        `;
+        navUserArea.innerHTML = guestHtml;
+
+        if (mobileUserLi) {
+            mobileUserLi.innerHTML = `
+                <button class="btn-login-nav" onclick="openAuthModal()">
+                    <i class="fa-regular fa-user"></i> Entrar
+                </button>
+            `;
+        }
+    }
+}
+
+// Modais - Controle de Abertura / Fechamento
+function openAuthModal() {
+    const authModal = document.getElementById('authModal');
+    if (authModal) {
+        authModal.classList.add('show');
+        document.body.style.overflow = 'hidden'; 
+        switchAuthTab('login');
+    }
+}
+
+function closeAuthModal() {
+    const authModal = document.getElementById('authModal');
+    if (authModal) {
+        authModal.classList.remove('show');
+        const albumModal = document.getElementById('albumModal');
+        if (!albumModal || !albumModal.classList.contains('show')) {
+            document.body.style.overflow = 'auto';
+        }
+        document.getElementById('loginForm')?.reset();
+        document.getElementById('registerForm')?.reset();
+    }
+}
+
+function switchAuthTab(mode) {
+    const tabLogin = document.getElementById('tabLogin');
+    const tabRegister = document.getElementById('tabRegister');
+    const loginForm = document.getElementById('loginForm');
+    const registerForm = document.getElementById('registerForm');
+
+    if (mode === 'login') {
+        tabLogin?.classList.add('active');
+        tabRegister?.classList.remove('active');
+        loginForm?.classList.remove('hidden');
+        registerForm?.classList.add('hidden');
+    } else {
+        tabRegister?.classList.add('active');
+        tabLogin?.classList.remove('active');
+        registerForm?.classList.remove('hidden');
+        loginForm?.classList.add('hidden');
+    }
+}
+
+// Lógica de Envio de Login
+async function handleLogin(event) {
+    event.preventDefault();
+    if (!supabaseClient) return;
+
+    const emailEl = document.getElementById('loginEmail');
+    const passwordEl = document.getElementById('loginPassword');
+    const email = emailEl?.value?.trim();
+    const password = passwordEl?.value;
+
+    // Limpar campos de login imediatamente por segurança contra inspeção via Console/Inspector
+    if (emailEl) emailEl.value = '';
+    if (passwordEl) passwordEl.value = '';
+
+    const btnSubmit = document.getElementById('btnLoginSubmit');
+
+    if (!email || !password) return;
+
+    if (btnSubmit) {
+        btnSubmit.disabled = true;
+        btnSubmit.innerHTML = 'Carregando... <i class="fa-solid fa-spinner fa-spin"></i>';
+    }
+
+    try {
+        const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
+        if (error) throw error;
+
+        window.showNotification("Bem-vindo de volta!", "fa-solid fa-circle-check");
+        closeAuthModal();
+    } catch (err) {
+        window.showNotification(translateAuthError(err.message), "fa-solid fa-circle-xmark");
+    } finally {
+        if (btnSubmit) {
+            btnSubmit.disabled = false;
+            btnSubmit.innerHTML = 'Entrar <i class="fa-solid fa-right-to-bracket"></i>';
+        }
+    }
+}
+
+// Lógica de Envio de Registro
+async function handleRegister(event) {
+    event.preventDefault();
+    if (!supabaseClient) return;
+
+    const minecraftEl = document.getElementById('regMinecraft');
+    const emailEl = document.getElementById('regEmail');
+    const passwordEl = document.getElementById('regPassword');
+
+    const minecraft = minecraftEl?.value?.trim();
+    const email = emailEl?.value?.trim();
+    const password = passwordEl?.value;
+
+    // Limpar campos de registro imediatamente por segurança contra inspeção via Console/Inspector
+    if (minecraftEl) minecraftEl.value = '';
+    if (emailEl) emailEl.value = '';
+    if (passwordEl) passwordEl.value = '';
+
+    const btnSubmit = document.getElementById('btnRegisterSubmit');
+
+    if (!minecraft || !email || !password) return;
+    if (minecraft.length < 3) {
+        window.showNotification("O Nick do Minecraft deve ter pelo menos 3 caracteres.", "fa-solid fa-triangle-exclamation");
+        return;
+    }
+
+    if (btnSubmit) {
+        btnSubmit.disabled = true;
+        btnSubmit.innerHTML = 'Registrando... <i class="fa-solid fa-spinner fa-spin"></i>';
+    }
+
+    try {
+        const { error } = await supabaseClient.auth.signUp({
+            email,
+            password,
+            options: {
+                data: {
+                    minecraft_username: minecraft
+                }
+            }
+        });
+        if (error) throw error;
+
+        window.showNotification("Conta criada com sucesso!", "fa-solid fa-circle-check");
+        closeAuthModal();
+    } catch (err) {
+        window.showNotification(translateAuthError(err.message), "fa-solid fa-circle-xmark");
+    } finally {
+        if (btnSubmit) {
+            btnSubmit.disabled = false;
+            btnSubmit.innerHTML = 'Criar Conta <i class="fa-solid fa-user-plus"></i>';
+        }
+    }
+}
+
+// Lógica de Logout
+async function handleLogout() {
+    if (!supabaseClient) return;
+    try {
+        await supabaseClient.auth.signOut();
+        window.showNotification("Sessão encerrada com sucesso.", "fa-solid fa-circle-info");
+    } catch (err) {
+        console.error("Erro no logout:", err);
+    }
+}
+
+window.loadPhotoInteractions = async function (photoPath) {
+    if (!supabaseClient) return;
+
+    activePhotoPath = getRelativePhotoPath(photoPath);
+
+    // 1. Carregar contagem de curtidas
+    try {
+        const { count, error } = await supabaseClient
+            .from('likes')
+            .select('*', { count: 'exact', head: true })
+            .eq('photo_path', activePhotoPath);
+
+        if (!error) {
+            currentPhotoLikesCount = count || 0;
+            const likesCountEl = document.getElementById('likesCount');
+            if (likesCountEl) {
+                likesCountEl.textContent = `${currentPhotoLikesCount} ${currentPhotoLikesCount === 1 ? 'curtida' : 'curtidas'}`;
+            }
+        }
+
+        // 2. Verificar se o usuário logado já curtiu
+        userHasLikedCurrentPhoto = false;
+        if (currentUser) {
+            const { data, error } = await supabaseClient
+                .from('likes')
+                .select('id')
+                .eq('photo_path', activePhotoPath)
+                .eq('user_id', currentUser.id)
+                .maybeSingle();
+
+            if (!error && data) {
+                userHasLikedCurrentPhoto = true;
+            }
+        }
+
+        // Atualiza ícone do botão
+        const btnLike = document.getElementById('btnLike');
+        if (btnLike) {
+            if (userHasLikedCurrentPhoto) {
+                btnLike.classList.add('liked');
+                btnLike.innerHTML = '<i class="fa-solid fa-heart"></i>';
+            } else {
+                btnLike.classList.remove('liked');
+                btnLike.innerHTML = '<i class="fa-regular fa-heart"></i>';
+            }
+        }
+    } catch (e) {
+        console.error("Erro ao carregar curtidas:", e);
+    }
+
+    // 3. Carregar lista de comentários com profiles associados
+    try {
+        const { data: commentsData, error } = await supabaseClient
+            .from('comments')
+            .select(`
+                id,
+                content,
+                created_at,
+                user_id,
+                profiles (
+                    minecraft_username
+                )
+            `)
+            .eq('photo_path', activePhotoPath)
+            .order('created_at', { ascending: true });
+
+        const commentsList = document.getElementById('commentsList');
+        if (commentsList) {
+            commentsList.innerHTML = '';
+            if (!error && commentsData && commentsData.length > 0) {
+                commentsData.forEach(comment => {
+                    const username = comment.profiles?.minecraft_username || 'Jogador';
+                    const dateText = formatRelativeTime(new Date(comment.created_at));
+
+                    commentsList.innerHTML += `
+                        <div class="comment-item">
+                            <img src="https://mc-heads.net/avatar/${username}/26" class="comment-avatar" alt="Avatar">
+                            <div class="comment-content-block">
+                                <div class="comment-header-meta">
+                                    <span class="comment-player-name">${username}</span>
+                                    <span class="comment-date-time">${dateText}</span>
+                                </div>
+                                <div class="comment-text">${escapeHTML(comment.content)}</div>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                setTimeout(() => {
+                    commentsList.scrollTop = commentsList.scrollHeight;
+                }, 50);
+            } else {
+                commentsList.innerHTML = '<div class="comment-empty-message">Nenhum comentário ainda. Seja o primeiro a comentar!</div>';
+            }
+        }
+    } catch (e) {
+        console.error("Erro ao buscar comentários:", e);
+    }
+
+    // 4. Mostrar/Esconder avisos de autenticação
+    const commentForm = document.getElementById('commentForm');
+    const commentAuthWarning = document.getElementById('commentAuthWarning');
+
+    if (currentUser) {
+        commentForm?.classList.remove('hidden');
+        commentAuthWarning?.classList.add('hidden');
+    } else {
+        commentForm?.classList.add('hidden');
+        commentAuthWarning?.classList.remove('hidden');
+    }
+};
+
+// Curtidas: Alternar clique de Curtir/Descurtir
+async function handleLikeToggle() {
+    if (!supabaseClient) return;
+    if (!currentUser) {
+        openAuthModal();
+        return;
+    }
+    if (likeLock) return;
+    likeLock = true;
+
+    const btnLike = document.getElementById('btnLike');
+    const likesCountEl = document.getElementById('likesCount');
+
+    // Atualização otimista local imediata
+    userHasLikedCurrentPhoto = !userHasLikedCurrentPhoto;
+    if (userHasLikedCurrentPhoto) {
+        currentPhotoLikesCount++;
+        btnLike?.classList.add('liked');
+        if (btnLike) btnLike.innerHTML = '<i class="fa-solid fa-heart"></i>';
+    } else {
+        currentPhotoLikesCount = Math.max(0, currentPhotoLikesCount - 1);
+        btnLike?.classList.remove('liked');
+        if (btnLike) btnLike.innerHTML = '<i class="fa-regular fa-heart"></i>';
+    }
+    if (likesCountEl) {
+        likesCountEl.textContent = `${currentPhotoLikesCount} ${currentPhotoLikesCount === 1 ? 'curtida' : 'curtidas'}`;
+    }
+
+    try {
+        if (userHasLikedCurrentPhoto) {
+            const { error } = await supabaseClient
+                .from('likes')
+                .insert({ photo_path: activePhotoPath });
+            if (error) throw error;
+        } else {
+            const { error } = await supabaseClient
+                .from('likes')
+                .delete()
+                .eq('photo_path', activePhotoPath)
+                .eq('user_id', currentUser.id);
+            if (error) throw error;
+        }
+    } catch (err) {
+        console.error("Erro ao persistir curtida:", err);
+        // Rollback da mudança otimista
+        userHasLikedCurrentPhoto = !userHasLikedCurrentPhoto;
+        if (userHasLikedCurrentPhoto) {
+            currentPhotoLikesCount++;
+            btnLike?.classList.add('liked');
+            if (btnLike) btnLike.innerHTML = '<i class="fa-solid fa-heart"></i>';
+        } else {
+            currentPhotoLikesCount = Math.max(0, currentPhotoLikesCount - 1);
+            btnLike?.classList.remove('liked');
+            if (btnLike) btnLike.innerHTML = '<i class="fa-regular fa-heart"></i>';
+        }
+        if (likesCountEl) {
+            likesCountEl.textContent = `${currentPhotoLikesCount} ${currentPhotoLikesCount === 1 ? 'curtida' : 'curtidas'}`;
+        }
+        window.showNotification("Não foi possível salvar a curtida.", "fa-solid fa-circle-xmark");
+    } finally {
+        likeLock = false;
+    }
+}
+
+// Enviar Comentário
+async function handleCommentSubmit(event) {
+    event.preventDefault();
+    if (!supabaseClient || !currentUser) return;
+
+    const input = document.getElementById('commentInput');
+    const content = input?.value?.trim();
+
+    if (!content) return;
+    if (input) input.disabled = true;
+
+    try {
+        const { error } = await supabaseClient
+            .from('comments')
+            .insert({
+                photo_path: activePhotoPath,
+                content: content
+            });
+
+        if (error) throw error;
+        if (input) input.value = '';
+
+        await window.loadPhotoInteractions(activePhotoPath);
+    } catch (err) {
+        console.error("Erro ao comentar:", err);
+        window.showNotification("Erro ao postar comentário.", "fa-solid fa-circle-xmark");
+    } finally {
+        if (input) input.disabled = false;
+    }
+}
+
+// Helper: Escape HTML contra injeção de script (XSS)
+function escapeHTML(str) {
+    if (!str) return '';
+    return str.replace(/[&<>'"]/g, 
+        tag => ({
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            "'": '&#39;',
+            '"': '&quot;'
+        }[tag] || tag)
+    );
+}
+
+// Helper: Formatar data relativa amigável
+function formatRelativeTime(date) {
+    const now = new Date();
+    const diffMs = now - date;
+    const diffSec = Math.floor(diffMs / 1000);
+    const diffMin = Math.floor(diffSec / 60);
+    const diffHour = Math.floor(diffMin / 60);
+    const diffDay = Math.floor(diffHour / 24);
+
+    if (diffSec < 60) {
+        return 'agora mesmo';
+    } else if (diffMin < 60) {
+        return `há ${diffMin} min`;
+    } else if (diffHour < 24) {
+        return `há ${diffHour} ${diffHour === 1 ? 'hora' : 'horas'}`;
+    } else if (diffDay < 7) {
+        return `há ${diffDay} ${diffDay === 1 ? 'dia' : 'dias'}`;
+    } else {
+        return date.toLocaleDateString('pt-BR');
+    }
+}
+
+// Tradução de mensagens comuns de erro do Supabase Auth para português
+function translateAuthError(message) {
+    if (message.includes("Invalid login credentials")) {
+        return "E-mail ou senha incorretos.";
+    }
+    if (message.includes("User already registered")) {
+        return "Este e-mail já está cadastrado.";
+    }
+    if (message.includes("Password should be at least")) {
+        return "A senha deve ter pelo menos 6 caracteres.";
+    }
+    if (message.includes("Signup requires a valid email")) {
+        return "Informe um e-mail válido.";
+    }
+    return message;
+}
+
+// Injetar elementos dinâmicos após carregamento da página
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', injectHtmlElements);
+} else {
+    injectHtmlElements();
+}
+
+// Carregar SDK do Supabase dinamicamente se não estiver incluído
+(function() {
+    if (!window.supabase && !document.querySelector('script[src*="supabase-js"]')) {
+        const script = document.createElement('script');
+        script.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
+        script.onload = () => {
+            if (window.supabase) {
+                supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+                setupSupabaseAuthAndInteractions();
+            }
+        };
+        document.head.appendChild(script);
+    } else if (window.supabase) {
+        supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        setupSupabaseAuthAndInteractions();
+    }
+})();
+
+// Bind de funções globais chamadas inline no HTML injetado
+window.openAuthModal = openAuthModal;
+window.closeAuthModal = closeAuthModal;
+window.switchAuthTab = switchAuthTab;
+window.handleLogin = handleLogin;
+window.handleRegister = handleRegister;
+window.handleLogout = handleLogout;
+window.handleCommentSubmit = handleCommentSubmit;
+window.showNotification = function(message, iconClass = 'fa-solid fa-check', duration = 3000) {
+    const toast = document.getElementById('toast');
+    if (!toast) return;
+    const textSpan = toast.querySelector('span');
+    const icon = toast.querySelector('.toast-success-icon i');
+
+    if (textSpan) textSpan.textContent = message;
+    if (icon) icon.className = iconClass;
+
+    toast.classList.add('show');
+    setTimeout(() => {
+        toast.classList.remove('show');
+    }, duration);
+};
