@@ -1033,7 +1033,35 @@ function injectHtmlElements() {
 function setupSupabaseAuthAndInteractions() {
     if (!supabaseClient) return;
 
-    // Monitoramento do estado de login
+    // Restaurar sessão existente ao carregar a página (persiste login após reload)
+    supabaseClient.auth.getSession().then(async ({ data: { session } }) => {
+        currentUser = session?.user || null;
+        if (currentUser) {
+            try {
+                const { data, error } = await supabaseClient
+                    .from('profiles')
+                    .select('minecraft_username')
+                    .eq('id', currentUser.id)
+                    .single();
+                if (!error && data) {
+                    currentProfile = data;
+                } else {
+                    currentProfile = {
+                        minecraft_username: currentUser.user_metadata?.minecraft_username || 'Jogador'
+                    };
+                }
+            } catch (err) {
+                currentProfile = {
+                    minecraft_username: currentUser.user_metadata?.minecraft_username || 'Jogador'
+                };
+            }
+        } else {
+            currentProfile = null;
+        }
+        updateUserInterface();
+    });
+
+    // Monitoramento contínuo do estado de login (login, logout, refresh de token)
     supabaseClient.auth.onAuthStateChange(async (event, session) => {
         currentUser = session?.user || null;
         if (currentUser) {
@@ -1235,20 +1263,24 @@ function switchAuthTab(mode) {
 // Lógica de Envio de Login
 async function handleLogin(event) {
     event.preventDefault();
-    if (!supabaseClient) return;
+
+    const btnSubmit = document.getElementById('btnLoginSubmit');
+
+    // Supabase ainda não carregou — mostrar erro sem travar o botão
+    if (!supabaseClient) {
+        window.showNotification("Aguarde, conectando ao servidor...", "fa-solid fa-spinner");
+        return;
+    }
 
     const emailEl = document.getElementById('loginEmail');
     const passwordEl = document.getElementById('loginPassword');
     const email = emailEl?.value?.trim();
     const password = passwordEl?.value;
 
-    // Limpar campos de login imediatamente por segurança contra inspeção via Console/Inspector
-    if (emailEl) emailEl.value = '';
-    if (passwordEl) passwordEl.value = '';
-
-    const btnSubmit = document.getElementById('btnLoginSubmit');
-
-    if (!email || !password) return;
+    if (!email || !password) {
+        window.showNotification("Preencha e-mail e senha.", "fa-solid fa-triangle-exclamation");
+        return;
+    }
 
     if (btnSubmit) {
         btnSubmit.disabled = true;
@@ -1258,6 +1290,10 @@ async function handleLogin(event) {
     try {
         const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
         if (error) throw error;
+
+        // Limpar campos após login bem-sucedido (segurança contra inspeção)
+        if (emailEl) emailEl.value = '';
+        if (passwordEl) passwordEl.value = '';
 
         window.showNotification("Bem-vindo de volta!", "fa-solid fa-circle-check");
         closeAuthModal();
@@ -1274,7 +1310,14 @@ async function handleLogin(event) {
 // Lógica de Envio de Registro
 async function handleRegister(event) {
     event.preventDefault();
-    if (!supabaseClient) return;
+
+    const btnSubmit = document.getElementById('btnRegisterSubmit');
+
+    // Supabase ainda não carregou — mostrar erro sem travar o botão
+    if (!supabaseClient) {
+        window.showNotification("Aguarde, conectando ao servidor...", "fa-solid fa-spinner");
+        return;
+    }
 
     const minecraftEl = document.getElementById('regMinecraft');
     const emailEl = document.getElementById('regEmail');
@@ -1284,14 +1327,10 @@ async function handleRegister(event) {
     const email = emailEl?.value?.trim();
     const password = passwordEl?.value;
 
-    // Limpar campos de registro imediatamente por segurança contra inspeção via Console/Inspector
-    if (minecraftEl) minecraftEl.value = '';
-    if (emailEl) emailEl.value = '';
-    if (passwordEl) passwordEl.value = '';
-
-    const btnSubmit = document.getElementById('btnRegisterSubmit');
-
-    if (!minecraft || !email || !password) return;
+    if (!minecraft || !email || !password) {
+        window.showNotification("Preencha todos os campos.", "fa-solid fa-triangle-exclamation");
+        return;
+    }
     if (minecraft.length < 3) {
         window.showNotification("O Nick do Minecraft deve ter pelo menos 3 caracteres.", "fa-solid fa-triangle-exclamation");
         return;
@@ -1314,8 +1353,18 @@ async function handleRegister(event) {
         });
         if (error) throw error;
 
-        window.showNotification("Conta criada com sucesso!", "fa-solid fa-circle-check");
+        // Limpar campos após registro bem-sucedido (segurança contra inspeção)
+        if (minecraftEl) minecraftEl.value = '';
+        if (emailEl) emailEl.value = '';
+        if (passwordEl) passwordEl.value = '';
+
+        window.showNotification("Conta criada com sucesso! Faça login.", "fa-solid fa-circle-check");
         closeAuthModal();
+        // Abrir automaticamente o modal de login após registro
+        setTimeout(() => {
+            openAuthModal();
+            switchAuthTab('login');
+        }, 500);
     } catch (err) {
         window.showNotification(translateAuthError(err.message), "fa-solid fa-circle-xmark");
     } finally {
