@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel Admin - FR32SURVIVAL</title>
+    <link rel="icon" href="../icon/Fr32_Icon.png" type="image/png">
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Outfit:wght@300;400;500;700;800;900&display=swap" rel="stylesheet">
+
+    <!-- FontAwesome para Ícones -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Estilos Externos -->
+    <link rel="stylesheet" href="style.css">
+
+    <!-- Supabase SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" crossorigin="anonymous"></script>
+</head>
+
+<body>
+    <!-- Decorações de Fundo -->
+    <div class="bg-gradient"></div>
+    <div class="grid-overlay"></div>
+
+    <!-- Tela de Verificação / Loading -->
+    <div id="authLoadingScreen" class="admin-loading-screen">
+        <div class="loading-box">
+            <div class="minecraft-spinner"></div>
+            <h2>Verificando permissões...</h2>
+            <p>Por favor, aguarde enquanto validamos seu nível de acesso no banco de dados.</p>
+        </div>
+    </div>
+
+    <!-- Conteúdo Principal do Painel (Oculto até autenticação) -->
+    <div id="adminPanelContent" class="admin-panel-container" style="display: none;">
+        
+        <!-- Cabeçalho Administrativo -->
+        <header class="admin-header">
+            <div class="admin-brand">
+                <img src="../icon/Fr32_Icon.png" alt="FR32 Logo" class="admin-logo">
+                <div class="brand-text">
+                    <h1>FR32SURVIVAL</h1>
+                    <span>PAINEL DE ADMINISTRAÇÃO</span>
+                </div>
+            </div>
+            <div class="admin-user-profile" id="adminUserProfile">
+                <span class="user-email" id="currentUserEmail">admin@fr32survival.com</span>
+                <span class="user-role-badge" id="currentUserRole">Admin</span>
+                <button class="btn-logout" id="btnAdminLogout" title="Sair do Painel">
+                    <i class="fa-solid fa-right-from-bracket"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- Layout de Abas -->
+        <div class="admin-layout">
+            
+            <!-- Barra Lateral de Navegação (Tabs) -->
+            <aside class="admin-sidebar">
+                <nav class="admin-nav">
+                    <button class="nav-tab-btn active" data-tab="permissions" id="tabBtnPermissions" style="display: none;">
+                        <i class="fa-solid fa-user-shield"></i>
+                        <span>Permissões</span>
+                    </button>
+                    <button class="nav-tab-btn" data-tab="veterans" id="tabBtnVeterans">
+                        <i class="fa-solid fa-trophy"></i>
+                        <span>Veteranos</span>
+                    </button>
+                    <button class="nav-tab-btn" data-tab="seasons" id="tabBtnSeasons">
+                        <i class="fa-solid fa-images"></i>
+                        <span>Temporadas</span>
+                    </button>
+                    <button class="nav-tab-btn" data-tab="comments" id="tabBtnComments">
+                        <i class="fa-solid fa-comments"></i>
+                        <span>Comentários</span>
+                    </button>
+                </nav>
+                
+                <a href="../index.html" class="btn-back-site" target="_self">
+                    <i class="fa-solid fa-arrow-left"></i> Voltar ao Site
+                </a>
+            </aside>
+
+            <!-- Área de Conteúdo das Abas -->
+            <main class="admin-main">
+                
+                <!-- ABA 1: GERENCIAMENTO DE PERMISSÕES (Exclusivo Super Admin) -->
+                <section class="tab-pane active" id="tabPermissions">
+                    <div class="pane-header">
+                        <h2>Gerenciamento de Cargos e Permissões</h2>
+                        <p>Como Super Admin, você pode conceder ou revogar o cargo de Administrador para outros usuários registrados no banco de dados.</p>
+                    </div>
+
+                    <div class="pane-grid">
+                        
+                        <!-- Bloco: Promover Usuário por Email -->
+                        <div class="admin-card">
+                            <h3><i class="fa-solid fa-user-plus"></i> Promover Administrador</h3>
+                            <p class="card-desc">Digite o e-mail exato do jogador registrado para promovê-lo a administrador.</p>
+                            
+                            <form id="formPromoteAdmin" class="admin-form">
+                                <div class="form-group">
+                                    <label for="inputPromoteEmail">E-mail do Usuário</label>
+                                    <div class="input-wrapper">
+                                        <i class="fa-solid fa-envelope input-icon"></i>
+                                        <input type="email" id="inputPromoteEmail" placeholder="exemplo@email.com" required>
+                                    </div>
+                                </div>
+                                <button type="submit" class="btn btn-primary btn-block" id="btnPromoteSubmit">
+                                    <i class="fa-solid fa-shield-halved"></i> Conceder Cargo
+                                </button>
+                            </form>
+                        </div>
+
+                        <!-- Bloco: Estatísticas Rápidas de Admin -->
+                        <div class="admin-card stats-overview-card">
+                            <h3><i class="fa-solid fa-chart-pie"></i> Resumo de Cargos</h3>
+                            <div class="stats-grid">
+                                <div class="stat-box">
+                                    <span class="stat-number" id="statCountSuperAdmins">1</span>
+                                    <span class="stat-label">Super Admins</span>
+                                </div>
+                                <div class="stat-box">
+                                    <span class="stat-number" id="statCountAdmins">0</span>
+                                    <span class="stat-label">Administradores</span>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- Bloco da Tabela de Usuários -->
+                    <div class="admin-card table-card">
+                        <div class="table-header-row">
+                            <h3><i class="fa-solid fa-users"></i> Usuários do Sistema</h3>
+                            <div class="search-box">
+                                <i class="fa-solid fa-magnifying-glass"></i>
+                                <input type="text" id="inputSearchUsers" placeholder="Buscar por e-mail ou Minecraft username...">
+                            </div>
+                        </div>
+
+                        <div class="table-responsive">
+                            <table class="admin-table">
+                               <thead>
+                                   <tr>
+                                       <th>E-mail</th>
+                                       <th>Nick no Minecraft</th>
+                                       <th>UUID do Supabase</th>
+                                       <th>Cargo Atual</th>
+                                       <th class="text-right">Ações</th>
+                                   </tr>
+                               </thead>
+                               <tbody id="tableUsersBody">
+                                   <!-- Preenchido dinamicamente via JS -->
+                                   <tr>
+                                       <td colspan="5" class="table-loading-row">
+                                           <div class="spinner"></div> Carregando usuários...
+                                       </td>
+                                   </tr>
+                               </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ABA 2: GERENCIAMENTO DE VETERANOS -->
+                <section class="tab-pane" id="tabVeterans">
+                    <div class="pane-header">
+                        <h2>Gerenciamento de Veteranos</h2>
+                        <p>Adicione, edite ou remova jogadores veteranos do mural de honra do servidor.</p>
+                    </div>
+
+                    <div class="pane-grid">
+                        <!-- Formulário de Veterano (Adicionar/Editar) -->
+                        <div class="admin-card">
+                            <h3 id="veteranFormTitle"><i class="fa-solid fa-user-plus"></i> Adicionar Veterano</h3>
+                            <p class="card-desc" id="veteranFormDesc">Insira as informações do jogador para destacá-lo no mural.</p>
+                            
+                            <form id="formVeteran" class="admin-form">
+                                <!-- Campo Oculto para ID (Edição) -->
+                                <input type="hidden" id="inputVeteranId" value="">
+                                
+                                <div class="form-group">
+                                    <label for="inputVeteranNick">Nick no Minecraft</label>
+                                    <div class="input-wrapper">
+                                        <i class="fa-solid fa-gamepad input-icon"></i>
+                                        <input type="text" id="inputVeteranNick" placeholder="Ex: vNeoo" required>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="inputVeteranTitle">Título / Distintivo</label>
+                                    <div class="input-wrapper">
+                                        <i class="fa-solid fa-award input-icon"></i>
+                                        <input type="text" id="inputVeteranTitle" placeholder="Ex: Pioneiro, Mestre Construtor" required>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="inputVeteranDesc">Feito / Descrição Curta</label>
+                                    <div class="input-wrapper">
+                                        <i class="fa-solid fa-quote-left input-icon" style="top: 20px;"></i>
+                                        <textarea id="inputVeteranDesc" placeholder="Descreva os feitos marcantes deste jogador..." required style="width: 100%; background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 14px; padding: 12px 16px 12px 46px; color: #fff; font-family: var(--font-main); font-size: 0.95rem; min-height: 100px; resize: vertical; transition: all 0.3s ease;"></textarea>
+                                    </div>
+                                </div>
+
+                                <div class="form-buttons-row" style="display: flex; gap: 1rem;">
+                                    <button type="submit" class="btn btn-primary" id="btnVeteranSubmit" style="flex: 1;">
+                                        <i class="fa-solid fa-plus"></i> Adicionar ao Mural
+                                    </button>
+                                    <button type="button" class="btn btn-secondary hidden" id="btnVeteranCancelEdit" style="background: rgba(255, 255, 255, 0.05); border-color: rgba(255, 255, 255, 0.1); color: #fff; padding: 10px 20px;">
+                                        Cancelar
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+
+                        <!-- Card de Guia / Ajuda -->
+                        <div class="admin-card stats-overview-card">
+                            <h3><i class="fa-solid fa-circle-info"></i> Como Funciona?</h3>
+                            <div class="guide-content" style="font-size: 0.85rem; line-height: 1.6; color: var(--text-muted); display: flex; flex-direction: column; gap: 10px; margin-top: 1rem;">
+                                <p><i class="fa-solid fa-check" style="color: var(--success);"></i> <strong>Nick Exato:</strong> O nome do jogador deve ser idêntico ao nick dele no Minecraft para que a skin de corpo inteiro e cabeça sejam renderizadas de forma dinâmica na Home.</p>
+                                <p><i class="fa-solid fa-check" style="color: var(--success);"></i> <strong>Título Dinâmico:</strong> O título (ex: "Fundador", "Lenda") se tornará uma tag visual no card do jogador.</p>
+                                <p><i class="fa-solid fa-check" style="color: var(--success);"></i> <strong>Mural em Tempo Real:</strong> Qualquer adição ou exclusão feita aqui refletirá imediatamente no site principal.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tabela de Veteranos Cadastrados -->
+                    <div class="admin-card table-card">
+                        <div class="table-header-row">
+                            <h3><i class="fa-solid fa-award"></i> Veteranos no Mural</h3>
+                            <div class="search-box">
+                                <i class="fa-solid fa-magnifying-glass"></i>
+                                <input type="text" id="inputSearchVeterans" placeholder="Buscar veterano por nick ou título...">
+                            </div>
+                        </div>
+
+                        <div class="table-responsive">
+                            <table class="admin-table">
+                               <thead>
+                                   <tr>
+                                       <th>Skin / Visual</th>
+                                       <th>Nick no Minecraft</th>
+                                       <th>Título / Tag</th>
+                                       <th>Feitos / Descrição</th>
+                                       <th class="text-right">Ações</th>
+                                   </tr>
+                               </thead>
+                               <tbody id="tableVeteransBody">
+                                   <tr>
+                                       <td colspan="5" class="table-loading-row">
+                                           <div class="spinner"></div> Carregando veteranos...
+                                       </td>
+                                   </tr>
+                               </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+
+                <!-- ABA 3: GERENCIAMENTO DE TEMPORADAS E FOTOS -->
+                <section class="tab-pane" id="tabSeasons">
+                    <div class="pane-header">
+                        <h2>Gerenciamento de Temporadas e Galeria</h2>
+                        <p>Crie novas temporadas do servidor e gerencie a galeria de fotos fazendo upload diretamente para o Supabase Storage.</p>
+                    </div>
+
+                    <div class="pane-grid">
+                        
+                        <!-- Bloco: Criar Nova Temporada -->
+                        <div class="admin-card">
+                            <h3><i class="fa-solid fa-folder-plus"></i> Nova Temporada</h3>
+                            <p class="card-desc">Adicione uma temporada para organizar as fotos da galeria.</p>
+                            
+                            <form id="formCreateSeason" class="admin-form">
+                                <div class="form-group">
+                                    <label for="inputSeasonNumber">Número da Temporada</label>
+                                    <div class="input-wrapper">
+                                        <i class="fa-solid fa-hashtag input-icon"></i>
+                                        <input type="number" id="inputSeasonNumber" placeholder="Ex: 10" required min="1">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="inputSeasonName">Nome da Temporada</label>
+                                    <div class="input-wrapper">
+                                        <i class="fa-solid fa-file-signature input-icon"></i>
+                                        <input type="text" id="inputSeasonName" placeholder="Ex: A Era do Vazio" required>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="inputSeasonDesc">Descrição (Opcional)</label>
+                                    <div class="input-wrapper">
+                                        <i class="fa-solid fa-align-left input-icon"></i>
+                                        <input type="text" id="inputSeasonDesc" placeholder="Breve resumo da temporada...">
+                                    </div>
+                                </div>
+                                <button type="submit" class="btn btn-primary btn-block" id="btnCreateSeasonSubmit">
+                                    <i class="fa-solid fa-plus"></i> Criar Temporada
+                                </button>
+                            </form>
+                        </div>
+
+                        <!-- Bloco: Upload de Foto -->
+                        <div class="admin-card">
+                            <h3><i class="fa-solid fa-cloud-arrow-up"></i> Enviar Foto para a Galeria</h3>
+                            <p class="card-desc">Selecione a temporada ativa, envie o arquivo de imagem e adicione uma legenda.</p>
+                            
+                            <form id="formUploadPhoto" class="admin-form" enctype="multipart/form-data">
+                                <div class="form-group">
+                                    <label for="selectUploadSeason">Selecionar Temporada</label>
+                                    <div class="input-wrapper">
+                                        <i class="fa-solid fa-folder-open input-icon" style="z-index: 10;"></i>
+                                        <select id="selectUploadSeason" required style="width: 100%; background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 14px; padding: 12px 16px 12px 46px; color: #fff; font-family: var(--font-main); font-size: 0.95rem; appearance: none; transition: all 0.3s ease;">
+                                            <option value="" disabled selected style="background: var(--bg-dark); color: var(--text-muted);">Carregando temporadas...</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="inputPhotoFile">Arquivo de Imagem</label>
+                                    <div class="input-wrapper">
+                                        <i class="fa-solid fa-image input-icon" style="top: 50%; transform: translateY(-50%);"></i>
+                                        <input type="file" id="inputPhotoFile" accept="image/*" required style="padding-top: 10px;">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="inputPhotoDesc">Legenda da Foto (Opcional)</label>
+                                    <div class="input-wrapper">
+                                        <i class="fa-solid fa-heading input-icon"></i>
+                                        <input type="text" id="inputPhotoDesc" placeholder="Ex: Casa do jogador vNeoo">
+                                    </div>
+                                </div>
+                                <button type="submit" class="btn btn-primary btn-block" id="btnUploadPhotoSubmit">
+                                    <i class="fa-solid fa-cloud-arrow-up"></i> Fazer Upload
+                                </button>
+                            </form>
+                        </div>
+
+                    </div>
+
+                    <!-- Visualizador e Gerenciador da Galeria de Fotos -->
+                    <div class="admin-card">
+                        <div class="table-header-row" style="border-bottom: none; padding-bottom: 0;">
+                            <h3><i class="fa-solid fa-photo-film"></i> Galeria da Temporada</h3>
+                            <div class="search-box">
+                                <i class="fa-solid fa-folder-open" style="z-index: 10;"></i>
+                                <select id="selectManageSeason" style="width: 100%; background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.06); border-radius: 30px; padding: 8px 14px 8px 38px; color: #fff; font-family: var(--font-main); font-size: 0.85rem; appearance: none; transition: all 0.3s ease;">
+                                    <option value="" disabled selected style="background: var(--bg-dark); color: var(--text-muted);">Filtrar por Temporada...</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Grid de Visualização das Fotos -->
+                        <div id="adminGalleryGrid" class="admin-gallery-grid">
+                            <div class="table-loading-row" style="grid-column: 1 / -1; width: 100%;">
+                                Selecione uma temporada acima para listar as fotos correspondentes.
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+
+                <!-- ABA 4: MODERAÇÃO DE COMENTÁRIOS -->
+                <section class="tab-pane" id="tabComments">
+                    <div class="pane-header">
+                        <h2>Painel de Moderação de Comentários</h2>
+                        <p>Selecione uma temporada e clique em uma imagem para listar e moderar (deletar) comentários inadequados de qualquer usuário.</p>
+                    </div>
+
+                    <div class="pane-grid">
+                        
+                        <!-- Coluna Esquerda: Listagem de Fotos por Temporada -->
+                        <div class="admin-card" style="display: flex; flex-direction: column; gap: 1.5rem;">
+                            <h3><i class="fa-solid fa-images"></i> Selecionar Foto</h3>
+                            
+                            <div class="form-group" style="margin-bottom: 0;">
+                                <label for="selectCommentsSeason">Temporada</label>
+                                <div class="input-wrapper">
+                                    <i class="fa-solid fa-folder-open input-icon" style="z-index: 10;"></i>
+                                    <select id="selectCommentsSeason" style="width: 100%; background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 14px; padding: 12px 16px 12px 46px; color: #fff; font-family: var(--font-main); font-size: 0.95rem; appearance: none; transition: all 0.3s ease;">
+                                        <option value="" disabled selected style="background: var(--bg-dark); color: var(--text-muted);">Selecione a Temporada...</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <!-- Grid Compacto de Fotos para Seleção -->
+                            <div id="moderationPhotosList" class="moderation-photos-list">
+                                <div class="table-loading-row" style="grid-column: 1 / -1; font-size: 0.85rem; padding: 2rem 0;">
+                                    Selecione uma temporada acima.
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Coluna Direita: Comentários da Foto Selecionada -->
+                        <div class="admin-card" id="moderationCommentsCard" style="display: flex; flex-direction: column; justify-content: flex-start; min-height: 480px;">
+                            <div id="moderationCommentsHeader" class="moderation-comments-header hidden">
+                                <img id="moderationSelectedPhotoPreview" src="" alt="Preview">
+                                <div>
+                                    <h4 id="moderationSelectedPhotoDesc">Legenda da Foto</h4>
+                                    <span id="moderationCommentsCount">0 comentários</span>
+                                </div>
+                            </div>
+
+                            <!-- Lista de Comentários Moderáveis -->
+                            <div id="moderationCommentsList" class="moderation-comments-list">
+                                <div class="placeholder-pane" style="padding: 4rem 1rem; border: none; background: transparent; width: 100%;">
+                                    <i class="fa-regular fa-comment-dots" style="font-size: 2.5rem; animation: float 3s ease-in-out infinite;"></i>
+                                    <p style="font-size: 0.9rem;">Nenhuma foto selecionada. Escolha uma foto ao lado para gerenciar os comentários.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </section>
+
+
+            </main>
+        </div>
+    </div>
+
+    <!-- Toast de Notificações -->
+    <div class="toast" id="adminToast">
+        <div class="toast-icon" id="adminToastIcon"><i class="fa-solid fa-info"></i></div>
+        <span id="adminToastText">Mensagem administrativa</span>
+    </div>
+
+    <!-- JS de Administração -->
+    <script src="admin.js"></script>
+</body>
+
+</html>

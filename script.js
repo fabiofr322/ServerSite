@@ -867,6 +867,7 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
 let supabaseClient = null;
 let currentUser = null;
 let currentProfile = null;
+let isCurrentUserAdmin = false;
 
 // Curtidas & Comentários da foto ativa
 let currentPhotoLikesCount = 0;
@@ -1034,24 +1035,30 @@ function setupSupabaseAuthAndInteractions() {
     if (!supabaseClient) return;
 
     // Restaurar sessão existente ao carregar a página (persiste login após reload)
-    supabaseClient.auth.getSession().then(({ data: { session } }) => {
+    supabaseClient.auth.getSession().then(async ({ data: { session } }) => {
         currentUser = session?.user || null;
         if (currentUser) {
             currentProfile = {
                 minecraft_username: currentUser.user_metadata?.minecraft_username || 'Jogador'
             };
-            // Busca atualizada do perfil
-            supabaseClient
-                .from('profiles')
-                .select('minecraft_username')
-                .eq('id', currentUser.id)
-                .single()
-                .then(({ data }) => {
-                    if (data) currentProfile = data;
-                    updateUserInterface();
-                });
+            isCurrentUserAdmin = false;
+
+            try {
+                // Busca em paralelo perfil e permissões
+                const [profileRes, permRes] = await Promise.all([
+                    supabaseClient.from('profiles').select('minecraft_username').eq('id', currentUser.id).single(),
+                    supabaseClient.from('user_permissions').select('role').eq('user_id', currentUser.id).maybeSingle()
+                ]);
+
+                if (profileRes.data) currentProfile = profileRes.data;
+                if (permRes.data) isCurrentUserAdmin = true;
+            } catch (err) {
+                console.warn("Erro ao restaurar sessão:", err);
+            }
+            updateUserInterface();
         } else {
             currentProfile = null;
+            isCurrentUserAdmin = false;
             updateUserInterface();
         }
     });
@@ -1066,8 +1073,9 @@ function setupSupabaseAuthAndInteractions() {
         currentUser = user;
 
         if (!user) {
-            // Logout: limpar perfil e atualizar UI na próxima iteração do event loop
+            // Logout: limpar perfil, cargo e atualizar UI na próxima iteração do event loop
             currentProfile = null;
+            isCurrentUserAdmin = false;
             setTimeout(() => { updateUserInterface(); }, 0);
             return;
         }
@@ -1079,15 +1087,18 @@ function setupSupabaseAuthAndInteractions() {
 
         // Buscar perfil completo de forma assíncrona SEM bloquear o callback
         setTimeout(async () => {
+            isCurrentUserAdmin = false;
             try {
-                const { data, error } = await supabaseClient
-                    .from('profiles')
-                    .select('minecraft_username')
-                    .eq('id', user.id)
-                    .single();
+                const [profileRes, permRes] = await Promise.all([
+                    supabaseClient.from('profiles').select('minecraft_username').eq('id', user.id).single(),
+                    supabaseClient.from('user_permissions').select('role').eq('user_id', user.id).maybeSingle()
+                ]);
 
-                if (!error && data) {
-                    currentProfile = data;
+                if (!profileRes.error && profileRes.data) {
+                    currentProfile = profileRes.data;
+                }
+                if (!permRes.error && permRes.data) {
+                    isCurrentUserAdmin = true;
                 }
             } catch (_) { /* mantém fallback dos metadados */ }
 
@@ -1179,8 +1190,19 @@ function updateUserInterface() {
 
     if (currentUser && currentProfile) {
         const nick = currentProfile.minecraft_username;
+        
+        let adminBtnHtml = '';
+        if (isCurrentUserAdmin) {
+            adminBtnHtml = `
+                <a href="admin/index.html" class="btn-admin-nav" title="Painel de Administração" target="_self" style="margin-right: 10px; color: var(--primary); display: inline-flex; align-items: center; justify-content: center; width: 30px; height: 30px; border-radius: 50%; background: rgba(255, 20, 147, 0.1); border: 1px solid rgba(255, 20, 147, 0.35); transition: all 0.3s ease; box-shadow: 0 0 8px rgba(255, 20, 147, 0.2);">
+                    <i class="fa-solid fa-user-shield" style="font-size: 0.9rem;"></i>
+                </a>
+            `;
+        }
+
         const userHtml = `
             <div class="user-profile-menu">
+                ${adminBtnHtml}
                 <img src="https://mc-heads.net/avatar/${nick}/22" class="nav-user-avatar" alt="Avatar de ${nick}">
                 <span class="nav-user-name">${nick}</span>
                 <button class="btn-logout-nav" onclick="handleLogout()" title="Sair do painel">
@@ -1191,13 +1213,25 @@ function updateUserInterface() {
         navUserArea.innerHTML = userHtml;
 
         if (mobileUserLi) {
+            let mobileAdminHtml = '';
+            if (isCurrentUserAdmin) {
+                mobileAdminHtml = `
+                    <div style="text-align: center; margin-bottom: 0.5rem; width: 100%;">
+                        <a href="admin/index.html" class="btn-admin-nav-mobile" target="_self" style="display: inline-flex; align-items: center; gap: 8px; color: var(--primary); font-weight: 800; text-transform: uppercase; font-size: 0.85rem; letter-spacing: 1px; padding: 6px 16px; border-radius: 20px; background: rgba(255, 20, 147, 0.1); border: 1px solid rgba(255, 20, 147, 0.3);">
+                            <i class="fa-solid fa-user-shield"></i> Painel Admin
+                        </a>
+                    </div>
+                `;
+            }
+
             mobileUserLi.innerHTML = `
-                <div class="user-profile-menu">
+                <div class="user-profile-menu" style="flex-direction: column; gap: 10px; align-items: center;">
+                    ${mobileAdminHtml}
                     <div style="display: flex; align-items: center; gap: 8px;">
                         <img src="https://mc-heads.net/avatar/${nick}/22" class="nav-user-avatar" alt="Avatar">
                         <span class="nav-user-name">${nick}</span>
                     </div>
-                    <button class="btn-logout-nav" onclick="handleLogout()">
+                    <button class="btn-logout-nav" onclick="handleLogout()" style="width: 100%; justify-content: center;">
                         <i class="fa-solid fa-right-from-bracket"></i> Sair
                     </button>
                 </div>
@@ -1592,7 +1626,10 @@ async function handleLikeToggle() {
         if (userHasLikedCurrentPhoto) {
             const { error } = await supabaseClient
                 .from('likes')
-                .insert({ photo_path: activePhotoPath });
+                .insert({ 
+                    photo_path: activePhotoPath,
+                    user_id: currentUser.id
+                });
             if (error) throw error;
         } else {
             const { error } = await supabaseClient

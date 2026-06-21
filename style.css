@@ -2528,3 +2528,19 @@ footer a:hover {
     display: none !important;
 }
 
+/* Estilo do Botão Admin no Navbar principal */
+.btn-admin-nav:hover {
+    background: rgba(255, 20, 147, 0.25) !important;
+    border-color: var(--primary) !important;
+    box-shadow: 0 0 15px rgba(255, 20, 147, 0.4) !important;
+    transform: scale(1.08);
+}
+
+.btn-admin-nav-mobile:hover {
+    background: rgba(255, 20, 147, 0.2) !important;
+    border-color: var(--primary) !important;
+    box-shadow: 0 0 12px rgba(255, 20, 147, 0.3) !important;
+    transform: scale(1.03);
+}
+
+
