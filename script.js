@@ -1071,31 +1071,35 @@ function setupSupabaseAuthAndInteractions() {
                     .select('minecraft_username')
                     .eq('id', currentUser.id)
                     .single();
-                
+
                 if (!error && data) {
                     currentProfile = data;
                 } else {
-                    currentProfile = { 
-                        minecraft_username: currentUser.user_metadata?.minecraft_username || 'Jogador' 
+                    currentProfile = {
+                        minecraft_username: currentUser.user_metadata?.minecraft_username || 'Jogador'
                     };
                 }
             } catch (err) {
-                currentProfile = { 
-                    minecraft_username: currentUser.user_metadata?.minecraft_username || 'Jogador' 
+                currentProfile = {
+                    minecraft_username: currentUser.user_metadata?.minecraft_username || 'Jogador'
                 };
             }
         } else {
             currentProfile = null;
         }
 
-        updateUserInterface();
+        // setTimeout(0) garante que o ciclo de microtasks (promises do signIn/signUp)
+        // termina ANTES de atualizar a UI, evitando deadlock no Supabase v2
+        setTimeout(() => {
+            updateUserInterface();
 
-        const modal = document.getElementById('albumModal');
-        const modalImg = document.getElementById('modalImage');
-        if (modal && modal.classList.contains('show') && modalImg && modalImg.src) {
-            const photoPath = getRelativePhotoPath(modalImg.src);
-            window.loadPhotoInteractions(photoPath);
-        }
+            const modal = document.getElementById('albumModal');
+            const modalImg = document.getElementById('modalImage');
+            if (modal && modal.classList.contains('show') && modalImg && modalImg.src) {
+                const photoPath = getRelativePhotoPath(modalImg.src);
+                window.loadPhotoInteractions(photoPath);
+            }
+        }, 0);
     });
 
     // Registrar o click do botão de Like
@@ -1287,8 +1291,17 @@ async function handleLogin(event) {
         btnSubmit.innerHTML = 'Carregando... <i class="fa-solid fa-spinner fa-spin"></i>';
     }
 
+    // Segurança: liberar botão após 12s para não travar a UI caso haja falha silenciosa
+    const safetyTimer = setTimeout(() => {
+        const btn = document.getElementById('btnLoginSubmit');
+        if (btn && btn.disabled) {
+            btn.disabled = false;
+            btn.innerHTML = 'Entrar <i class="fa-solid fa-right-to-bracket"></i>';
+        }
+    }, 12000);
+
     try {
-        const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
+        const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
         if (error) throw error;
 
         // Limpar campos após login bem-sucedido (segurança contra inspeção)
@@ -1300,9 +1313,11 @@ async function handleLogin(event) {
     } catch (err) {
         window.showNotification(translateAuthError(err.message), "fa-solid fa-circle-xmark");
     } finally {
-        if (btnSubmit) {
-            btnSubmit.disabled = false;
-            btnSubmit.innerHTML = 'Entrar <i class="fa-solid fa-right-to-bracket"></i>';
+        clearTimeout(safetyTimer);
+        const btn = document.getElementById('btnLoginSubmit');
+        if (btn) {
+            btn.disabled = false;
+            btn.innerHTML = 'Entrar <i class="fa-solid fa-right-to-bracket"></i>';
         }
     }
 }
@@ -1341,6 +1356,15 @@ async function handleRegister(event) {
         btnSubmit.innerHTML = 'Registrando... <i class="fa-solid fa-spinner fa-spin"></i>';
     }
 
+    // Segurança: liberar botão após 12s para não travar a UI caso haja falha silenciosa
+    const safetyTimer = setTimeout(() => {
+        const btn = document.getElementById('btnRegisterSubmit');
+        if (btn && btn.disabled) {
+            btn.disabled = false;
+            btn.innerHTML = 'Criar Conta <i class="fa-solid fa-user-plus"></i>';
+        }
+    }, 12000);
+
     try {
         const { error } = await supabaseClient.auth.signUp({
             email,
@@ -1368,9 +1392,11 @@ async function handleRegister(event) {
     } catch (err) {
         window.showNotification(translateAuthError(err.message), "fa-solid fa-circle-xmark");
     } finally {
-        if (btnSubmit) {
-            btnSubmit.disabled = false;
-            btnSubmit.innerHTML = 'Criar Conta <i class="fa-solid fa-user-plus"></i>';
+        clearTimeout(safetyTimer);
+        const btn = document.getElementById('btnRegisterSubmit');
+        if (btn) {
+            btn.disabled = false;
+            btn.innerHTML = 'Criar Conta <i class="fa-solid fa-user-plus"></i>';
         }
     }
 }
