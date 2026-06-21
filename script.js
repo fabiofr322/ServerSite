@@ -1653,23 +1653,33 @@ if (document.readyState === 'loading') {
     injectHtmlElements();
 }
 
-// Carregar SDK do Supabase dinamicamente se não estiver incluído
-(function() {
-    if (!window.supabase && !document.querySelector('script[src*="supabase-js"]')) {
-        const script = document.createElement('script');
-        script.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
-        script.onload = () => {
-            if (window.supabase) {
-                supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-                setupSupabaseAuthAndInteractions();
-            }
-        };
-        document.head.appendChild(script);
-    } else if (window.supabase) {
+// Inicializar Supabase (SDK já carregado via <script> no <head>)
+function initSupabase() {
+    if (window.supabase) {
         supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         setupSupabaseAuthAndInteractions();
+    } else {
+        // Fallback: aguardar até 5s para o SDK carregar
+        let tentativas = 0;
+        const intervalo = setInterval(() => {
+            tentativas++;
+            if (window.supabase) {
+                clearInterval(intervalo);
+                supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+                setupSupabaseAuthAndInteractions();
+            } else if (tentativas >= 50) {
+                clearInterval(intervalo);
+                console.error('[Auth] SDK do Supabase não carregou após 5s.');
+            }
+        }, 100);
     }
-})();
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initSupabase);
+} else {
+    initSupabase();
+}
 
 // Bind de funções globais chamadas inline no HTML injetado
 window.openAuthModal = openAuthModal;
