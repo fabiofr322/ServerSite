@@ -1370,54 +1370,71 @@ function injectHtmlElements() {
                     <!-- Aba Geral -->
                     <div id="settingsTab-general" class="settings-pane">
                         <h4>Informações Gerais</h4>
-                        <form id="settingsNickForm" onsubmit="handleNicknameUpdate(event)">
-                            <div class="input-group">
-                                <label for="settingsNewNick">Nome no Minecraft</label>
-                                <input type="text" id="settingsNewNick" required minlength="3" placeholder="Seu novo Nick">
-                                <small class="input-hint">Use apenas letras, números e underlines (_). Mínimo 3 caracteres.</small>
-                            </div>
-                            <button type="submit" class="btn btn-primary" id="btnSettingsNickSubmit">
-                                Alterar Nick <i class="fa-solid fa-user-pen"></i>
-                            </button>
-                        </form>
                         
-                        <hr class="settings-divider">
-
-                        <form id="settingsEmailForm" onsubmit="handleEmailUpdate(event)">
-                            <div class="input-group">
-                                <label for="settingsNewEmail">Novo E-mail</label>
-                                <input type="email" id="settingsNewEmail" required placeholder="novoemail@exemplo.com">
-                            </div>
-                            <div class="input-group">
-                                <label for="settingsEmailPassword">Senha Atual</label>
-                                <input type="password" id="settingsEmailPassword" required placeholder="Confirme sua senha para validar">
-                            </div>
-                            <button type="submit" class="btn btn-primary" id="btnSettingsEmailSubmit">
-                                Alterar E-mail <i class="fa-solid fa-envelope"></i>
-                            </button>
-                        </form>
+                        <div class="settings-card">
+                            <h5 class="settings-card-title">Alterar Nome no Minecraft</h5>
+                            <form id="settingsNickForm" onsubmit="handleNicknameUpdate(event)">
+                                <div class="input-group">
+                                    <label for="settingsNewNick">Nome no Minecraft</label>
+                                    <input type="text" id="settingsNewNick" required minlength="3" placeholder="Seu novo Nick">
+                                    <small class="input-hint">Use apenas letras, números e underlines (_). Mínimo 3 caracteres.</small>
+                                </div>
+                                <button type="submit" class="btn btn-primary" id="btnSettingsNickSubmit">
+                                    Alterar Nick <i class="fa-solid fa-user-pen"></i>
+                                </button>
+                            </form>
+                        </div>
+                        
+                        <div class="settings-card">
+                            <h5 class="settings-card-title">Alterar E-mail da Conta</h5>
+                            <form id="settingsEmailForm" onsubmit="handleEmailUpdate(event)">
+                                <div class="input-group">
+                                    <label for="settingsNewEmail">Novo E-mail</label>
+                                    <input type="email" id="settingsNewEmail" required placeholder="novoemail@exemplo.com">
+                                </div>
+                                <div class="input-group">
+                                    <label for="settingsEmailPassword">Senha Atual</label>
+                                    <input type="password" id="settingsEmailPassword" required placeholder="Confirme sua senha para validar">
+                                </div>
+                                <div class="input-group hidden" id="emailMfaGroup">
+                                    <label for="settingsEmailMfaCode">Autenticação 2FA (Obrigatório)</label>
+                                    <input type="text" id="settingsEmailMfaCode" maxlength="6" minlength="6" placeholder="000000" style="text-align: center; font-family: monospace; letter-spacing: 0.2rem;">
+                                    <small class="input-hint">Insira o código de 6 dígitos do seu aplicativo Authenticator.</small>
+                                </div>
+                                <button type="submit" class="btn btn-primary" id="btnSettingsEmailSubmit">
+                                    Alterar E-mail <i class="fa-solid fa-envelope"></i>
+                                </button>
+                            </form>
+                        </div>
                     </div>
 
                     <!-- Aba Segurança -->
                     <div id="settingsTab-security" class="settings-pane hidden">
                         <h4>Alterar Senha</h4>
-                        <form id="settingsPasswordForm" onsubmit="handlePasswordUpdate(event)">
-                            <div class="input-group">
-                                <label for="settingsCurrentPassword">Senha Atual</label>
-                                <input type="password" id="settingsCurrentPassword" required placeholder="Digite sua senha atual">
-                            </div>
-                            <div class="input-group">
-                                <label for="settingsNewPassword">Nova Senha</label>
-                                <input type="password" id="settingsNewPassword" required minlength="6" placeholder="Mínimo 6 caracteres">
-                            </div>
-                            <div class="input-group">
-                                <label for="settingsConfirmPassword">Confirmar Nova Senha</label>
-                                <input type="password" id="settingsConfirmPassword" required minlength="6" placeholder="Confirme a nova senha">
-                            </div>
-                            <button type="submit" class="btn btn-primary" id="btnSettingsPasswordSubmit">
-                                Alterar Senha <i class="fa-solid fa-key"></i>
-                            </button>
-                        </form>
+                        <div class="settings-card">
+                            <form id="settingsPasswordForm" onsubmit="handlePasswordUpdate(event)">
+                                <div class="input-group">
+                                    <label for="settingsCurrentPassword">Senha Atual</label>
+                                    <input type="password" id="settingsCurrentPassword" required placeholder="Digite sua senha atual">
+                                </div>
+                                <div class="input-group">
+                                    <label for="settingsNewPassword">Nova Senha</label>
+                                    <input type="password" id="settingsNewPassword" required minlength="6" placeholder="Mínimo 6 caracteres">
+                                </div>
+                                <div class="input-group">
+                                    <label for="settingsConfirmPassword">Confirmar Nova Senha</label>
+                                    <input type="password" id="settingsConfirmPassword" required minlength="6" placeholder="Confirme a nova senha">
+                                </div>
+                                <div class="input-group hidden" id="passwordMfaGroup">
+                                    <label for="settingsPasswordMfaCode">Autenticação 2FA (Obrigatório)</label>
+                                    <input type="text" id="settingsPasswordMfaCode" maxlength="6" minlength="6" placeholder="000000" style="text-align: center; font-family: monospace; letter-spacing: 0.2rem;">
+                                    <small class="input-hint">Insira o código de 6 dígitos do seu aplicativo Authenticator.</small>
+                                </div>
+                                <button type="submit" class="btn btn-primary" id="btnSettingsPasswordSubmit">
+                                    Alterar Senha <i class="fa-solid fa-key"></i>
+                                </button>
+                            </form>
+                        </div>
                     </div>
 
                     <!-- Aba 2FA -->
@@ -2044,6 +2061,7 @@ async function handleEmailUpdate(event) {
 
     const emailInput = document.getElementById('settingsNewEmail');
     const passwordInput = document.getElementById('settingsEmailPassword');
+    const mfaCodeInput = document.getElementById('settingsEmailMfaCode');
     const newEmail = emailInput?.value?.trim();
     const currentPassword = passwordInput?.value;
 
@@ -2069,22 +2087,50 @@ async function handleEmailUpdate(event) {
             throw new Error("Senha atual incorreta. A alteração foi recusada por segurança.");
         }
 
-        // 2. Chamar API do Supabase para atualizar o e-mail
+        // 2. Se o usuário tem 2FA ativo, verificar o código do Authenticator
+        const isMfaActive = await checkMfaStatus();
+        if (isMfaActive) {
+            const mfaCode = mfaCodeInput?.value?.trim();
+            if (!mfaCode || mfaCode.length !== 6 || isNaN(mfaCode)) {
+                throw new Error("Insira o código de 6 dígitos do seu Authenticator para confirmar a alteração.");
+            }
+
+            // Buscar o fator verificado da conta
+            const { data: factorsData, error: listError } = await supabaseClient.auth.mfa.listFactors();
+            if (listError) throw listError;
+
+            const activeFactor = factorsData?.all?.find(f => f.status === 'verified');
+            if (!activeFactor) throw new Error("Nenhum fator 2FA encontrado na conta.");
+
+            // Criar desafio e verificar o código
+            const { data: challengeData, error: challengeError } = await supabaseClient.auth.mfa.challenge({ factorId: activeFactor.id });
+            if (challengeError) throw challengeError;
+
+            const { error: verifyError } = await supabaseClient.auth.mfa.verify({
+                factorId: activeFactor.id,
+                challengeId: challengeData.id,
+                code: mfaCode
+            });
+            if (verifyError) throw new Error("Código 2FA incorreto. A alteração foi recusada.");
+        }
+
+        // 3. Chamar API do Supabase para atualizar o e-mail
         const { error: updateError } = await supabaseClient.auth.updateUser({ email: newEmail });
         if (updateError) throw updateError;
 
         // Limpar inputs de segurança
         if (passwordInput) passwordInput.value = '';
         if (emailInput) emailInput.value = '';
+        if (mfaCodeInput) mfaCodeInput.value = '';
 
         window.showNotification("Verifique ambos os e-mails para confirmar a alteração!", "fa-solid fa-envelope-circle-check");
     } catch (err) {
-        const msg = getErrorMessage(err);
+        const msg = err.message || getErrorMessage(err);
         window.showNotification(msg, "fa-solid fa-circle-xmark");
     } finally {
         if (btnSubmit) {
             btnSubmit.disabled = false;
-            btnSubmit.innerHTML = 'Salvar Alterações <i class="fa-solid fa-floppy-disk"></i>';
+            btnSubmit.innerHTML = 'Alterar E-mail <i class="fa-solid fa-envelope"></i>';
         }
     }
 }
@@ -2103,6 +2149,7 @@ async function handlePasswordUpdate(event) {
     const currentPasswordInput = document.getElementById('settingsCurrentPassword');
     const newPasswordInput = document.getElementById('settingsNewPassword');
     const confirmPasswordInput = document.getElementById('settingsConfirmPassword');
+    const mfaCodeInput = document.getElementById('settingsPasswordMfaCode');
 
     const currentPassword = currentPasswordInput?.value;
     const newPassword = newPasswordInput?.value;
@@ -2144,7 +2191,34 @@ async function handlePasswordUpdate(event) {
             throw new Error("Senha atual incorreta. A alteração foi recusada por segurança.");
         }
 
-        // 2. Chamar a API do Supabase para atualizar a senha
+        // 2. Se o usuário tem 2FA ativo, verificar o código do Authenticator
+        const isMfaActive = await checkMfaStatus();
+        if (isMfaActive) {
+            const mfaCode = mfaCodeInput?.value?.trim();
+            if (!mfaCode || mfaCode.length !== 6 || isNaN(mfaCode)) {
+                throw new Error("Insira o código de 6 dígitos do seu Authenticator para confirmar a alteração.");
+            }
+
+            // Buscar o fator verificado da conta
+            const { data: factorsData, error: listError } = await supabaseClient.auth.mfa.listFactors();
+            if (listError) throw listError;
+
+            const activeFactor = factorsData?.all?.find(f => f.status === 'verified');
+            if (!activeFactor) throw new Error("Nenhum fator 2FA encontrado na conta.");
+
+            // Criar desafio e verificar o código
+            const { data: challengeData, error: challengeError } = await supabaseClient.auth.mfa.challenge({ factorId: activeFactor.id });
+            if (challengeError) throw challengeError;
+
+            const { error: verifyError } = await supabaseClient.auth.mfa.verify({
+                factorId: activeFactor.id,
+                challengeId: challengeData.id,
+                code: mfaCode
+            });
+            if (verifyError) throw new Error("Código 2FA incorreto. A alteração foi recusada.");
+        }
+
+        // 3. Chamar a API do Supabase para atualizar a senha
         const { error: updateError } = await supabaseClient.auth.updateUser({ password: newPassword });
         if (updateError) throw updateError;
 
@@ -2152,10 +2226,11 @@ async function handlePasswordUpdate(event) {
         if (currentPasswordInput) currentPasswordInput.value = '';
         if (newPasswordInput) newPasswordInput.value = '';
         if (confirmPasswordInput) confirmPasswordInput.value = '';
+        if (mfaCodeInput) mfaCodeInput.value = '';
 
         window.showNotification("Senha alterada com sucesso!", "fa-solid fa-circle-check");
     } catch (err) {
-        const msg = getErrorMessage(err);
+        const msg = err.message || getErrorMessage(err);
         window.showNotification(msg, "fa-solid fa-circle-xmark");
     } finally {
         if (btnSubmit) {
@@ -2268,6 +2343,17 @@ async function startMfaEnrollment() {
     if (btnStart) btnStart.disabled = true;
 
     try {
+        // 1. Limpar qualquer fator "unverified" pendente anterior para começar do zero
+        const { data: factorsData, error: listError } = await supabaseClient.auth.mfa.listFactors();
+        if (!listError && factorsData) {
+            const allFactors = factorsData.all || factorsData.totp || [];
+            const unverifiedFactors = allFactors.filter(f => f.status === 'unverified');
+            for (const factor of unverifiedFactors) {
+                await supabaseClient.auth.mfa.unenroll({ factorId: factor.id });
+            }
+        }
+
+        // 2. Criar novo fator TOTP
         const { data, error } = await supabaseClient.auth.mfa.enroll({
             factorType: 'totp',
             issuer: 'FR32SURVIVAL',
@@ -2278,9 +2364,18 @@ async function startMfaEnrollment() {
 
         currentEnrollmentFactorId = data.id;
 
-        // Injetar o SVG do QR Code
-        if (qrContainer && data.totp?.qr_code) {
-            qrContainer.innerHTML = data.totp.qr_code;
+        // Renderizar QR Code usando QRCode.js — gera o código 100% no navegador
+        // sem chamadas a APIs externas que podem estar bloqueadas ou descontinuadas
+        if (qrContainer && data.totp?.uri) {
+            qrContainer.innerHTML = ''; // Limpar qualquer conteúdo anterior
+            new QRCode(qrContainer, {
+                text: data.totp.uri,
+                width: 200,
+                height: 200,
+                colorDark: '#000000',   // Módulos (quadradinhos) pretos
+                colorLight: '#ffffff',  // Fundo branco — garante máximo contraste
+                correctLevel: QRCode.CorrectLevel.M
+            });
         }
 
         // Exibir chave secreta por extenso como alternativa
@@ -2538,12 +2633,37 @@ async function loadProfileSettings() {
     }
 
     const isMfaActive = await checkMfaStatus();
+
     if (isMfaActive) {
+        // Mostrar card de 2FA ativo
         if (mfaSetupActive) mfaSetupActive.classList.remove('hidden');
         if (mfaSetupInactive) mfaSetupInactive.classList.add('hidden');
+
+        // Tornar campos de 2FA visíveis e obrigatórios nos formulários de e-mail e senha
+        const emailMfaGroup = document.getElementById('emailMfaGroup');
+        const passwordMfaGroup = document.getElementById('passwordMfaGroup');
+        const emailMfaInput = document.getElementById('settingsEmailMfaCode');
+        const passwordMfaInput = document.getElementById('settingsPasswordMfaCode');
+
+        if (emailMfaGroup) emailMfaGroup.classList.remove('hidden');
+        if (passwordMfaGroup) passwordMfaGroup.classList.remove('hidden');
+        if (emailMfaInput) emailMfaInput.required = true;
+        if (passwordMfaInput) passwordMfaInput.required = true;
     } else {
+        // Mostrar card de 2FA inativo
         if (mfaSetupActive) mfaSetupActive.classList.add('hidden');
         if (mfaSetupInactive) mfaSetupInactive.classList.remove('hidden');
+
+        // Ocultar e desmarcar campos de 2FA nos formulários
+        const emailMfaGroup = document.getElementById('emailMfaGroup');
+        const passwordMfaGroup = document.getElementById('passwordMfaGroup');
+        const emailMfaInput = document.getElementById('settingsEmailMfaCode');
+        const passwordMfaInput = document.getElementById('settingsPasswordMfaCode');
+
+        if (emailMfaGroup) emailMfaGroup.classList.add('hidden');
+        if (passwordMfaGroup) passwordMfaGroup.classList.add('hidden');
+        if (emailMfaInput) { emailMfaInput.required = false; emailMfaInput.value = ''; }
+        if (passwordMfaInput) { passwordMfaInput.required = false; passwordMfaInput.value = ''; }
     }
 }
 
