@@ -328,10 +328,24 @@
                                     </div>
                                 </div>
                                 <div class="form-group">
-                                    <label for="inputPhotoDesc">Legenda da Foto (Opcional)</label>
+                                    <label for="inputPhotoTitle">Título do Álbum / Build</label>
                                     <div class="input-wrapper">
                                         <i class="fa-solid fa-heading input-icon"></i>
-                                        <input type="text" id="inputPhotoDesc" placeholder="Ex: Casa do jogador vNeoo">
+                                        <input type="text" id="inputPhotoTitle" placeholder="Ex: Spawn, Vila Grega, Junin Boss" required>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="inputPhotoAuthor">Autor do Build (Minecraft Nick)</label>
+                                    <div class="input-wrapper">
+                                        <i class="fa-solid fa-user input-icon"></i>
+                                        <input type="text" id="inputPhotoAuthor" placeholder="Ex: juninww7, fabiofr32" required>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="inputPhotoDesc">Legenda da Foto (Opcional)</label>
+                                    <div class="input-wrapper">
+                                        <i class="fa-solid fa-align-left input-icon"></i>
+                                        <input type="text" id="inputPhotoDesc" placeholder="Ex: Vista aérea do spawn à noite">
                                     </div>
                                 </div>
                                 <button type="submit" class="btn btn-primary btn-block" id="btnUploadPhotoSubmit">
@@ -344,13 +358,26 @@
 
                     <!-- Visualizador e Gerenciador da Galeria de Fotos -->
                     <div class="admin-card">
-                        <div class="table-header-row" style="border-bottom: none; padding-bottom: 0;">
+                        <div class="table-header-row" style="border-bottom: none; padding-bottom: 0; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
                             <h3><i class="fa-solid fa-photo-film"></i> Galeria da Temporada</h3>
-                            <div class="search-box">
-                                <i class="fa-solid fa-folder-open" style="z-index: 10;"></i>
-                                <select id="selectManageSeason" style="width: 100%; background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.06); border-radius: 30px; padding: 8px 14px 8px 38px; color: #fff; font-family: var(--font-main); font-size: 0.85rem; appearance: none; transition: all 0.3s ease;">
-                                    <option value="" disabled selected style="background: var(--bg-dark); color: var(--text-muted);">Filtrar por Temporada...</option>
-                                </select>
+                            <div class="gallery-controls" style="display: flex; gap: 0.8rem; align-items: center; flex-wrap: wrap;">
+                                <div class="search-box" style="margin: 0; width: auto;">
+                                    <i class="fa-solid fa-folder-open" style="z-index: 10;"></i>
+                                    <select id="selectManageSeason" style="width: 180px; background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.06); border-radius: 30px; padding: 8px 14px 8px 38px; color: #fff; font-family: var(--font-main); font-size: 0.85rem; appearance: none; transition: all 0.3s ease;">
+                                        <option value="" disabled selected style="background: var(--bg-dark); color: var(--text-muted);">Filtrar por Temporada...</option>
+                                    </select>
+                                </div>
+                                <div class="search-box" style="margin: 0; width: auto;">
+                                    <i class="fa-solid fa-eye" style="z-index: 10;"></i>
+                                    <select id="selectGalleryViewMode" style="width: 180px; background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.06); border-radius: 30px; padding: 8px 14px 8px 38px; color: #fff; font-family: var(--font-main); font-size: 0.85rem; appearance: none; transition: all 0.3s ease;">
+                                        <option value="individual" selected style="background: var(--bg-dark); color: #fff;">Fotos Individuais</option>
+                                        <option value="albums" style="background: var(--bg-dark); color: #fff;">Álbuns dos Jogadores</option>
+                                    </select>
+                                </div>
+                                <div class="search-box" style="margin: 0; width: auto;">
+                                    <i class="fa-solid fa-magnifying-glass" style="z-index: 10;"></i>
+                                    <input type="text" id="inputSearchGallery" placeholder="Buscar autor ou título..." style="background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.06); border-radius: 30px; padding: 8px 14px 8px 38px; color: #fff; font-family: var(--font-main); font-size: 0.85rem; outline: none; width: 200px; transition: all 0.3s ease;">
+                                </div>
                             </div>
                         </div>
 
@@ -386,6 +413,10 @@
                                     </select>
                                 </div>
                             </div>
+
+                            <button id="btnViewAllComments" type="button" class="btn btn-secondary btn-block" style="background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; color: #fff; padding: 10px; font-size: 0.85rem; display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; cursor: pointer; transition: all 0.3s ease;">
+                                <i class="fa-solid fa-comments"></i> Ver Todos os Comentários
+                            </button>
 
                             <!-- Grid Compacto de Fotos para Seleção -->
                             <div id="moderationPhotosList" class="moderation-photos-list">

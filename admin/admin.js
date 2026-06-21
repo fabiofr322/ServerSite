@@ -667,6 +667,7 @@ window.changeUserRole = changeUserRole;
 // 4.2. ABA TEMPORADAS E GALERIA: CRIAR TEMPORADAS E UPLOAD DE IMAGENS
 // ---------------------------------------------------------------------
 let allSeasonsList = [];
+let currentSeasonPhotosList = [];
 
 // Inicializar eventos de temporadas e galeria
 function setupSeasonsEvents() {
@@ -680,6 +681,20 @@ function setupSeasonsEvents() {
     if (selectManage) {
         selectManage.addEventListener('change', (e) => {
             loadSeasonPhotos(e.target.value);
+        });
+    }
+
+    const selectViewMode = document.getElementById('selectGalleryViewMode');
+    if (selectViewMode) {
+        selectViewMode.addEventListener('change', () => {
+            renderSeasonPhotos(currentSeasonPhotosList);
+        });
+    }
+
+    const inputSearch = document.getElementById('inputSearchGallery');
+    if (inputSearch) {
+        inputSearch.addEventListener('input', () => {
+            renderSeasonPhotos(currentSeasonPhotosList);
         });
     }
 }
@@ -805,15 +820,19 @@ async function handleUploadPhotoSubmit(e) {
 
     const selectUpload = document.getElementById('selectUploadSeason');
     const fileInput = document.getElementById('inputPhotoFile');
+    const titleInput = document.getElementById('inputPhotoTitle');
+    const authorInput = document.getElementById('inputPhotoAuthor');
     const descInput = document.getElementById('inputPhotoDesc');
     const btnSubmit = document.getElementById('btnUploadPhotoSubmit');
 
     const seasonId = selectUpload.value;
     const file = fileInput.files[0];
+    const title = titleInput?.value?.trim();
+    const author = authorInput?.value?.trim();
     const description = descInput.value.trim();
 
-    if (!seasonId || !file) {
-        showToast("Selecione a temporada e escolha um arquivo de imagem.", "error");
+    if (!seasonId || !file || !title || !author) {
+        showToast("Preencha a temporada, título, autor e selecione uma imagem.", "error");
         return;
     }
 
@@ -846,7 +865,9 @@ async function handleUploadPhotoSubmit(e) {
             .insert({
                 season_id: seasonId,
                 photo_path: publicUrl,
-                description: description
+                description: description,
+                title: title,
+                author_name: author
             });
 
         if (dbError) {
@@ -856,6 +877,8 @@ async function handleUploadPhotoSubmit(e) {
 
         showToast("Foto enviada e adicionada à galeria!", "success");
         fileInput.value = '';
+        if (titleInput) titleInput.value = '';
+        if (authorInput) authorInput.value = '';
         descInput.value = '';
         
         const selectManage = document.getElementById('selectManageSeason');
@@ -895,7 +918,8 @@ async function loadSeasonPhotos(seasonId) {
 
         if (error) throw error;
 
-        renderSeasonPhotos(data || []);
+        currentSeasonPhotosList = data || [];
+        renderSeasonPhotos(currentSeasonPhotosList);
 
     } catch (err) {
         console.error("[Load Photos] Erro:", err);
@@ -912,38 +936,146 @@ function renderSeasonPhotos(photos) {
     const grid = document.getElementById('adminGalleryGrid');
     if (!grid) return;
 
-    if (photos.length === 0) {
-        grid.innerHTML = `
-            <div class="table-loading-row" style="grid-column: 1 / -1; width: 100%;">
-                Nenhuma foto cadastrada nesta temporada. Envie fotos no formulário acima.
-            </div>
-        `;
-        return;
+    // Filtro por query de busca se houver
+    const searchQuery = document.getElementById('inputSearchGallery')?.value?.trim().toLowerCase() || '';
+    let filteredPhotos = photos;
+    if (searchQuery) {
+        filteredPhotos = photos.filter(p => 
+            (p.title && p.title.toLowerCase().includes(searchQuery)) ||
+            (p.author_name && p.author_name.toLowerCase().includes(searchQuery)) ||
+            (p.description && p.description.toLowerCase().includes(searchQuery))
+        );
     }
 
-    grid.innerHTML = '';
+    const viewMode = document.getElementById('selectGalleryViewMode')?.value || 'individual';
 
-    photos.forEach(photo => {
-        const card = document.createElement('div');
-        card.className = 'gallery-item-card';
+    if (viewMode === 'albums') {
+        const albums = {};
+        filteredPhotos.forEach(photo => {
+            const albumKey = `${photo.title || 'Construção'}_${photo.author_name || 'Jogador'}`;
+            if (!albums[albumKey]) {
+                albums[albumKey] = {
+                    title: photo.title || 'Construção',
+                    author: photo.author_name || 'Jogador',
+                    photos: []
+                };
+            }
+            albums[albumKey].photos.push(photo);
+        });
 
-        const descriptionText = photo.description || 'Sem legenda';
+        const albumList = Object.values(albums);
+        if (albumList.length === 0) {
+            grid.innerHTML = `
+                <div class="table-loading-row" style="grid-column: 1 / -1; width: 100%;">
+                    Nenhum álbum encontrado para os critérios de busca.
+                </div>
+            `;
+            return;
+        }
 
-        card.innerHTML = `
-            <div class="gallery-img-wrapper">
-                <img src="${photo.photo_path}" alt="${escapeHTML(descriptionText)}" loading="lazy">
-                <button class="btn-delete-photo" onclick="deleteSeasonPhoto(${photo.id}, '${photo.photo_path}')" title="Excluir Foto da Galeria">
-                    <i class="fa-solid fa-trash-can"></i>
-                </button>
-            </div>
-            <div class="gallery-item-info">
-                <p class="gallery-item-desc" title="${escapeHTML(descriptionText)}">${escapeHTML(descriptionText)}</p>
-                <span class="gallery-item-date">${new Date(photo.created_at).toLocaleDateString('pt-BR')}</span>
-            </div>
-        `;
+        grid.innerHTML = '';
+        grid.style.display = 'flex';
+        grid.style.flexDirection = 'column';
+        grid.style.gap = '2rem';
+        grid.style.width = '100%';
 
-        grid.appendChild(card);
-    });
+        albumList.forEach(album => {
+            const albumSection = document.createElement('div');
+            albumSection.className = 'admin-album-section';
+            albumSection.style.background = 'rgba(255, 255, 255, 0.01)';
+            albumSection.style.border = '1px solid rgba(255, 255, 255, 0.04)';
+            albumSection.style.borderRadius = '16px';
+            albumSection.style.padding = '1.5rem';
+            albumSection.style.width = '100%';
+
+            // Cabeçalho do álbum
+            const headerHtml = `
+                <div class="admin-album-header" style="display: flex; align-items: center; gap: 12px; margin-bottom: 1.2rem; border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 0.8rem;">
+                    <img src="https://mc-heads.net/avatar/${album.author}/24" class="table-mc-avatar" onerror="this.src='../icon/Fr32_Icon.png'">
+                    <div>
+                        <h4 style="margin: 0; color: #fff; font-size: 1.05rem; font-weight: 700;">${escapeHTML(album.title)}</h4>
+                        <span style="font-size: 0.8rem; color: var(--text-muted);">Por: <strong>${escapeHTML(album.author)}</strong> • ${album.photos.length} foto(s)</span>
+                    </div>
+                </div>
+            `;
+
+            // Sub-grid de fotos do álbum
+            const subGrid = document.createElement('div');
+            subGrid.className = 'admin-gallery-grid';
+            subGrid.style.display = 'grid';
+
+            album.photos.forEach(photo => {
+                const card = document.createElement('div');
+                card.className = 'gallery-item-card';
+
+                const resolvedSrc = resolveImagePath(photo.photo_path);
+                const titleText = photo.title || 'Sem título';
+                const authorText = photo.author_name || 'Desconhecido';
+                const descText = photo.description ? `: ${photo.description}` : '';
+                const legendText = `${titleText} (${authorText})${descText}`;
+
+                card.innerHTML = `
+                    <div class="gallery-img-wrapper">
+                        <img src="${resolvedSrc}" alt="${escapeHTML(legendText)}" loading="lazy">
+                        <button class="btn-delete-photo" onclick="deleteSeasonPhoto(${photo.id}, '${photo.photo_path}')" title="Excluir Foto da Galeria">
+                            <i class="fa-solid fa-trash-can"></i>
+                        </button>
+                    </div>
+                    <div class="gallery-item-info">
+                        <p class="gallery-item-desc" title="${escapeHTML(legendText)}">${escapeHTML(legendText)}</p>
+                        <span class="gallery-item-date">${new Date(photo.created_at).toLocaleDateString('pt-BR')}</span>
+                    </div>
+                `;
+                subGrid.appendChild(card);
+            });
+
+            albumSection.innerHTML = headerHtml;
+            albumSection.appendChild(subGrid);
+            grid.appendChild(albumSection);
+        });
+    } else {
+        // Modo individual: restauramos o display do grid original
+        grid.style.display = 'grid';
+        grid.style.flexDirection = '';
+        grid.style.gap = '';
+        grid.style.width = '';
+
+        if (filteredPhotos.length === 0) {
+            grid.innerHTML = `
+                <div class="table-loading-row" style="grid-column: 1 / -1; width: 100%;">
+                    Nenhuma foto encontrada para os critérios de busca.
+                </div>
+            `;
+            return;
+        }
+
+        grid.innerHTML = '';
+        filteredPhotos.forEach(photo => {
+            const card = document.createElement('div');
+            card.className = 'gallery-item-card';
+
+            const resolvedSrc = resolveImagePath(photo.photo_path);
+            const titleText = photo.title || 'Sem título';
+            const authorText = photo.author_name || 'Desconhecido';
+            const descText = photo.description ? `: ${photo.description}` : '';
+            const legendText = `${titleText} (${authorText})${descText}`;
+
+            card.innerHTML = `
+                <div class="gallery-img-wrapper">
+                    <img src="${resolvedSrc}" alt="${escapeHTML(legendText)}" loading="lazy">
+                    <button class="btn-delete-photo" onclick="deleteSeasonPhoto(${photo.id}, '${photo.photo_path}')" title="Excluir Foto da Galeria">
+                        <i class="fa-solid fa-trash-can"></i>
+                    </button>
+                </div>
+                <div class="gallery-item-info">
+                    <p class="gallery-item-desc" title="${escapeHTML(legendText)}">${escapeHTML(legendText)}</p>
+                    <span class="gallery-item-date">${new Date(photo.created_at).toLocaleDateString('pt-BR')}</span>
+                </div>
+            `;
+
+            grid.appendChild(card);
+        });
+    }
 }
 
 // Excluir Foto (Do banco de dados e do Supabase Storage)
@@ -1005,6 +1137,13 @@ function setupCommentsEvents() {
     if (select) {
         select.addEventListener('change', (e) => {
             loadModerationPhotos(e.target.value);
+        });
+    }
+
+    const btnViewAll = document.getElementById('btnViewAllComments');
+    if (btnViewAll) {
+        btnViewAll.addEventListener('click', () => {
+            loadAllComments();
         });
     }
 }
@@ -1101,10 +1240,16 @@ function renderModerationPhotos(photos) {
 
     photos.forEach(photo => {
         const img = document.createElement('img');
-        img.src = photo.photo_path;
-        img.alt = photo.description || 'Foto';
+        img.src = resolveImagePath(photo.photo_path);
+        
+        const titleText = photo.title || 'Sem título';
+        const authorText = photo.author_name || 'Desconhecido';
+        const descText = photo.description ? `: ${photo.description}` : '';
+        const legendText = `${titleText} (${authorText})${descText}`;
+
+        img.alt = legendText;
         img.className = 'moderation-photo-thumb';
-        img.title = photo.description || 'Clique para moderar comentários';
+        img.title = legendText;
         
         if (activeCommentsPhotoPath === photo.photo_path) {
             img.classList.add('active');
@@ -1129,8 +1274,11 @@ function selectPhotoForModeration(photo) {
     const descText = document.getElementById('moderationSelectedPhotoDesc');
 
     if (header && previewImg && descText) {
-        previewImg.src = photo.photo_path;
-        descText.textContent = photo.description || 'Álbum sem legenda';
+        previewImg.src = resolveImagePath(photo.photo_path);
+        const titleText = photo.title || 'Sem título';
+        const authorText = photo.author_name || 'Desconhecido';
+        const descTextVal = photo.description ? `: ${photo.description}` : '';
+        descText.textContent = `${titleText} (${authorText})${descTextVal}`;
         header.classList.remove('hidden');
     }
 
@@ -1225,7 +1373,7 @@ async function loadModerationComments(photoPath) {
 }
 
 // Excluir Comentário (Disponível para qualquer administrador)
-async function deleteComment(commentId) {
+async function deleteComment(commentId, isAllCommentsView = false) {
     if (!confirm("Tem certeza que deseja deletar permanentemente este comentário? Esta ação não pode ser desfeita.")) {
         return;
     }
@@ -1240,7 +1388,9 @@ async function deleteComment(commentId) {
 
         showToast("Comentário deletado com sucesso!", "success");
 
-        if (activeCommentsPhotoPath) {
+        if (isAllCommentsView) {
+            loadAllComments();
+        } else if (activeCommentsPhotoPath) {
             loadModerationComments(activeCommentsPhotoPath);
         }
 
@@ -1250,12 +1400,155 @@ async function deleteComment(commentId) {
     }
 }
 
+// Buscar TODOS os comentários de qualquer foto no Supabase e cruzar com nicks
+async function loadAllComments() {
+    activeCommentsPhotoPath = ''; // Reseta seleção de foto específica
+
+    // Desativa seleção ativa nos thumbnails da esquerda
+    document.querySelectorAll('.moderation-photo-thumb').forEach(el => el.classList.remove('active'));
+
+    const header = document.getElementById('moderationCommentsHeader');
+    const previewImg = document.getElementById('moderationSelectedPhotoPreview');
+    const descText = document.getElementById('moderationSelectedPhotoDesc');
+    const countText = document.getElementById('moderationCommentsCount');
+    const commentsList = document.getElementById('moderationCommentsList');
+
+    if (!commentsList) return;
+
+    if (header && previewImg && descText) {
+        previewImg.src = '../icon/Fr32_Icon.png'; // Thumbnail genérico
+        descText.textContent = 'Moderação Geral: Todos os Comentários';
+        header.classList.remove('hidden');
+    }
+
+    commentsList.innerHTML = `
+        <div class="table-loading-row" style="padding: 3rem 0;">
+            <div class="spinner"></div> Carregando todos os comentários...
+        </div>
+    `;
+
+    try {
+        const { data: comments, error } = await supabaseClient
+            .from('comments')
+            .select('id, content, created_at, user_id, photo_path')
+            .order('created_at', { ascending: false }); // Recente primeiro
+
+        if (error) throw error;
+
+        if (countText) {
+            countText.textContent = `${comments.length} ${comments.length === 1 ? 'comentário no total' : 'comentários no total'}`;
+        }
+
+        if (comments.length === 0) {
+            commentsList.innerHTML = `
+                <div class="placeholder-pane" style="padding: 4rem 1rem; border: none; background: transparent; width: 100%;">
+                    <i class="fa-regular fa-comment-slash" style="font-size: 2.5rem; opacity: 0.5;"></i>
+                    <p style="font-size: 0.9rem;">Nenhum comentário cadastrado no site.</p>
+                </div>
+            `;
+            return;
+        }
+
+        const userIds = [...new Set(comments.map(c => c.user_id))];
+        let profilesMap = {};
+
+        if (userIds.length > 0) {
+            const { data: profiles, error: profError } = await supabaseClient
+                .from('profiles')
+                .select('id, minecraft_username')
+                .in('id', userIds);
+
+            if (!profError && profiles) {
+                profiles.forEach(p => {
+                    profilesMap[p.id] = p.minecraft_username;
+                });
+            }
+        }
+
+        commentsList.innerHTML = '';
+        comments.forEach(comment => {
+            const username = profilesMap[comment.user_id] || 'Jogador';
+            const avatarUrl = `https://mc-heads.net/avatar/${username}/26`;
+            const dateText = new Date(comment.created_at).toLocaleString('pt-BR');
+            const commentPhotoSrc = resolveImagePath(comment.photo_path);
+
+            const item = document.createElement('div');
+            item.className = 'moderation-comment-item';
+
+            item.innerHTML = `
+                <img src="${avatarUrl}" alt="${username}" class="comment-avatar" onerror="this.src='../icon/Fr32_Icon.png'">
+                <div class="comment-body">
+                    <div class="comment-meta">
+                        <span class="comment-user">${username}</span>
+                        <span class="comment-time">${dateText}</span>
+                    </div>
+                    <div class="comment-text">${escapeHTML(comment.content)}</div>
+                </div>
+                <img src="${commentPhotoSrc}" alt="Preview" class="comment-preview-thumb" style="width: 44px; height: 44px; object-fit: cover; border-radius: 8px; border: 1px solid rgba(255,255,255,0.08); margin: 0 10px; cursor: pointer; transition: transform 0.2s;" title="Clique para ver a foto original" onclick="highlightPhotoInModeration('${comment.photo_path}')">
+                <button class="btn-delete-comment" onclick="deleteComment(${comment.id}, true)" title="Deletar Comentário">
+                    <i class="fa-solid fa-trash-can"></i>
+                </button>
+            `;
+
+            commentsList.appendChild(item);
+        });
+
+    } catch (err) {
+        console.error("[Load All Comments] Erro:", err);
+        commentsList.innerHTML = `
+            <div class="table-loading-row" style="padding: 3rem 0; color: var(--error)">
+                Erro ao carregar todos os comentários: ${err.message}
+            </div>
+        `;
+    }
+}
+
+// Atalho para ir para o contexto da foto ao clicar no thumbnail do comentário
+async function highlightPhotoInModeration(photoPath) {
+    try {
+        const { data: photoData, error } = await supabaseClient
+            .from('season_photos')
+            .select('*')
+            .eq('photo_path', photoPath)
+            .single();
+
+        if (error || !photoData) throw new Error("Foto não encontrada.");
+
+        const select = document.getElementById('selectCommentsSeason');
+        if (select) {
+            select.value = photoData.season_id;
+        }
+
+        await loadModerationPhotos(photoData.season_id);
+        selectPhotoForModeration(photoData);
+
+        const thumbs = document.querySelectorAll('.moderation-photo-thumb');
+        thumbs.forEach(thumb => {
+            const decodedThumbSrc = decodeURIComponent(thumb.src);
+            const decodedPath = decodeURIComponent(resolveImagePath(photoPath));
+            if (decodedThumbSrc.endsWith(decodedPath)) {
+                thumb.classList.add('active');
+            } else {
+                thumb.classList.remove('active');
+            }
+        });
+
+        showToast("Visualizando contexto do comentário.", "info");
+
+    } catch (err) {
+        console.error("[Highlight Photo] Erro:", err);
+        showToast("Não foi possível carregar o contexto da imagem original.", "error");
+    }
+}
+
 // Expor funções globais para window
 window.deleteComment = deleteComment;
 window.deleteSeasonPhoto = deleteSeasonPhoto;
 window.editVeteran = editVeteran;
 window.deleteVeteran = deleteVeteran;
 window.changeUserRole = changeUserRole;
+window.loadAllComments = loadAllComments;
+window.highlightPhotoInModeration = highlightPhotoInModeration;
 
 // ---------------------------------------------------------------------
 // 5. SISTEMA DE TOAST NOTIFICATION PREMIUM
@@ -1286,6 +1579,29 @@ function showToast(message, type = "info") {
     setTimeout(() => {
         toast.classList.remove('show');
     }, 4000);
+}
+
+// Helper: Resolve o caminho de imagens locais ou externas
+function resolveImagePath(path) {
+    if (!path) return '';
+    if (path.startsWith('http://') || path.startsWith('https://') || path.startsWith('/')) {
+        return path;
+    }
+    return '../' + path;
+}
+
+// Helper: Escape HTML contra injeção de script (XSS)
+function escapeHTML(str) {
+    if (!str) return '';
+    return str.replace(/[&<>'"]/g, 
+        tag => ({
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            "'": '&#39;',
+            '"': '&quot;'
+        }[tag] || tag)
+    );
 }
 
 // Inicializa o script quando o documento HTML terminar de carregar

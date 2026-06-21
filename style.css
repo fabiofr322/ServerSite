@@ -2543,4 +2543,62 @@ footer a:hover {
     transform: scale(1.03);
 }
 
+/* Transições de Deslize Vertical para o Modal (TikTok / Feed Style) */
+.modal-wrapper.slide-exit-up {
+    animation: slideExitUp 0.3s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+}
+.modal-wrapper.slide-enter-up {
+    animation: slideEnterUp 0.35s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+}
+.modal-wrapper.slide-exit-down {
+    animation: slideExitDown 0.3s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+}
+.modal-wrapper.slide-enter-down {
+    animation: slideEnterDown 0.35s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+}
+
+@keyframes slideExitUp {
+    from {
+        transform: translateY(0);
+        opacity: 1;
+    }
+    to {
+        transform: translateY(-80px);
+        opacity: 0;
+    }
+}
+
+@keyframes slideEnterUp {
+    from {
+        transform: translateY(80px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+@keyframes slideExitDown {
+    from {
+        transform: translateY(0);
+        opacity: 1;
+    }
+    to {
+        transform: translateY(80px);
+        opacity: 0;
+    }
+}
+
+@keyframes slideEnterDown {
+    from {
+        transform: translateY(-80px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
 

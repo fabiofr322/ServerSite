@@ -237,6 +237,210 @@ function setupParticles() {
    LÓGICA: GALERIA E MODAL SLIDESHOW
    ========================================== */
 function setupGallery() {
+    setupDynamicGallery();
+    loadDynamicVeteranos();
+}
+
+async function loadDynamicVeteranos() {
+    const grid = document.querySelector('.veterans-grid');
+    if (!grid) return;
+
+    try {
+        if (!supabaseClient) {
+            setTimeout(loadDynamicVeteranos, 100);
+            return;
+        }
+
+        const { data: veterans, error } = await supabaseClient
+            .from('veterans')
+            .select('*')
+            .order('created_at', { ascending: false });
+
+        if (error) throw error;
+
+        if (veterans && veterans.length > 0) {
+            grid.innerHTML = '';
+            veterans.forEach(vet => {
+                const username = vet.minecraft_username;
+                grid.innerHTML += `
+                    <div class="veteran-card">
+                        <div class="veteran-glow"></div>
+                        <img src="https://mc-heads.net/body/${username}/100" alt="${username}" class="veteran-skin" onerror="this.src='icon/Fr32_Icon.png'">
+                        <div class="veteran-info">
+                            <span class="veteran-name">${username}</span>
+                            <span class="veteran-badge">${escapeHTML(vet.title || 'Veterano')}</span>
+                            <span class="veteran-desc">${escapeHTML(vet.description || '')}</span>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+    } catch (err) {
+        console.warn("[Mural] Falha ao carregar mural dinâmico, mantendo estático:", err);
+    }
+}
+
+let cachedAlbums = {};
+
+// Carregar estatísticas de curtidas e comentários para cada card da galeria
+async function loadGalleryCardsStats(albums) {
+    if (!supabaseClient || !albums) return;
+
+    try {
+        const [likesRes, commentsRes] = await Promise.all([
+            supabaseClient.from('likes').select('photo_path'),
+            supabaseClient.from('comments').select('photo_path')
+        ]);
+
+        if (likesRes.error) throw likesRes.error;
+        if (commentsRes.error) throw commentsRes.error;
+
+        const likes = likesRes.data || [];
+        const comments = commentsRes.data || [];
+
+        const likesMap = {};
+        likes.forEach(l => {
+            const path = getRelativePhotoPath(l.photo_path);
+            likesMap[path] = (likesMap[path] || 0) + 1;
+        });
+
+        const commentsMap = {};
+        comments.forEach(c => {
+            const path = getRelativePhotoPath(c.photo_path);
+            commentsMap[path] = (commentsMap[path] || 0) + 1;
+        });
+
+        Object.keys(albums).forEach(key => {
+            const album = albums[key];
+            let albumLikes = 0;
+            let albumComments = 0;
+
+            album.images.forEach(img => {
+                const path = getRelativePhotoPath(img);
+                albumLikes += likesMap[path] || 0;
+                albumComments += commentsMap[path] || 0;
+            });
+
+            const likesBadge = document.querySelector(`.likes-badge[data-album-key="${escapeHTML(album.title)}"]`);
+            const commentsBadge = document.querySelector(`.comments-badge[data-album-key="${escapeHTML(album.title)}"]`);
+
+            if (likesBadge) likesBadge.textContent = albumLikes;
+            if (commentsBadge) commentsBadge.textContent = albumComments;
+        });
+    } catch (err) {
+        console.warn("[Gallery Stats] Erro ao carregar estatísticas dos cards:", err);
+    }
+}
+
+async function setupDynamicGallery() {
+    const galleryGrid = document.getElementById('galleryGrid');
+    const tabsContainer = document.querySelector('.season-tabs');
+    const emptyState = document.getElementById('emptyState');
+    const emptyStateTitle = document.getElementById('emptyStateTitle');
+
+    if (!galleryGrid) return;
+
+    try {
+        if (!supabaseClient) {
+            setTimeout(setupDynamicGallery, 100);
+            return;
+        }
+
+        // Buscar todas as temporadas e suas fotos em paralelo
+        const [seasonsRes, photosRes] = await Promise.all([
+            supabaseClient.from('seasons').select('*').order('number', { ascending: false }),
+            supabaseClient.from('season_photos').select('*, seasons(number)').order('created_at', { ascending: false })
+        ]);
+
+        if (seasonsRes.error) throw seasonsRes.error;
+        if (photosRes.error) throw photosRes.error;
+
+        const seasons = seasonsRes.data || [];
+        const photos = photosRes.data || [];
+
+        if (seasons.length === 0) {
+            bindGalleryInteractions();
+            return;
+        }
+
+        // Renderizar abas de temporada dinamicamente
+        if (tabsContainer) {
+            tabsContainer.innerHTML = '';
+            seasons.forEach((season, idx) => {
+                tabsContainer.innerHTML += `
+                    <button class="season-tab ${idx === 0 ? 'active' : ''}" data-target-season="${season.number}">Temporada ${season.number}</button>
+                `;
+            });
+        }
+
+        // Agrupar fotos por Álbum (grupo por temporada, título, e autor)
+        const albums = {};
+        photos.forEach(photo => {
+            const seasonNumber = photo.seasons?.number || 9;
+            const key = `${seasonNumber}_${photo.title || 'Construção'}_${photo.author_name || 'Jogador'}`;
+
+            if (!albums[key]) {
+                albums[key] = {
+                    seasonNumber: seasonNumber,
+                    title: photo.title || 'Construção',
+                    author: photo.author_name || 'Jogador',
+                    images: [],
+                    created_at: photo.created_at
+                };
+            }
+            albums[key].images.push(photo.photo_path);
+        });
+
+        cachedAlbums = albums;
+
+        // Renderizar os cards de álbuns dinamicamente no grid
+        galleryGrid.innerHTML = '';
+        const albumList = Object.values(albums);
+
+        if (albumList.length > 0) {
+            albumList.forEach(album => {
+                const imagesAttr = album.images.join(', ');
+                const coverImage = album.images[0] || 'icon/Fr32_Icon.png';
+                const hasMultiple = album.images.length > 1;
+
+                galleryGrid.innerHTML += `
+                    <div class="album-card" data-season="${album.seasonNumber}" data-images="${imagesAttr}">
+                        <div class="album-cover">
+                            <img src="${coverImage}" alt="Capa do álbum ${escapeHTML(album.title)}">
+                            ${hasMultiple ? `
+                                <div class="album-icon">
+                                    <i class="fa-regular fa-images"></i>
+                                </div>
+                            ` : ''}
+                        </div>
+                        <h3 class="album-title">${escapeHTML(album.title)}</h3>
+                        <div class="album-footer" style="display: flex; justify-content: space-between; align-items: center; margin-top: auto; width: 100%;">
+                            <div class="album-author-info" style="margin-top: 0; margin-bottom: 0;">
+                                <img class="album-author-avatar" src="https://mc-heads.net/avatar/${album.author}/16" alt="Avatar de ${escapeHTML(album.author)}" onerror="this.src='icon/Fr32_Icon.png'">
+                                <span class="album-author-name">${escapeHTML(album.author)}</span>
+                            </div>
+                            <div class="album-stats" style="display: flex; gap: 8px; font-size: 0.75rem; color: var(--text-muted); font-weight: 700;">
+                                <span class="album-stat-likes"><i class="fa-solid fa-heart" style="color: var(--primary); margin-right: 3px;"></i> <span class="likes-badge" data-album-key="${escapeHTML(album.title)}">0</span></span>
+                                <span class="album-stat-comments"><i class="fa-solid fa-comment" style="color: var(--secondary); margin-right: 3px;"></i> <span class="comments-badge" data-album-key="${escapeHTML(album.title)}">0</span></span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            // Dispara carregamento das estatísticas dos cards em segundo plano
+            loadGalleryCardsStats(albums);
+        }
+
+        bindGalleryInteractions();
+
+    } catch (err) {
+        console.warn("[Galeria] Falha ao carregar galeria dinâmica, mantendo estática:", err);
+        bindGalleryInteractions();
+    }
+}
+
+function bindGalleryInteractions() {
     const modal = document.getElementById('albumModal');
     if (!modal) return;
 
@@ -266,7 +470,11 @@ function setupGallery() {
             let coverIndex = 0;
             const coverImgElement = card.querySelector('.album-cover img');
 
-            setInterval(() => {
+            if (card.dataset.intervalId) {
+                clearInterval(parseInt(card.dataset.intervalId));
+            }
+
+            const intervalId = setInterval(() => {
                 if (card.classList.contains('hidden')) return;
                 coverIndex = (coverIndex + 1) % images.length;
                 if (coverImgElement) {
@@ -277,6 +485,8 @@ function setupGallery() {
                     }, 400);
                 }
             }, 5000);
+
+            card.dataset.intervalId = intervalId;
         }
     });
 
@@ -321,8 +531,9 @@ function setupGallery() {
         });
     });
 
-    // Iniciar na Temporada 9 padrão
-    filterSeason("9");
+    const activeTab = document.querySelector('.season-tab.active');
+    const initialSeason = activeTab ? activeTab.getAttribute('data-target-season') : "9";
+    filterSeason(initialSeason);
 
     // 3. Lógica do Modal
     function showImage(index) {
@@ -340,6 +551,19 @@ function setupGallery() {
         currentAlbumImages = imagesAttr.split(',').map(img => img.trim());
         currentImageIndex = 0;
 
+        // Preenche imediatamente o título, autor e avatar do álbum no modal
+        const titleEl = card.querySelector('.album-title');
+        const authorNameEl = card.querySelector('.album-author-name');
+        const authorAvatarEl = card.querySelector('.album-author-avatar');
+
+        const modalTitle = document.getElementById('modalAlbumTitle');
+        const modalAuthorName = document.getElementById('modalAuthorName');
+        const modalAuthorAvatar = document.getElementById('modalAuthorAvatar');
+
+        if (modalTitle && titleEl) modalTitle.textContent = titleEl.textContent;
+        if (modalAuthorName && authorNameEl) modalAuthorName.textContent = authorNameEl.textContent;
+        if (modalAuthorAvatar && authorAvatarEl) modalAuthorAvatar.src = authorAvatarEl.src;
+
         if (currentAlbumImages.length <= 1) {
             if (prevBtn) prevBtn.style.display = 'none';
             if (nextBtn) nextBtn.style.display = 'none';
@@ -352,19 +576,23 @@ function setupGallery() {
 
         showImage(currentImageIndex);
         modal.classList.add('show');
-        document.body.style.overflow = 'hidden'; // trava scroll de fundo
+        document.body.style.overflow = 'hidden'; 
     }
 
     function closeModal() {
         modal.classList.remove('show');
-        document.body.style.overflow = 'auto'; // restaura scroll
+        document.body.style.overflow = 'auto'; 
     }
 
     albumCards.forEach(card => {
         card.addEventListener('click', () => openModal(card));
     });
 
-    if (closeModalBtn) closeModalBtn.addEventListener('click', closeModal);
+    if (closeModalBtn) {
+        const freshClose = closeModalBtn.cloneNode(true);
+        closeModalBtn.parentNode.replaceChild(freshClose, closeModalBtn);
+        freshClose.addEventListener('click', closeModal);
+    }
 
     modal.addEventListener('click', (e) => {
         if (e.target === modal || e.target === modalImg) {
@@ -372,9 +600,10 @@ function setupGallery() {
         }
     });
 
-    // Navegação Direita/Esquerda
     if (nextBtn) {
-        nextBtn.addEventListener('click', (e) => {
+        const freshNext = nextBtn.cloneNode(true);
+        nextBtn.parentNode.replaceChild(freshNext, nextBtn);
+        freshNext.addEventListener('click', (e) => {
             e.stopPropagation();
             if (currentAlbumImages.length === 0) return;
             currentImageIndex = (currentImageIndex + 1) % currentAlbumImages.length;
@@ -383,7 +612,9 @@ function setupGallery() {
     }
 
     if (prevBtn) {
-        prevBtn.addEventListener('click', (e) => {
+        const freshPrev = prevBtn.cloneNode(true);
+        prevBtn.parentNode.replaceChild(freshPrev, prevBtn);
+        freshPrev.addEventListener('click', (e) => {
             e.stopPropagation();
             if (currentAlbumImages.length === 0) return;
             currentImageIndex = (currentImageIndex - 1 + currentAlbumImages.length) % currentAlbumImages.length;
@@ -391,8 +622,7 @@ function setupGallery() {
         });
     }
 
-    // Teclado Acessibilidade
-    document.addEventListener('keydown', (e) => {
+    document.onkeydown = (e) => {
         if (!modal.classList.contains('show')) return;
         if (e.key === 'ArrowRight' && currentAlbumImages.length > 1) {
             currentImageIndex = (currentImageIndex + 1) % currentAlbumImages.length;
@@ -403,7 +633,160 @@ function setupGallery() {
         } else if (e.key === 'Escape') {
             closeModal();
         }
-    });
+    };
+
+    // Suporte a scroll do mouse/trackpad para navegar entre álbuns diretamente com animações
+    let lastWheelTime = 0;
+    const wheelCooldown = 600; // Cooldown ligeiramente maior para acomodar a animação de transição
+
+    modal.addEventListener('wheel', (e) => {
+        if (!modal.classList.contains('show')) return;
+        
+        // Se estiver rolando dentro da seção de comentários, não faz nada (deixa o usuário ler os comentários)
+        if (e.target.closest('.modal-interaction-panel')) {
+            return;
+        }
+
+        e.preventDefault();
+
+        const now = Date.now();
+        if (now - lastWheelTime < wheelCooldown) return;
+
+        const direction = e.deltaY > 0 ? 'next' : 'prev';
+        lastWheelTime = now;
+
+        navigateToNeighborAlbum(direction);
+    }, { passive: false });
+
+    function transitionToAlbum(targetCard, direction) {
+        const wrapper = modal.querySelector('.modal-wrapper');
+        if (!wrapper) {
+            openModal(targetCard);
+            return;
+        }
+
+        const imagesAttr = targetCard.getAttribute('data-images');
+        if (!imagesAttr) return;
+
+        const targetImages = imagesAttr.split(',').map(img => img.trim());
+        const firstImageUrl = targetImages[0];
+
+        const exitClass = direction === 'next' ? 'slide-exit-up' : 'slide-exit-down';
+        const enterClass = direction === 'next' ? 'slide-enter-up' : 'slide-enter-down';
+
+        // 1. Aplica classe de saída
+        wrapper.classList.remove('slide-exit-up', 'slide-exit-down', 'slide-enter-up', 'slide-enter-down');
+        wrapper.classList.add(exitClass);
+
+        let imageLoaded = false;
+        let animationDone = false;
+        let domUpdated = false;
+
+        // Função para atualizar o DOM e começar a animação de entrada
+        function proceedToEnter() {
+            if (domUpdated) return;
+            domUpdated = true;
+
+            currentAlbumImages = targetImages;
+            currentImageIndex = 0;
+
+            const titleEl = targetCard.querySelector('.album-title');
+            const authorNameEl = targetCard.querySelector('.album-author-name');
+            const authorAvatarEl = targetCard.querySelector('.album-author-avatar');
+
+            const modalTitle = document.getElementById('modalAlbumTitle');
+            const modalAuthorName = document.getElementById('modalAuthorName');
+            const modalAuthorAvatar = document.getElementById('modalAuthorAvatar');
+
+            if (modalTitle && titleEl) modalTitle.textContent = titleEl.textContent;
+            if (modalAuthorName && authorNameEl) modalAuthorName.textContent = authorNameEl.textContent;
+            if (modalAuthorAvatar && authorAvatarEl) modalAuthorAvatar.src = authorAvatarEl.src;
+
+            if (currentAlbumImages.length <= 1) {
+                if (prevBtn) prevBtn.style.display = 'none';
+                if (nextBtn) nextBtn.style.display = 'none';
+                if (counter) counter.style.display = 'none';
+            } else {
+                if (prevBtn) prevBtn.style.display = 'flex';
+                if (nextBtn) nextBtn.style.display = 'flex';
+                if (counter) counter.style.display = 'block';
+            }
+
+            // Define o source da imagem do modal (já está em cache agora!)
+            showImage(currentImageIndex);
+
+            // 3. Aplica classe de entrada
+            wrapper.classList.remove(exitClass);
+            wrapper.classList.add(enterClass);
+
+            // 4. Limpa as classes temporárias ao concluir a entrada
+            setTimeout(() => {
+                wrapper.classList.remove(enterClass);
+            }, 350);
+        }
+
+        // Preload da imagem do novo álbum para evitar piscadas (caching instantâneo)
+        const imgPreload = new Image();
+        imgPreload.onload = imgPreload.onerror = () => {
+            imageLoaded = true;
+            if (animationDone) {
+                proceedToEnter();
+            }
+        };
+        imgPreload.src = firstImageUrl;
+
+        // Limite máximo de espera (fallback de 1 segundo) para evitar travamento em redes muito lentas
+        const fallbackTimeout = setTimeout(() => {
+            imageLoaded = true;
+            if (animationDone) {
+                proceedToEnter();
+            }
+        }, 1000);
+
+        // Espera a animação de saída de 300ms concluir
+        setTimeout(() => {
+            animationDone = true;
+            if (imageLoaded) {
+                clearTimeout(fallbackTimeout);
+                proceedToEnter();
+            }
+        }, 300);
+    }
+
+    function navigateToNeighborAlbum(direction) {
+        const visibleCards = Array.from(document.querySelectorAll('.album-card:not(.hidden)'));
+        if (visibleCards.length === 0) return;
+
+        const currentCard = visibleCards.find(card => {
+            const imagesAttr = card.getAttribute('data-images') || '';
+            const cardImages = imagesAttr.split(',').map(img => img.trim());
+            return cardImages.length === currentAlbumImages.length && 
+                   cardImages.every((img, idx) => img === currentAlbumImages[idx]);
+        });
+
+        if (!currentCard) return;
+
+        const currentIndex = visibleCards.indexOf(currentCard);
+        let targetIndex = -1;
+
+        if (direction === 'next') {
+            targetIndex = currentIndex + 1;
+            if (targetIndex >= visibleCards.length) {
+                targetIndex = 0; // Loop para o primeiro
+            }
+        } else {
+            targetIndex = currentIndex - 1;
+            if (targetIndex < 0) {
+                targetIndex = visibleCards.length - 1; // Loop para o último
+            }
+        }
+
+        const targetCard = visibleCards[targetIndex];
+        if (targetCard) {
+            transitionToAlbum(targetCard, direction);
+            window.showNotification("Visualizando álbum " + (direction === 'next' ? 'seguinte' : 'anterior'), "fa-solid fa-images");
+        }
+    }
 }
 
 /* ==========================================
@@ -1133,9 +1516,9 @@ function setupSupabaseAuthAndInteractions() {
                             const imagesAttr = c.getAttribute('data-images') || '';
                             const images = imagesAttr.split(',').map(img => img.trim());
                             return images.some(img => {
-                                let p = img;
-                                if (p.startsWith('/')) p = p.substring(1);
-                                return p === relativePath;
+                                const cleanImg = decodeURIComponent(img.startsWith('/') ? img.substring(1) : img);
+                                const cleanPath = decodeURIComponent(relativePath.startsWith('/') ? relativePath.substring(1) : relativePath);
+                                return cleanImg === cleanPath || cleanImg.endsWith(cleanPath) || cleanPath.endsWith(cleanImg);
                             });
                         });
 
@@ -1162,16 +1545,21 @@ function setupSupabaseAuthAndInteractions() {
     }
 }
 
-// Extrai o caminho relativo da imagem (ex: "Images/9_Temporada/Junin_Boss1.png")
+// Extrai o caminho relativo da imagem se for local ou mantém absoluta se for externa (Supabase)
 function getRelativePhotoPath(absoluteUrl) {
     if (!absoluteUrl) return '';
     try {
         const urlObj = new URL(absoluteUrl);
-        let path = urlObj.pathname;
-        if (path.startsWith('/')) {
-            path = path.substring(1);
+        // Se a imagem for do mesmo host/servidor do site, retorna o caminho relativo
+        if (urlObj.host === window.location.host) {
+            let path = urlObj.pathname;
+            if (path.startsWith('/')) {
+                path = path.substring(1);
+            }
+            return decodeURIComponent(path);
         }
-        return decodeURIComponent(path);
+        // Se for externa (ex: bucket do Supabase), retorna a URL completa
+        return absoluteUrl;
     } catch (e) {
         let path = absoluteUrl;
         if (path.startsWith('/')) {
@@ -1639,6 +2027,10 @@ async function handleLikeToggle() {
                 .eq('user_id', currentUser.id);
             if (error) throw error;
         }
+
+        if (typeof loadGalleryCardsStats === 'function') {
+            loadGalleryCardsStats(cachedAlbums);
+        }
     } catch (err) {
         console.error("Erro ao persistir curtida:", err);
         // Rollback da mudança otimista
@@ -1685,6 +2077,10 @@ async function handleCommentSubmit(event) {
         if (input) input.value = '';
 
         await window.loadPhotoInteractions(activePhotoPath);
+
+        if (typeof loadGalleryCardsStats === 'function') {
+            loadGalleryCardsStats(cachedAlbums);
+        }
     } catch (err) {
         console.error("Erro ao comentar:", err);
         window.showNotification("Erro ao postar comentário.", "fa-solid fa-circle-xmark");
