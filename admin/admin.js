@@ -21,7 +21,7 @@
 
 // Configurações do Supabase (Mesma URL e Chave do site principal)
 const SUPABASE_URL = 'https://dzfmtmlgbyxnqjdwutfp.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInRefiI6ImR6Zm10bWxnYnl4bnFqZHd1dGZwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE5ODE1MjcsImV4cCI6MjA5NzU1NzUyN30.8W_0L9OzmLSDH1ZMRtFFlc3Pyf54ENgVNV535TW1T7U';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR6Zm10bWxnYnl4bnFqZHd1dGZwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE5ODE1MjcsImV4cCI6MjA5NzU1NzUyN30.8W_0L9OzmLSDH1ZMRtFFlc3Pyf54ENgVNV535TW1T7U';
 
 let supabaseClient = null;
 let currentUser = null;
@@ -64,7 +64,7 @@ async function checkSessionAndRole() {
 
         // Se houver erro de consulta ou o usuário não constar na tabela de permissões, ele não é admin
         if (permError || !permissionData) {
-            console.warn("[Auth Guard] Acesso negado para:", currentUser.email, "Erro:", permError);
+            console.warn("[Auth Guard] Falha de validação.");
             handleAccessDenied("Acesso Negado: Você não tem permissão para acessar o Painel Admin.");
             return;
         }
