@@ -64,6 +64,7 @@ async function checkSessionAndRole() {
 
         // Se houver erro de consulta ou o usuário não constar na tabela de permissões, ele não é admin
         if (permError || !permissionData) {
+            console.warn("[Auth Guard] Acesso negado para:", currentUser.email, "Erro:", permError);
             handleAccessDenied("Acesso Negado: Você não tem permissão para acessar o Painel Admin.");
             return;
         }
