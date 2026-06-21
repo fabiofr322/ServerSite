@@ -1264,6 +1264,31 @@ function switchAuthTab(mode) {
     }
 }
 
+// Exibir mensagem de erro diretamente no formulário de autenticação
+function showAuthError(formId, message) {
+    // Remover erro anterior
+    const oldError = document.getElementById('authErrorMsg');
+    if (oldError) oldError.remove();
+
+    const form = document.getElementById(formId);
+    if (!form) return;
+
+    const errorDiv = document.createElement('div');
+    errorDiv.id = 'authErrorMsg';
+    errorDiv.style.cssText = 'background:#ff4444;color:#fff;padding:10px 14px;border-radius:8px;margin-bottom:12px;font-size:13px;text-align:center;';
+    errorDiv.textContent = message;
+
+    form.insertBefore(errorDiv, form.firstChild);
+    setTimeout(() => { if (errorDiv.parentNode) errorDiv.remove(); }, 6000);
+}
+
+// Obter mensagem de erro legível de qualquer objeto de erro do Supabase
+function getErrorMessage(err) {
+    if (!err) return 'Erro desconhecido.';
+    const msg = err.message || err.error_description || err.msg || String(err);
+    return translateAuthError(msg);
+}
+
 // Lógica de Envio de Login
 async function handleLogin(event) {
     event.preventDefault();
@@ -1311,7 +1336,9 @@ async function handleLogin(event) {
         window.showNotification("Bem-vindo de volta!", "fa-solid fa-circle-check");
         closeAuthModal();
     } catch (err) {
-        window.showNotification(translateAuthError(err.message), "fa-solid fa-circle-xmark");
+        const msg = getErrorMessage(err);
+        showAuthError('loginForm', msg);
+        window.showNotification(msg, "fa-solid fa-circle-xmark");
     } finally {
         clearTimeout(safetyTimer);
         const btn = document.getElementById('btnLoginSubmit');
