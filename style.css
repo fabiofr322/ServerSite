@@ -2500,3 +2500,31 @@ footer a:hover {
         font-size: 2.2rem;
     }
 }
+
+/* ==========================================
+   FORÇAR EXIBIÇÃO DE TODOS OS CARDS DO CONTADOR
+   ========================================== */
+.countdown-item.blurred {
+    background: var(--bg-card) !important;
+    border: 1px solid rgba(255, 20, 147, 0.25) !important;
+    cursor: default !important;
+}
+
+.countdown-item.blurred .countdown-number,
+.countdown-item.blurred .countdown-label {
+    opacity: 1 !important;
+    filter: none !important;
+    user-select: auto !important;
+    pointer-events: auto !important;
+}
+
+.countdown-item.blurred:hover {
+    transform: translateY(-5px) !important;
+    box-shadow: 0 12px 35px rgba(255, 20, 147, 0.3) !important;
+    border-color: rgba(255, 20, 147, 0.6) !important;
+}
+
+.lock-overlay {
+    display: none !important;
+}
+

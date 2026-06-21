@@ -132,8 +132,8 @@ function showToast() {
    LÓGICA: CONTAGEM REGRESSIVA (MISTERIOSA)
    ========================================== */
 function setupCountdown() {
-    // Alvo: 10 de Julho de 2026 às 13:00
-    const targetDate = new Date('2026-07-10T13:00:00').getTime();
+    // Alvo: 8 de Julho de 2026 às 18:00 (Horário de Brasília, UTC-3)
+    const targetDate = new Date('2026-07-08T21:00:00Z').getTime();
 
     function update() {
         const now = new Date().getTime();
@@ -1489,19 +1489,11 @@ window.loadPhotoInteractions = async function (photoPath) {
         console.error("Erro ao carregar curtidas:", e);
     }
 
-    // 3. Carregar lista de comentários com profiles associados
+    // 3. Carregar lista de comentários com profiles associados (desacoplados)
     try {
         const { data: commentsData, error } = await supabaseClient
             .from('comments')
-            .select(`
-                id,
-                content,
-                created_at,
-                user_id,
-                profiles (
-                    minecraft_username
-                )
-            `)
+            .select('id, content, created_at, user_id')
             .eq('photo_path', activePhotoPath)
             .order('created_at', { ascending: true });
 
@@ -1509,8 +1501,25 @@ window.loadPhotoInteractions = async function (photoPath) {
         if (commentsList) {
             commentsList.innerHTML = '';
             if (!error && commentsData && commentsData.length > 0) {
+                // Buscar profiles associados
+                const userIds = [...new Set(commentsData.map(c => c.user_id))];
+                let profilesMap = {};
+
+                if (userIds.length > 0) {
+                    const { data: profilesData, error: profilesError } = await supabaseClient
+                        .from('profiles')
+                        .select('id, minecraft_username')
+                        .in('id', userIds);
+
+                    if (!profilesError && profilesData) {
+                        profilesData.forEach(p => {
+                            profilesMap[p.id] = p.minecraft_username;
+                        });
+                    }
+                }
+
                 commentsData.forEach(comment => {
-                    const username = comment.profiles?.minecraft_username || 'Jogador';
+                    const username = profilesMap[comment.user_id] || 'Jogador';
                     const dateText = formatRelativeTime(new Date(comment.created_at));
 
                     commentsList.innerHTML += `
@@ -1631,7 +1640,8 @@ async function handleCommentSubmit(event) {
             .from('comments')
             .insert({
                 photo_path: activePhotoPath,
-                content: content
+                content: content,
+                user_id: currentUser.id
             });
 
         if (error) throw error;
@@ -1756,3 +1766,16 @@ window.showNotification = function(message, iconClass = 'fa-solid fa-check', dur
         toast.classList.remove('show');
     }, duration);
 };
+
+// Sobrescrever a lógica de cadeados para garantir que todos os cards fiquem visíveis e sem blur
+function updateLockUI(index, clicks) {
+    const card = document.getElementById(`card-${index}`);
+    if (card) {
+        card.classList.remove('blurred');
+    }
+    const overlay = document.getElementById(`overlay-${index}`);
+    if (overlay) {
+        overlay.style.display = 'none';
+    }
+}
+window.clickLock = function() {};
