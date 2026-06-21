@@ -1325,8 +1325,8 @@ function injectHtmlElements() {
                 </form>
                 <form id="registerForm" class="auth-form hidden" onsubmit="handleRegister(event)" autocomplete="off">
                     <div class="input-group">
-                        <label for="regMinecraft">Nick do Minecraft</label>
-                        <input type="text" id="regMinecraft" required minlength="3" placeholder="Seu Nick de jogo" autocomplete="off">
+                        <label for="regMinecraft">Nome no Minecraft</label>
+                        <input type="text" id="regMinecraft" required minlength="3" placeholder="Seu Nome de jogo" autocomplete="off">
                         <small class="input-hint">Necessário para carregar a skin da sua cabeça.</small>
                     </div>
                     <div class="input-group">
@@ -1345,6 +1345,152 @@ function injectHtmlElements() {
         `;
         document.body.appendChild(authModal);
     }
+
+    // 3.5. Inserir settingsModal no body
+    if (!document.getElementById('settingsModal')) {
+        const settingsModal = document.createElement('div');
+        settingsModal.id = 'settingsModal';
+        settingsModal.className = 'modal';
+        settingsModal.innerHTML = `
+            <div class="settings-container">
+                <span class="close-modal" onclick="closeSettingsModal()">&times;</span>
+                <div class="settings-sidebar">
+                    <h3 class="settings-menu-title"><i class="fa-solid fa-gears"></i> Painel</h3>
+                    <button class="settings-tab-btn active" onclick="switchSettingsTab('general')">
+                        <i class="fa-solid fa-user-gear"></i> Geral
+                    </button>
+                    <button class="settings-tab-btn" onclick="switchSettingsTab('security')">
+                        <i class="fa-solid fa-shield-halved"></i> Segurança
+                    </button>
+                    <button class="settings-tab-btn" onclick="switchSettingsTab('mfa')">
+                        <i class="fa-solid fa-lock"></i> Autenticação 2FA
+                    </button>
+                </div>
+                <div class="settings-content">
+                    <!-- Aba Geral -->
+                    <div id="settingsTab-general" class="settings-pane">
+                        <h4>Informações Gerais</h4>
+                        <form id="settingsNickForm" onsubmit="handleNicknameUpdate(event)">
+                            <div class="input-group">
+                                <label for="settingsNewNick">Nome no Minecraft</label>
+                                <input type="text" id="settingsNewNick" required minlength="3" placeholder="Seu novo Nick">
+                                <small class="input-hint">Use apenas letras, números e underlines (_). Mínimo 3 caracteres.</small>
+                            </div>
+                            <button type="submit" class="btn btn-primary" id="btnSettingsNickSubmit">
+                                Alterar Nick <i class="fa-solid fa-user-pen"></i>
+                            </button>
+                        </form>
+                        
+                        <hr class="settings-divider">
+
+                        <form id="settingsEmailForm" onsubmit="handleEmailUpdate(event)">
+                            <div class="input-group">
+                                <label for="settingsNewEmail">Novo E-mail</label>
+                                <input type="email" id="settingsNewEmail" required placeholder="novoemail@exemplo.com">
+                            </div>
+                            <div class="input-group">
+                                <label for="settingsEmailPassword">Senha Atual</label>
+                                <input type="password" id="settingsEmailPassword" required placeholder="Confirme sua senha para validar">
+                            </div>
+                            <button type="submit" class="btn btn-primary" id="btnSettingsEmailSubmit">
+                                Alterar E-mail <i class="fa-solid fa-envelope"></i>
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- Aba Segurança -->
+                    <div id="settingsTab-security" class="settings-pane hidden">
+                        <h4>Alterar Senha</h4>
+                        <form id="settingsPasswordForm" onsubmit="handlePasswordUpdate(event)">
+                            <div class="input-group">
+                                <label for="settingsCurrentPassword">Senha Atual</label>
+                                <input type="password" id="settingsCurrentPassword" required placeholder="Digite sua senha atual">
+                            </div>
+                            <div class="input-group">
+                                <label for="settingsNewPassword">Nova Senha</label>
+                                <input type="password" id="settingsNewPassword" required minlength="6" placeholder="Mínimo 6 caracteres">
+                            </div>
+                            <div class="input-group">
+                                <label for="settingsConfirmPassword">Confirmar Nova Senha</label>
+                                <input type="password" id="settingsConfirmPassword" required minlength="6" placeholder="Confirme a nova senha">
+                            </div>
+                            <button type="submit" class="btn btn-primary" id="btnSettingsPasswordSubmit">
+                                Alterar Senha <i class="fa-solid fa-key"></i>
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- Aba 2FA -->
+                    <div id="settingsTab-mfa" class="settings-pane hidden">
+                        <h4>Autenticação em Duas Etapas (2FA)</h4>
+                        <p class="settings-desc">Adicione uma camada extra de segurança exigindo um código do celular ao fazer login.</p>
+                        
+                        <div id="mfaSetupActive" class="mfa-status-card hidden">
+                            <div class="mfa-status-badge mfa-active"><i class="fa-solid fa-circle-check"></i> 2FA Ativo</div>
+                            <p>Sua conta está protegida com autenticação em duas etapas por aplicativo gerador (Google Authenticator, Authy, etc).</p>
+                            <button type="button" class="btn btn-danger" id="btnDisableMfa" onclick="disableMfa()">
+                                Desativar 2FA <i class="fa-solid fa-trash-can"></i>
+                            </button>
+                        </div>
+
+                        <div id="mfaSetupInactive" class="mfa-status-card">
+                            <div class="mfa-status-badge mfa-inactive"><i class="fa-solid fa-circle-xmark"></i> 2FA Inativo</div>
+                            <button type="button" class="btn btn-primary" id="btnStartMfa" onclick="startMfaEnrollment()">
+                                Configurar 2FA por Aplicativo <i class="fa-solid fa-qrcode"></i>
+                            </button>
+                            
+                            <div id="mfaVerifyArea" class="mfa-setup-area hidden">
+                                <p class="mfa-setup-instructions">1. Escaneie o QR Code abaixo com o autenticador do seu celular (ou insira a chave manual):</p>
+                                <div id="mfaQrCodeContainer" class="mfa-qr-container"></div>
+                                <div class="mfa-secret-box">
+                                    <strong>Chave manual:</strong> <span id="mfaSecretText"></span>
+                                </div>
+                                <p class="mfa-setup-instructions">2. Insira o código de 6 dígitos gerado pelo aplicativo para confirmar a ativação:</p>
+                                <form id="mfaConfirmForm" onsubmit="verifyMfaEnrollment(event)">
+                                    <div class="input-group">
+                                        <input type="text" id="settingsMfaCode" required maxlength="6" minlength="6" placeholder="000000" style="text-align: center; font-size: 1.5rem; letter-spacing: 0.5rem; font-family: monospace;">
+                                    </div>
+                                    <button type="submit" class="btn btn-success" id="btnVerifyMfa">
+                                        Confirmar Ativação <i class="fa-solid fa-shield-check"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(settingsModal);
+    }
+
+    // 3.6. Inserir mfaLoginModal no body (Desafio 2FA no login)
+    if (!document.getElementById('mfaLoginModal')) {
+        const mfaLoginModal = document.createElement('div');
+        mfaLoginModal.id = 'mfaLoginModal';
+        mfaLoginModal.className = 'modal';
+        mfaLoginModal.innerHTML = `
+            <div class="auth-container" style="max-width: 400px; text-align: center;">
+                <span class="close-modal" onclick="closeMfaLoginModal()">&times;</span>
+                <div style="font-size: 3rem; color: var(--primary); margin-bottom: 1.2rem;">
+                    <i class="fa-solid fa-shield-halved"></i>
+                </div>
+                <h3 style="font-size: 1.3rem; font-weight: 800; margin-bottom: 0.5rem; color: #fff;">Autenticação 2FA</h3>
+                <p style="color: var(--text-muted); font-size: 0.85rem; line-height: 1.4; margin-bottom: 1.5rem;">
+                    Insira o código de 6 dígitos gerado pelo aplicativo autenticador do seu celular.
+                </p>
+                <form id="mfaLoginForm" onsubmit="handleMfaLogin(event)">
+                    <div class="input-group">
+                        <input type="text" id="loginMfaCode" required maxlength="6" minlength="6" placeholder="000000" style="text-align: center; font-size: 1.8rem; letter-spacing: 0.5rem; border-color: var(--primary); font-family: monospace;">
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-auth-submit" id="btnMfaLoginSubmit" style="width: 100%;">
+                        Confirmar Código <i class="fa-solid fa-lock-open"></i>
+                    </button>
+                </form>
+            </div>
+        `;
+        document.body.appendChild(mfaLoginModal);
+    }
+
 
     // 4. Reestruturar #albumModal para split view
     const albumModal = document.getElementById('albumModal');
@@ -1600,6 +1746,9 @@ function updateUserInterface() {
         const userHtml = `
             <div class="user-profile-menu">
                 ${adminBtnHtml}
+                <button onclick="openSettingsModal()" class="btn-settings-nav" title="Configurações da Conta" style="margin-right: 10px; color: var(--secondary); display: inline-flex; align-items: center; justify-content: center; width: 30px; height: 30px; border-radius: 50%; background: rgba(139, 0, 255, 0.1); border: 1px solid rgba(139, 0, 255, 0.35); transition: all 0.3s ease; box-shadow: 0 0 8px rgba(139, 0, 255, 0.2); cursor: pointer;">
+                    <i class="fa-solid fa-gear" style="font-size: 0.95rem;"></i>
+                </button>
                 <img src="https://mc-heads.net/avatar/${nick}/22" class="nav-user-avatar" alt="Avatar de ${nick}">
                 <span class="nav-user-name">${nick}</span>
                 <button class="btn-logout-nav" onclick="handleLogout()" title="Sair do painel">
@@ -1624,6 +1773,11 @@ function updateUserInterface() {
             mobileUserLi.innerHTML = `
                 <div class="user-profile-menu" style="flex-direction: column; gap: 10px; align-items: center;">
                     ${mobileAdminHtml}
+                    <div style="text-align: center; margin-bottom: 0.5rem; width: 100%;">
+                        <button class="btn-settings-nav-mobile" onclick="openSettingsModal()" style="display: inline-flex; align-items: center; gap: 8px; color: var(--secondary); font-weight: 800; text-transform: uppercase; font-size: 0.85rem; letter-spacing: 1px; padding: 6px 16px; border-radius: 20px; background: rgba(139, 0, 255, 0.1); border: 1px solid rgba(139, 0, 255, 0.3); cursor: pointer; width: auto; border: 1px solid rgba(139, 0, 255, 0.3);">
+                            <i class="fa-solid fa-gear"></i> Configurações
+                        </button>
+                    </div>
                     <div style="display: flex; align-items: center; gap: 8px;">
                         <img src="https://mc-heads.net/avatar/${nick}/22" class="nav-user-avatar" alt="Avatar">
                         <span class="nav-user-name">${nick}</span>
@@ -1764,6 +1918,15 @@ async function handleLogin(event) {
         if (emailEl) emailEl.value = '';
         if (passwordEl) passwordEl.value = '';
 
+        // 3. Verificar se MFA é exigido para esta conta
+        const { data: mfaData, error: mfaError } = await supabaseClient.auth.mfa.getAuthenticatorAssuranceLevel();
+        if (!mfaError && mfaData && mfaData.nextLevel === 'aal2' && mfaData.currentLevel !== 'aal2') {
+            // Esconde modal de login padrão e abre o modal de código MFA
+            closeAuthModal();
+            openMfaLoginModal();
+            return;
+        }
+
         window.showNotification("Bem-vindo de volta!", "fa-solid fa-circle-check");
         closeAuthModal();
     } catch (err) {
@@ -1869,6 +2032,530 @@ async function handleLogout() {
         console.error("Erro no logout:", err);
     }
 }
+
+// Lógica de Alteração de E-mail (Configurações de Perfil)
+async function handleEmailUpdate(event) {
+    event.preventDefault();
+
+    if (!supabaseClient || !currentUser) {
+        window.showNotification("Você precisa estar logado para alterar o e-mail.", "fa-solid fa-triangle-exclamation");
+        return;
+    }
+
+    const emailInput = document.getElementById('settingsNewEmail');
+    const passwordInput = document.getElementById('settingsEmailPassword');
+    const newEmail = emailInput?.value?.trim();
+    const currentPassword = passwordInput?.value;
+
+    if (!newEmail || !currentPassword) {
+        window.showNotification("Preencha o novo e-mail e a senha atual.", "fa-solid fa-triangle-exclamation");
+        return;
+    }
+
+    const btnSubmit = document.getElementById('btnSettingsEmailSubmit');
+    if (btnSubmit) {
+        btnSubmit.disabled = true;
+        btnSubmit.innerHTML = 'Processando... <i class="fa-solid fa-spinner fa-spin"></i>';
+    }
+
+    try {
+        // 1. Reautenticação segura antes de iniciar o processo
+        const { error: reauthError } = await supabaseClient.auth.signInWithPassword({
+            email: currentUser.email,
+            password: currentPassword
+        });
+
+        if (reauthError) {
+            throw new Error("Senha atual incorreta. A alteração foi recusada por segurança.");
+        }
+
+        // 2. Chamar API do Supabase para atualizar o e-mail
+        const { error: updateError } = await supabaseClient.auth.updateUser({ email: newEmail });
+        if (updateError) throw updateError;
+
+        // Limpar inputs de segurança
+        if (passwordInput) passwordInput.value = '';
+        if (emailInput) emailInput.value = '';
+
+        window.showNotification("Verifique ambos os e-mails para confirmar a alteração!", "fa-solid fa-envelope-circle-check");
+    } catch (err) {
+        const msg = getErrorMessage(err);
+        window.showNotification(msg, "fa-solid fa-circle-xmark");
+    } finally {
+        if (btnSubmit) {
+            btnSubmit.disabled = false;
+            btnSubmit.innerHTML = 'Salvar Alterações <i class="fa-solid fa-floppy-disk"></i>';
+        }
+    }
+}
+
+window.handleEmailUpdate = handleEmailUpdate;
+
+// Lógica de Alteração de Senha (Configurações de Perfil)
+async function handlePasswordUpdate(event) {
+    event.preventDefault();
+
+    if (!supabaseClient || !currentUser) {
+        window.showNotification("Você precisa estar logado para alterar a senha.", "fa-solid fa-triangle-exclamation");
+        return;
+    }
+
+    const currentPasswordInput = document.getElementById('settingsCurrentPassword');
+    const newPasswordInput = document.getElementById('settingsNewPassword');
+    const confirmPasswordInput = document.getElementById('settingsConfirmPassword');
+
+    const currentPassword = currentPasswordInput?.value;
+    const newPassword = newPasswordInput?.value;
+    const confirmPassword = confirmPasswordInput?.value;
+
+    if (!currentPassword || !newPassword || !confirmPassword) {
+        window.showNotification("Preencha todos os campos de senha.", "fa-solid fa-triangle-exclamation");
+        return;
+    }
+
+    // Validação de força mínima no frontend
+    if (newPassword.length < 6) {
+        window.showNotification("A nova senha deve ter no mínimo 6 caracteres.", "fa-solid fa-triangle-exclamation");
+        return;
+    }
+    if (newPassword === currentPassword) {
+        window.showNotification("A nova senha deve ser diferente da senha atual.", "fa-solid fa-triangle-exclamation");
+        return;
+    }
+    if (newPassword !== confirmPassword) {
+        window.showNotification("As novas senhas não coincidem.", "fa-solid fa-triangle-exclamation");
+        return;
+    }
+
+    const btnSubmit = document.getElementById('btnSettingsPasswordSubmit');
+    if (btnSubmit) {
+        btnSubmit.disabled = true;
+        btnSubmit.innerHTML = 'Processando... <i class="fa-solid fa-spinner fa-spin"></i>';
+    }
+
+    try {
+        // 1. Reautenticação segura com a senha atual
+        const { error: reauthError } = await supabaseClient.auth.signInWithPassword({
+            email: currentUser.email,
+            password: currentPassword
+        });
+
+        if (reauthError) {
+            throw new Error("Senha atual incorreta. A alteração foi recusada por segurança.");
+        }
+
+        // 2. Chamar a API do Supabase para atualizar a senha
+        const { error: updateError } = await supabaseClient.auth.updateUser({ password: newPassword });
+        if (updateError) throw updateError;
+
+        // Limpar inputs de segurança
+        if (currentPasswordInput) currentPasswordInput.value = '';
+        if (newPasswordInput) newPasswordInput.value = '';
+        if (confirmPasswordInput) confirmPasswordInput.value = '';
+
+        window.showNotification("Senha alterada com sucesso!", "fa-solid fa-circle-check");
+    } catch (err) {
+        const msg = getErrorMessage(err);
+        window.showNotification(msg, "fa-solid fa-circle-xmark");
+    } finally {
+        if (btnSubmit) {
+            btnSubmit.disabled = false;
+            btnSubmit.innerHTML = 'Alterar Senha <i class="fa-solid fa-key"></i>';
+        }
+    }
+}
+
+window.handlePasswordUpdate = handlePasswordUpdate;
+
+// Lógica de Alteração de Nick (Configurações de Perfil)
+async function handleNicknameUpdate(event) {
+    event.preventDefault();
+
+    if (!supabaseClient || !currentUser || !currentProfile) {
+        window.showNotification("Você precisa estar logado para alterar o nick.", "fa-solid fa-triangle-exclamation");
+        return;
+    }
+
+    const nickInput = document.getElementById('settingsNewNick');
+    const newNick = nickInput?.value?.trim();
+
+    if (!newNick) {
+        window.showNotification("Preencha o novo Nick.", "fa-solid fa-triangle-exclamation");
+        return;
+    }
+
+    if (newNick === currentProfile.minecraft_username) {
+        window.showNotification("O novo Nick é idêntico ao Nick atual.", "fa-solid fa-triangle-exclamation");
+        return;
+    }
+
+    // Validação de formato de Nick do Minecraft
+    const nickRegex = /^[a-zA-Z0-9_]{3,16}$/;
+    if (!nickRegex.test(newNick)) {
+        window.showNotification("Nick inválido! Use de 3 a 16 caracteres, contendo apenas letras, números e underline (_).", "fa-solid fa-triangle-exclamation");
+        return;
+    }
+
+    const btnSubmit = document.getElementById('btnSettingsNickSubmit');
+    if (btnSubmit) {
+        btnSubmit.disabled = true;
+        btnSubmit.innerHTML = 'Processando... <i class="fa-solid fa-spinner fa-spin"></i>';
+    }
+
+    try {
+        // Atualizar o nick na tabela profiles
+        const { error } = await supabaseClient
+            .from('profiles')
+            .update({ minecraft_username: newNick })
+            .eq('id', currentUser.id);
+
+        if (error) {
+            // Tratar erro de restrição única (nick em uso)
+            if (error.code === '23505') {
+                throw new Error("Este Nick do Minecraft já está em uso por outro jogador.");
+            }
+            throw error;
+        }
+
+        // Atualizar o estado da sessão local
+        currentProfile.minecraft_username = newNick;
+        updateUserInterface();
+
+        window.showNotification("Nick do Minecraft atualizado com sucesso!", "fa-solid fa-circle-check");
+    } catch (err) {
+        const msg = getErrorMessage(err);
+        window.showNotification(msg, "fa-solid fa-circle-xmark");
+    } finally {
+        if (btnSubmit) {
+            btnSubmit.disabled = false;
+            btnSubmit.innerHTML = 'Alterar Nick <i class="fa-solid fa-user-pen"></i>';
+        }
+    }
+}
+
+window.handleNicknameUpdate = handleNicknameUpdate;
+
+
+// ==========================================
+// LÓGICA: AUTENTICAÇÃO EM DUAS ETAPAS (2FA/MFA TOTP)
+// ==========================================
+let currentEnrollmentFactorId = null;
+
+// Verifica se o usuário logado possui MFA ativo
+async function checkMfaStatus() {
+    if (!supabaseClient || !currentUser) return false;
+    try {
+        const { data, error } = await supabaseClient.auth.mfa.listFactors();
+        if (error) throw error;
+        
+        const activeFactor = data?.all?.find(f => f.status === 'verified');
+        return !!activeFactor;
+    } catch (e) {
+        console.error("Erro ao verificar status MFA:", e);
+        return false;
+    }
+}
+
+// Inicia o processo de cadastro de um gerador de código
+async function startMfaEnrollment() {
+    if (!supabaseClient || !currentUser) return;
+
+    const btnStart = document.getElementById('btnStartMfa');
+    const qrContainer = document.getElementById('mfaQrCodeContainer');
+    const secretText = document.getElementById('mfaSecretText');
+    const verifyArea = document.getElementById('mfaVerifyArea');
+
+    if (btnStart) btnStart.disabled = true;
+
+    try {
+        const { data, error } = await supabaseClient.auth.mfa.enroll({
+            factorType: 'totp',
+            issuer: 'FR32SURVIVAL',
+            friendlyName: currentUser.email
+        });
+
+        if (error) throw error;
+
+        currentEnrollmentFactorId = data.id;
+
+        // Injetar o SVG do QR Code
+        if (qrContainer && data.totp?.qr_code) {
+            qrContainer.innerHTML = data.totp.qr_code;
+        }
+
+        // Exibir chave secreta por extenso como alternativa
+        if (secretText && data.totp?.secret) {
+            secretText.textContent = data.totp.secret;
+        }
+
+        // Exibir a seção de verificação
+        if (verifyArea) verifyArea.classList.remove('hidden');
+        if (btnStart) btnStart.style.display = 'none';
+
+        window.showNotification("Fator MFA criado! Escaneie o QR Code no seu aplicativo.", "fa-solid fa-qrcode");
+    } catch (err) {
+        window.showNotification(getErrorMessage(err), "fa-solid fa-circle-xmark");
+        if (btnStart) btnStart.disabled = false;
+    }
+}
+
+// Confirma o código do QR Code para ativar o MFA na conta
+async function verifyMfaEnrollment(event) {
+    event.preventDefault();
+
+    if (!supabaseClient || !currentEnrollmentFactorId) return;
+
+    const codeInput = document.getElementById('settingsMfaCode');
+    const code = codeInput?.value?.trim();
+
+    if (!code || code.length !== 6 || isNaN(code)) {
+        window.showNotification("Insira um código de 6 dígitos numéricos.", "fa-solid fa-triangle-exclamation");
+        return;
+    }
+
+    const btnVerify = document.getElementById('btnVerifyMfa');
+    if (btnVerify) btnVerify.disabled = true;
+
+    try {
+        // Criar desafio com o ID do fator pendente
+        const { data: challengeData, error: challengeError } = await supabaseClient.auth.mfa.challenge({
+            factorId: currentEnrollmentFactorId
+        });
+
+        if (challengeError) throw challengeError;
+
+        // Confirmar resposta
+        const { error: verifyError } = await supabaseClient.auth.mfa.verify({
+            factorId: currentEnrollmentFactorId,
+            challengeId: challengeData.id,
+            code: code
+        });
+
+        if (verifyError) throw verifyError;
+
+        // Resetar interface de configuração de MFA
+        currentEnrollmentFactorId = null;
+        if (codeInput) codeInput.value = '';
+        
+        // Atualizar abas/informações do modal de perfil
+        if (window.loadProfileSettings) window.loadProfileSettings();
+
+        window.showNotification("Autenticação em Duas Etapas ATIVADA com sucesso!", "fa-solid fa-shield-halved");
+    } catch (err) {
+        window.showNotification(getErrorMessage(err), "fa-solid fa-circle-xmark");
+    } finally {
+        if (btnVerify) btnVerify.disabled = false;
+    }
+}
+
+// Desativa a autenticação de duas etapas
+async function disableMfa() {
+    if (!supabaseClient || !currentUser) return;
+
+    // Confirmação de segurança amigável
+    if (!confirm("Tem certeza que deseja desativar a Autenticação de Duas Etapas? Sua conta ficará menos protegida.")) {
+        return;
+    }
+
+    const btnDisable = document.getElementById('btnDisableMfa');
+    if (btnDisable) btnDisable.disabled = true;
+
+    try {
+        // Listar todos os fatores verificados
+        const { data: factorsData, error: listError } = await supabaseClient.auth.mfa.listFactors();
+        if (listError) throw listError;
+
+        const verifiedFactor = factorsData?.all?.find(f => f.status === 'verified');
+        if (!verifiedFactor) {
+            throw new Error("Nenhum fator MFA ativo encontrado.");
+        }
+
+        // Remover fator
+        const { error: unenrollError } = await supabaseClient.auth.mfa.unenroll({
+            factorId: verifiedFactor.id
+        });
+
+        if (unenrollError) throw unenrollError;
+
+        if (window.loadProfileSettings) window.loadProfileSettings();
+
+        window.showNotification("Autenticação em Duas Etapas desativada.", "fa-solid fa-circle-info");
+    } catch (err) {
+        window.showNotification(getErrorMessage(err), "fa-solid fa-circle-xmark");
+    } finally {
+        if (btnDisable) btnDisable.disabled = false;
+    }
+}
+
+// Envia a verificação de MFA durante a tela de Login
+async function handleMfaLogin(event) {
+    event.preventDefault();
+
+    if (!supabaseClient) return;
+
+    const codeInput = document.getElementById('loginMfaCode');
+    const code = codeInput?.value?.trim();
+
+    if (!code || code.length !== 6 || isNaN(code)) {
+        window.showNotification("Insira o código de 6 dígitos.", "fa-solid fa-triangle-exclamation");
+        return;
+    }
+
+    const btnMfaLoginSubmit = document.getElementById('btnMfaLoginSubmit');
+    if (btnMfaLoginSubmit) btnMfaLoginSubmit.disabled = true;
+
+    try {
+        // Listar fatores associados ao usuário que iniciou o login
+        const { data: factorsData, error: listError } = await supabaseClient.auth.mfa.listFactors();
+        if (listError) throw listError;
+
+        const activeFactor = factorsData?.all?.find(f => f.status === 'verified');
+        if (!activeFactor) {
+            throw new Error("Nenhum fator MFA verificado na conta.");
+        }
+
+        // Criar desafio
+        const { data: challengeData, error: challengeError } = await supabaseClient.auth.mfa.challenge({
+            factorId: activeFactor.id
+        });
+
+        if (challengeError) throw challengeError;
+
+        // Validar código
+        const { error: verifyError } = await supabaseClient.auth.mfa.verify({
+            factorId: activeFactor.id,
+            challengeId: challengeData.id,
+            code: code
+        });
+
+        if (verifyError) throw verifyError;
+
+        if (codeInput) codeInput.value = '';
+        closeMfaLoginModal();
+        window.showNotification("Autenticação concluída. Bem-vindo de volta!", "fa-solid fa-circle-check");
+    } catch (err) {
+        window.showNotification("Código incorreto ou inválido.", "fa-solid fa-circle-xmark");
+    } finally {
+        if (btnMfaLoginSubmit) btnMfaLoginSubmit.disabled = false;
+    }
+}
+
+// Modais Auxiliares para o MFA no Login
+function openMfaLoginModal() {
+    const modal = document.getElementById('mfaLoginModal');
+    if (modal) {
+        modal.classList.add('show');
+        document.body.style.overflow = 'hidden';
+    }
+}
+
+function closeMfaLoginModal() {
+    const modal = document.getElementById('mfaLoginModal');
+    if (modal) {
+        modal.classList.remove('show');
+        document.body.style.overflow = 'auto';
+    }
+}
+
+window.checkMfaStatus = checkMfaStatus;
+window.startMfaEnrollment = startMfaEnrollment;
+window.verifyMfaEnrollment = verifyMfaEnrollment;
+window.disableMfa = disableMfa;
+window.handleMfaLogin = handleMfaLogin;
+window.closeMfaLoginModal = closeMfaLoginModal;
+
+// Abrir/Fechar modal de Configurações
+async function openSettingsModal() {
+    const modal = document.getElementById('settingsModal');
+    if (modal) {
+        modal.classList.add('show');
+        document.body.style.overflow = 'hidden';
+        
+        // Carrega o nick atual do usuário nos inputs
+        const nickInput = document.getElementById('settingsNewNick');
+        if (nickInput && currentProfile) {
+            nickInput.value = currentProfile.minecraft_username || '';
+        }
+
+        // Carrega o e-mail atual do usuário no placeholder/label se desejado
+        const emailInput = document.getElementById('settingsNewEmail');
+        if (emailInput && currentUser) {
+            emailInput.value = '';
+            emailInput.placeholder = currentUser.email || '';
+        }
+
+        // Reinicia a aba para Geral
+        switchSettingsTab('general');
+
+        // Carrega informações de status do 2FA
+        loadProfileSettings();
+    }
+}
+
+function closeSettingsModal() {
+    const modal = document.getElementById('settingsModal');
+    if (modal) {
+        modal.classList.remove('show');
+        document.body.style.overflow = 'auto';
+    }
+}
+
+// Alterna entre abas nas configurações
+function switchSettingsTab(tabName) {
+    // Esconder todas as abas
+    document.querySelectorAll('.settings-pane').forEach(pane => {
+        pane.classList.add('hidden');
+    });
+
+    // Desativar estilo dos botões da sidebar
+    document.querySelectorAll('.settings-tab-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+
+    // Mostrar aba ativa
+    const activePane = document.getElementById(`settingsTab-${tabName}`);
+    if (activePane) activePane.classList.remove('hidden');
+
+    // Destacar botão ativo
+    const activeBtn = Array.from(document.querySelectorAll('.settings-tab-btn')).find(btn => 
+        btn.getAttribute('onclick').includes(`'${tabName}'`)
+    );
+    if (activeBtn) activeBtn.classList.add('active');
+}
+
+// Carrega dados dinâmicos das configurações
+async function loadProfileSettings() {
+    const mfaSetupActive = document.getElementById('mfaSetupActive');
+    const mfaSetupInactive = document.getElementById('mfaSetupInactive');
+    const verifyArea = document.getElementById('mfaVerifyArea');
+    const btnStart = document.getElementById('btnStartMfa');
+    
+    // Resetar campos de ativação pendentes
+    if (verifyArea) verifyArea.classList.add('hidden');
+    if (btnStart) {
+        btnStart.style.display = 'inline-flex';
+        btnStart.disabled = false;
+    }
+
+    const isMfaActive = await checkMfaStatus();
+    if (isMfaActive) {
+        if (mfaSetupActive) mfaSetupActive.classList.remove('hidden');
+        if (mfaSetupInactive) mfaSetupInactive.classList.add('hidden');
+    } else {
+        if (mfaSetupActive) mfaSetupActive.classList.add('hidden');
+        if (mfaSetupInactive) mfaSetupInactive.classList.remove('hidden');
+    }
+}
+
+window.openSettingsModal = openSettingsModal;
+window.closeSettingsModal = closeSettingsModal;
+window.switchSettingsTab = switchSettingsTab;
+window.loadProfileSettings = loadProfileSettings;
+
+
+
+
+
 
 window.loadPhotoInteractions = async function (photoPath) {
     if (!supabaseClient) return;
