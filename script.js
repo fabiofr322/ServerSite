@@ -575,6 +575,15 @@ function bindGalleryInteractions() {
         }
 
         showImage(currentImageIndex);
+        
+        const wrapper = modal.querySelector('.modal-wrapper');
+        if (wrapper) {
+            wrapper.classList.add('modal-zoom-in');
+            setTimeout(() => {
+                wrapper.classList.remove('modal-zoom-in');
+            }, 350);
+        }
+
         modal.classList.add('show');
         document.body.style.overflow = 'hidden'; 
     }
