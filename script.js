@@ -1034,63 +1034,63 @@ function setupSupabaseAuthAndInteractions() {
     if (!supabaseClient) return;
 
     // Restaurar sessão existente ao carregar a página (persiste login após reload)
-    supabaseClient.auth.getSession().then(async ({ data: { session } }) => {
+    supabaseClient.auth.getSession().then(({ data: { session } }) => {
         currentUser = session?.user || null;
         if (currentUser) {
-            try {
-                const { data, error } = await supabaseClient
-                    .from('profiles')
-                    .select('minecraft_username')
-                    .eq('id', currentUser.id)
-                    .single();
-                if (!error && data) {
-                    currentProfile = data;
-                } else {
-                    currentProfile = {
-                        minecraft_username: currentUser.user_metadata?.minecraft_username || 'Jogador'
-                    };
-                }
-            } catch (err) {
-                currentProfile = {
-                    minecraft_username: currentUser.user_metadata?.minecraft_username || 'Jogador'
-                };
-            }
+            currentProfile = {
+                minecraft_username: currentUser.user_metadata?.minecraft_username || 'Jogador'
+            };
+            // Busca atualizada do perfil
+            supabaseClient
+                .from('profiles')
+                .select('minecraft_username')
+                .eq('id', currentUser.id)
+                .single()
+                .then(({ data }) => {
+                    if (data) currentProfile = data;
+                    updateUserInterface();
+                });
         } else {
             currentProfile = null;
+            updateUserInterface();
         }
-        updateUserInterface();
     });
 
-    // Monitoramento contínuo do estado de login (login, logout, refresh de token)
-    supabaseClient.auth.onAuthStateChange(async (event, session) => {
-        currentUser = session?.user || null;
-        if (currentUser) {
+    // CORREÇÃO CRÍTICA do deadlock do Supabase v2:
+    // O callback onAuthStateChange NÃO pode ser async nem fazer await diretamente.
+    // O Supabase bloqueia internamente o signInWithPassword até o callback retornar.
+    // Se o callback faz await, ele nunca retorna → signInWithPassword nunca resolve → tela trava.
+    // Solução: callback síncrono + todo trabalho assíncrono dentro de setTimeout(async, 0).
+    supabaseClient.auth.onAuthStateChange((event, session) => {
+        const user = session?.user || null;
+        currentUser = user;
+
+        if (!user) {
+            // Logout: limpar perfil e atualizar UI na próxima iteração do event loop
+            currentProfile = null;
+            setTimeout(() => { updateUserInterface(); }, 0);
+            return;
+        }
+
+        // Usar metadados já disponíveis como fallback imediato (sem await)
+        currentProfile = {
+            minecraft_username: user.user_metadata?.minecraft_username || 'Jogador'
+        };
+
+        // Buscar perfil completo de forma assíncrona SEM bloquear o callback
+        setTimeout(async () => {
             try {
                 const { data, error } = await supabaseClient
                     .from('profiles')
                     .select('minecraft_username')
-                    .eq('id', currentUser.id)
+                    .eq('id', user.id)
                     .single();
 
                 if (!error && data) {
                     currentProfile = data;
-                } else {
-                    currentProfile = {
-                        minecraft_username: currentUser.user_metadata?.minecraft_username || 'Jogador'
-                    };
                 }
-            } catch (err) {
-                currentProfile = {
-                    minecraft_username: currentUser.user_metadata?.minecraft_username || 'Jogador'
-                };
-            }
-        } else {
-            currentProfile = null;
-        }
+            } catch (_) { /* mantém fallback dos metadados */ }
 
-        // setTimeout(0) garante que o ciclo de microtasks (promises do signIn/signUp)
-        // termina ANTES de atualizar a UI, evitando deadlock no Supabase v2
-        setTimeout(() => {
             updateUserInterface();
 
             const modal = document.getElementById('albumModal');
