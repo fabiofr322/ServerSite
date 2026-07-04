@@ -1,0 +1,272 @@
+# 📋 Melhorias & Novas Funcionalidades — FR32SURVIVAL
+
+> Documento gerado após leitura completa de `index.html`, `script.js`, `style.css` e `admin/`.  
+> Organizado por prioridade: 🔴 Alta · 🟡 Média · 🟢 Baixa/Futura
+
+---
+
+## 🔴 Prioridade Alta
+
+### 1. Status Real do Servidor (Online/Offline)
+**Situação atual:** O IP aparece como *"Servidor Offline (Desenvolvimento)"* com um ponto cinza fixo no código HTML.  
+**Melhoria:** Integrar a [Minecraft Server Status API](https://api.mcsrvstat.us/) para mostrar em tempo real:
+- 🟢 Jogadores online / Máximo de slots
+- 🟡 Versão do servidor (ex: 1.21.4)
+- 🔴 Offline com motivo
+
+```js
+// Exemplo de chamada
+fetch('https://api.mcsrvstat.us/3/fr32survival.com')
+  .then(r => r.json())
+  .then(data => {
+    if (data.online) showStatus(`${data.players.online}/${data.players.max} online`);
+  });
+```
+**Impacto:** Jogadores veem em tempo real se o servidor está ativo antes de entrar.
+
+---
+
+### 2. Sistema de Notificação Push (Web Push / Service Worker)
+**Situação atual:** Sem notificações de novidade para usuários.  
+**Melhoria:** Adicionar Web Push via Service Worker + Supabase Realtime para notificar jogadores quando:
+- O servidor volta online
+- Um novo evento começa
+- Alguém comenta no álbum deles
+
+---
+
+### 3. Página de Perfil Público do Jogador
+**Situação atual:** O perfil é apenas configurado (nick, e-mail, 2FA) — sem visualização pública.  
+**Melhoria:** Criar uma rota `/perfil/[username]` que exibe:
+- Avatar e skin 3D do Minecraft
+- Badges conquistas (veterano, staff, etc.)
+- Fotos enviadas para a galeria
+- Posição nos rankings
+- Data de entrada no servidor
+
+---
+
+### 4. Seção de Eventos / Temporadas Ativas
+**Situação atual:** Não existe na UI uma seção de eventos em andamento.  
+**Melhoria:** Adicionar nova seção `#eventos` no `index.html` com:
+- Cards de eventos ativos (PvP, Build Battle, etc.)
+- Countdown individual por evento
+- Botão para inscrição (vinculado ao Discord)
+- Gerenciamento pelo Painel Admin
+
+---
+
+### 5. Formulário de Envio de Fotos pelo Próprio Jogador
+**Situação atual:** Apenas admins adicionam fotos à galeria via painel.  
+**Melhoria:** Permitir que jogadores logados façam upload de fotos da sua construção:
+- Upload para Supabase Storage
+- Metadados: temporada, título, autor (preenchido automático pelo perfil)
+- Status de aprovação: pendente → revisão admin → publicada
+- Notificação ao admin quando houver envio pendente
+
+---
+
+## 🟡 Prioridade Média
+
+### 6. Sistema de Conquistas / Badges
+**Situação atual:** Rankings existem, mas sem gamificação visual.  
+**Melhoria:** Criar sistema de badges automáticas baseadas em conquistas:
+- 🏆 **Top Minerador** — 1º lugar no ranking de mineração por semana
+- 💎 **Diamante** — 1 mês contínuo no servidor
+- 🏗️ **Construtor** — submissão aprovada na galeria
+- 🛡️ **Guardião** — usuário com 2FA ativo
+- Exibição nos cards de veteranos e no perfil público
+
+```sql
+-- Tabela sugerida no Supabase
+CREATE TABLE badges (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  user_id uuid REFERENCES public.profiles(id),
+  badge_type text NOT NULL,  -- 'minerador', 'guardiao', etc.
+  awarded_at timestamptz DEFAULT now()
+);
+```
+
+---
+
+### 7. Chat Ao Vivo (Integração com Discord)
+**Situação atual:** Apenas link para o Discord.  
+**Melhoria:** Incorporar um widget do Discord (Widgetbot) ou uma timeline de mensagens de um canal público, para mostrar atividade da comunidade em tempo real na página.
+
+---
+
+### 8. Leaderboard de Likes da Galeria
+**Situação atual:** Cada foto tem curtidas individuais, mas não há ranking de fotos.  
+**Melhoria:** Adicionar na seção de galeria um mini-ranking:
+- **Top 3 Fotos Mais Curtidas da Temporada**
+- Podium visual similar ao de jogadores, mas com thumbnails das fotos
+- Atualizado em tempo real via Supabase Realtime
+
+---
+
+### 9. Melhorias no Modal da Galeria
+**Situação atual:** O modal tem curtidas e comentários, mas sem recursos extras.  
+**Melhoria:**
+- **Compartilhar foto:** botão que gera link direto `#foto/album-title/index`
+- **Download da imagem** com marca d'água `FR32SURVIVAL`
+- **Contagem de visualizações** (incremento automático ao abrir o modal)
+- **Carrossel com swipe** para toque em mobile (via `touchstart`/`touchend`)
+
+---
+
+### 10. Mural dos Veteranos Dinâmico — Cards com Hover Flip
+**Situação atual:** Cards estáticos com skin, nome, badge e descrição.  
+**Melhoria:** Efeito de "card flip" no hover do mouse:
+- **Frente:** skin 3D atual
+- **Verso:** estatísticas do jogador (posição no ranking, fotos na galeria, data de ingresso)
+
+---
+
+### 11. Seção de Regras do Servidor
+**Situação atual:** Não existe no site.  
+**Melhoria:** Adicionar seção `#regras` com:
+- Regras do servidor formatadas por categoria (PvP, Construção, Chat)
+- Estilo accordion (expandível) com ícones coloridos
+- Gerenciável pelo painel admin
+
+---
+
+### 12. Painel Admin — Módulo de Moderação de Comentários
+**Situação atual:** A aba "Comentários" existe no painel admin.  
+**Melhoria:** Expandir com:
+- Filtro por: mais recentes, denunciados, sem resposta
+- Botão "Banir Usuário de Comentar" (atualiza flag na tabela `profiles`)
+- Preview do contexto (qual foto, album, temporada)
+
+---
+
+### 13. Painel Admin — Dashboard de Métricas
+**Situação atual:** O painel tem gerenciamento, mas sem métricas visuais.  
+**Melhoria:** Nova aba "Dashboard" com gráficos (Chart.js ou ApexCharts):
+- 📈 Registros de usuários por semana
+- 💬 Comentários por dia
+- ❤️ Curtidas totais por temporada
+- 🖼️ Fotos mais populares
+
+---
+
+### 14. Contador de Cliques — Melhorias Visuais
+**Situação atual:** Cards de contagem regressiva com overlay de cadeados clicáveis.  
+**Melhoria:**
+- Exibir nome do **último jogador a clicar** (ex: "joao123 clicou agora")
+- Efeito visual de **partículas/explosão** ao desbloquear um nível
+- **Ranking dos que mais clicaram** — Top 5 por usuário logado
+- Animação confete quando o bloco é 100% desbloqueado
+
+---
+
+## 🟢 Prioridade Baixa / Futuro
+
+### 15. Dark/Light Mode Toggle
+**Situação atual:** O site é exclusivamente dark mode.  
+**Melhoria:** Botão na navbar para alternar entre tema escuro (atual) e um tema claro com paleta creme/roxo suave, com transição CSS suave e persistência via `localStorage`.
+
+---
+
+### 16. Página de Temporadas Passadas (Archive)
+**Situação atual:** A galeria lista por temporadas, mas sem páginas dedicadas.  
+**Melhoria:** Criar uma rota `/temporadas/[numero]` com:
+- Galeria completa da temporada
+- Estatísticas finais (jogadores ativos, recordes batidos)
+- "Hall da Fama" da temporada (top 3 de cada categoria de ranking)
+
+---
+
+### 17. Sistema de Candidatura para Staff
+**Situação atual:** Não existe.  
+**Melhoria:** Formulário online para candidatura a moderador/admin:
+- Perguntas configuráveis pelo Painel Admin
+- Respostas salvas no Supabase
+- Notificação por e-mail aos donos
+- Status da candidatura visível ao candidato (pendente/aprovada/negada)
+
+---
+
+### 18. Streamers / Creators do Servidor (Seção já comentada no HTML)
+**Situação atual:** Existe no HTML mas está comentada (`<!-- Seção de Streamers -->`).  
+**Melhoria:** Ativar e dinamizar via Painel Admin:
+- Cards com foto, plataforma (Twitch/YouTube/TikTok) e nick
+- Indicador em tempo real de "AO VIVO" (via Twitch API)
+- Gerenciamento no admin (adicionar/remover)
+
+---
+
+### 19. SEO & Acessibilidade
+**Situação atual:** Meta tags básicas presentes, mas sem dados estruturados.  
+**Melhoria:**
+- Adicionar `schema.org` JSON-LD para o servidor de jogo
+- `alt` text mais descritivos nas imagens dos álbuns
+- `aria-label` em todos os botões de navegação
+- Sitemap XML automático para o Netlify
+- `lang="pt-BR"` ao invés de `lang="pt-PT"` (servidor brasileiro)
+
+---
+
+### 20. PWA (Progressive Web App)
+**Situação atual:** Site normal sem capacidades offline.  
+**Melhoria:** Transformar em PWA com:
+- `manifest.json` com ícone e cores do FR32
+- Service Worker para cache offline das páginas principais
+- Botão "Adicionar à Tela Inicial" no mobile
+- Ícone na tela do celular como se fosse um app
+
+---
+
+## 📊 Resumo das Prioridades
+
+| # | Melhoria | Impacto | Esforço | Prioridade |
+|---|---|---|---|---|
+| 1 | Status real do servidor | ⭐⭐⭐ | Baixo | 🔴 |
+| 2 | Web Push Notifications | ⭐⭐⭐ | Alto | 🔴 |
+| 3 | Perfil público do jogador | ⭐⭐⭐ | Médio | 🔴 |
+| 4 | Seção de eventos | ⭐⭐⭐ | Médio | 🔴 |
+| 5 | Upload de fotos pelos jogadores | ⭐⭐⭐ | Alto | 🔴 |
+| 6 | Sistema de badges | ⭐⭐ | Médio | 🟡 |
+| 7 | Chat ao vivo (Discord widget) | ⭐⭐ | Baixo | 🟡 |
+| 8 | Leaderboard de fotos | ⭐⭐ | Baixo | 🟡 |
+| 9 | Melhorias no modal da galeria | ⭐⭐ | Médio | 🟡 |
+| 10 | Card flip nos veteranos | ⭐ | Médio | 🟡 |
+| 11 | Seção de regras | ⭐⭐ | Baixo | 🟡 |
+| 12 | Moderação avançada de comentários | ⭐⭐ | Médio | 🟡 |
+| 13 | Dashboard de métricas no admin | ⭐⭐ | Alto | 🟡 |
+| 14 | Melhorias no clicker | ⭐ | Médio | 🟡 |
+| 15 | Light mode toggle | ⭐ | Baixo | 🟢 |
+| 16 | Páginas de temporadas passadas | ⭐ | Médio | 🟢 |
+| 17 | Candidatura para staff | ⭐⭐ | Alto | 🟢 |
+| 18 | Seção de streamers | ⭐ | Baixo | 🟢 |
+| 19 | SEO e acessibilidade | ⭐⭐ | Baixo | 🟢 |
+| 20 | PWA | ⭐ | Médio | 🟢 |
+
+---
+
+## 🚀 Sugestão de Roadmap
+
+```
+Fase 1 (Imediata):
+  ✅ 2FA implementado e QR Code corrigido
+  ✅ Configurações de perfil completas
+  → 1. Status real do servidor (1-2h)
+  → 11. Seção de regras (2-3h)
+  → 7. Widget do Discord (1h)
+
+Fase 2 (Próximas semanas):
+  → 5. Upload de fotos pelos jogadores
+  → 4. Seção de eventos
+  → 9. Melhorias no modal (swipe mobile)
+  → 13. Dashboard de métricas no admin
+
+Fase 3 (Futuro):
+  → 3. Perfil público do jogador
+  → 6. Sistema de badges
+  → 2. Web Push Notifications
+  → 20. PWA
+```
+
+---
+
+*Documento gerado em 21/06/2026 — Por Antigravity AI*
