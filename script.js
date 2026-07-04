@@ -132,8 +132,8 @@ function showToast() {
    LÓGICA: CONTAGEM REGRESSIVA (MISTERIOSA)
    ========================================== */
 function setupCountdown() {
-    // Alvo: 8 de Julho de 2026 às 18:00 (Horário de Brasília, UTC-3)
-    const targetDate = new Date('2026-07-08T21:00:00Z').getTime();
+    // Alvo: 10 de Julho de 2026 às 19:00 (Horário de Brasília, UTC-3)
+    const targetDate = new Date('2026-07-10T19:00:00-03:00').getTime();
 
     function update() {
         const now = new Date().getTime();
