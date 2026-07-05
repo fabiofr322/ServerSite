@@ -50,16 +50,14 @@
     <!-- Cabeçalho / Menu Flutuante -->
     <header class="navbar-container">
         <nav class="navbar">
-            <div class="nav-logo" onclick="window.scrollTo({top: 0, behavior: 'smooth'})" style="cursor: pointer;">
+            <div class="nav-logo" onclick="window.showSiteTab ? window.showSiteTab('home') : window.scrollTo({top: 0, behavior: 'smooth'})" style="cursor: pointer;">
                 <img src="icon/Fr32_Icon.png" alt="FR32 Logo">
                 <span class="nav-logo-text">FR32SURVIVAL</span>
             </div>
             <ul class="nav-menu">
                 <li><a href="#home" class="nav-link" target="_self">Início</a></li>
-                <li><a href="#staff" class="nav-link" target="_self">Equipe</a></li>
-                <li><a href="#mural" class="nav-link" target="_self">Veteranos</a></li>
-                <li><a href="#estatisticas" class="nav-link" target="_self">Rankings</a></li>
                 <li><a href="#galeria" class="nav-link" target="_self">Galeria</a></li>
+                <li><a href="#loja" class="nav-link" target="_self">Loja</a></li>
             </ul>
             <div class="nav-actions">
                 <button class="btn-nav-ip" onclick="copyIP()">
@@ -77,20 +75,25 @@
     <!-- Menu Mobile Dropdown -->
     <ul class="mobile-dropdown" id="mobileDropdown">
         <li><a href="#home" class="nav-link" target="_self">Início</a></li>
-        <li><a href="#staff" class="nav-link" target="_self">Equipe</a></li>
-        <li><a href="#mural" class="nav-link" target="_self">Veteranos</a></li>
-        <li><a href="#estatisticas" class="nav-link" target="_self">Rankings</a></li>
         <li><a href="#galeria" class="nav-link" target="_self">Galeria</a></li>
+        <li><a href="#loja" class="nav-link" target="_self">Loja</a></li>
     </ul>
 
     <div class="container">
         <!-- Seção Inicial / Hero -->
         <section id="home">
+            <div class="hero-kicker">Survival Java 1.21.1+</div>
             <div class="hero-logo-container">
                 <img src="icon/Fr32_Icon.png" alt="Logo FR32" class="hero-icon">
             </div>
             <h1 class="logo">FR32SURVIVAL</h1>
-            <p class="subtitle">O Survival vai mudar</p>
+            <p class="subtitle">Survival 1.21+ com temporadas, rankings e comunidade ativa.</p>
+
+            <div class="hero-trust-row">
+                <span><i class="fa-solid fa-bolt"></i> Temporadas</span>
+                <span><i class="fa-solid fa-ranking-star"></i> Rankings</span>
+                <span><i class="fa-brands fa-discord"></i> Discord</span>
+            </div>
 
             <div class="countdown-container">
                 <!-- Dias -->
@@ -116,6 +119,9 @@
             </div>
 
             <div class="buttons">
+                <button type="button" class="btn btn-secondary hero-copy-btn" onclick="copyIP()">
+                    <i class="fa-regular fa-copy"></i> Copiar IP
+                </button>
                 <a href="https://discord.gg/MNWtkEzM3B" target="_blank" class="btn btn-primary">
                     <i class="fa-brands fa-discord"></i> Entrar no Discord
                 </a>
@@ -123,25 +129,27 @@
 
             <!-- Indicador do Discord -->
             <div class="discord-widget-info" id="discordStats">
-                <span class="online-dot"></span>
-                <span id="discordStatsText">Carregando membros do Discord...</span>
+                <div class="discord-widget-main">
+                    <span class="discord-icon-wrap"><i class="fa-brands fa-discord"></i></span>
+                    <div>
+                        <strong>Comunidade no Discord</strong>
+                        <span id="discordStatsText">Carregando membros...</span>
+                    </div>
+                </div>
+                <div class="discord-widget-counts">
+                    <span><i class="fa-solid fa-users"></i> <strong id="discordMembersCount">--</strong> membros</span>
+                    <span><span class="discord-online-dot"></span> <strong id="discordOnlineCount">--</strong> online</span>
+                </div>
             </div>
 
-            <!-- Widget Prominente para Cópia de IP -->
-            <div class="server-ip-widget" onclick="copyIP()">
-                <div class="widget-label">
-                    <span class="offline-dot"></span> Servidor Offline (Desenvolvimento)
-                </div>
-                <div class="widget-ip-box">
-                    <span class="widget-ip" id="ipText">fr32survival.com</span>
-                    <i class="fa-regular fa-copy widget-icon"></i>
-                </div>
-                <div class="widget-hint">Clique para copiar o IP do servidor</div>
+            <div class="support-ticket-action">
+                <a href="https://discord.gg/MNWtkEzM3B" target="_blank" class="btn btn-support-ticket">
+                    <i class="fa-solid fa-ticket"></i> Abrir ticket no Discord
+                </a>
             </div>
-        </section>
 
-        <!-- Secção da Equipa -->
-        <section id="staff" class="staff-section">
+            <!-- Secao da Equipe -->
+            <div id="staff" class="staff-section home-staff-block">
             <h2 class="section-title">Equipe Administrativa</h2>
             <p class="section-subtitle">Os administradores e fundadores dedicados ao desenvolvimento da comunidade.</p>
 
@@ -182,6 +190,240 @@
                         <span class="staff-role role-admin">Admin</span>
                         <span class="staff-name">masterdobudhaa</span>
                     </div>
+                </div>
+            </div>
+            </div>
+
+            <!-- Widget Prominente para Cópia de IP -->
+            <div class="server-status-card hidden" id="serverStatusCard">
+                <div class="server-status-header">
+                    <span class="server-status-dot checking" id="serverStatusDot"></span>
+                    <span class="server-status-text" id="serverStatusText">Verificando servidor...</span>
+                </div>
+                <div class="server-status-details">
+                    <span id="serverPlayers">--/-- jogadores</span>
+                    <span id="serverVersion">Versão 1.21.1+</span>
+                </div>
+                <button class="server-ip-copy" type="button" onclick="copyIP()">
+                    <span class="widget-ip" id="ipText">fr32survival.com</span>
+                    <i class="fa-regular fa-copy widget-icon"></i>
+                </button>
+                <div class="widget-hint">Clique para copiar o IP do servidor</div>
+            </div>
+
+            <div class="home-hub-grid">
+                <a href="#loja" class="home-hub-card nav-card-link" target="_self">
+                    <i class="fa-solid fa-bag-shopping"></i>
+                    <h3>Ver produtos</h3>
+                    <p>Conheça a área de compras e formas oficiais de apoiar o servidor.</p>
+                </a>
+                <a href="#como-entrar" class="home-hub-card nav-card-link" target="_self">
+                    <i class="fa-solid fa-right-to-bracket"></i>
+                    <h3>Como entrar</h3>
+                    <p>IP, versão e primeiros passos para começar.</p>
+                </a>
+                <a href="#estatisticas" class="home-hub-card nav-card-link" target="_self">
+                    <i class="fa-solid fa-ranking-star"></i>
+                    <h3>Rankings</h3>
+                    <p>Acompanhe os destaques da comunidade.</p>
+                </a>
+                <a href="#eventos" class="home-hub-card nav-card-link" target="_self">
+                    <i class="fa-regular fa-calendar-days"></i>
+                    <h3>Eventos</h3>
+                    <p>Notícias, agenda e avisos importantes.</p>
+                </a>
+            </div>
+        </section>
+
+
+        <!-- Seção Como Entrar -->
+        <section id="como-entrar" class="join-section">
+            <h2 class="section-title">Como Entrar</h2>
+            <p class="section-subtitle">Entre no servidor em poucos passos pelo Minecraft Java.</p>
+
+            <div class="join-grid">
+                <div class="join-step">
+                    <span class="join-step-number">1</span>
+                    <i class="fa-solid fa-cube"></i>
+                    <h3>Abra o Minecraft Java</h3>
+                    <p>Use a versão 1.21.1 ou superior. ViaVersion mantém a entrada flexível para versões compatíveis.</p>
+                </div>
+                <div class="join-step">
+                    <span class="join-step-number">2</span>
+                    <i class="fa-solid fa-server"></i>
+                    <h3>Vá em Multiplayer</h3>
+                    <p>Adicione um novo servidor na sua lista para deixar o FR32SURVIVAL sempre à mão.</p>
+                </div>
+                <div class="join-step">
+                    <span class="join-step-number">3</span>
+                    <i class="fa-regular fa-copy"></i>
+                    <h3>Copie o IP</h3>
+                    <p>Use o endereço abaixo e entre para acompanhar temporadas, rankings e eventos.</p>
+                </div>
+            </div>
+
+            <button class="join-ip-card" type="button" onclick="copyIP()">
+                <span>fr32survival.com</span>
+                <i class="fa-regular fa-copy"></i>
+            </button>
+
+            <div class="server-benefits-grid">
+                <div class="server-benefit">
+                    <i class="fa-solid fa-circle-check"></i>
+                    <h3>Entrada simples</h3>
+                    <p>Copie o IP, adicione no multiplayer e acompanhe os avisos no Discord.</p>
+                </div>
+                <div class="server-benefit">
+                    <i class="fa-solid fa-chart-line"></i>
+                    <h3>Progresso vivo</h3>
+                    <p>Rankings e galeria ajudam a comunidade acompanhar o que acontece na temporada.</p>
+                </div>
+                <div class="server-benefit">
+                    <i class="fa-solid fa-headset"></i>
+                    <h3>Suporte claro</h3>
+                    <p>Problemas, denúncias e dúvidas podem ser enviados para a equipe pelo Discord.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Seção de Regras -->
+        <section id="regras" class="rules-section">
+            <h2 class="section-title">Regras do Servidor</h2>
+            <p class="section-subtitle">Regras claras deixam o survival mais justo, confiável e divertido para todo mundo.</p>
+
+            <div class="rules-grid">
+                <div class="rule-card">
+                    <i class="fa-solid fa-shield-halved"></i>
+                    <h3>Sem hacks ou exploits</h3>
+                    <p>Clientes modificados, macros abusivos, dupes e vantagens injustas podem gerar punição.</p>
+                </div>
+                <div class="rule-card">
+                    <i class="fa-solid fa-handshake"></i>
+                    <h3>Respeito primeiro</h3>
+                    <p>Ofensas, perseguição, discurso de ódio e toxicidade não combinam com a comunidade.</p>
+                </div>
+                <div class="rule-card">
+                    <i class="fa-solid fa-house-lock"></i>
+                    <h3>Proteja construções</h3>
+                    <p>Grief, roubo e invasões fora das regras do servidor devem ser reportados à equipe.</p>
+                </div>
+                <div class="rule-card">
+                    <i class="fa-brands fa-discord"></i>
+                    <h3>Denuncie pelo Discord</h3>
+                    <p>Abra ticket com prints, coordenadas e descrição do caso para a staff analisar melhor.</p>
+                    <a href="https://discord.gg/MNWtkEzM3B" target="_blank" class="rule-card-link">
+                        <i class="fa-solid fa-ticket"></i> Abrir ticket
+                    </a>
+                </div>
+            </div>
+        </section>
+
+
+
+
+        <!-- Seção de Notícias e Eventos -->
+        <section id="eventos" class="news-events-section">
+            <h2 class="section-title">Notícias & Eventos</h2>
+            <p class="section-subtitle">Acompanhe avisos importantes, eventos da comunidade e mudanças de temporada.</p>
+
+            <div class="news-events-layout">
+                <div class="news-panel">
+                    <div class="panel-heading">
+                        <i class="fa-regular fa-newspaper"></i>
+                        <h3>Últimas notícias</h3>
+                    </div>
+                    <div id="newsList">
+                        <article class="news-item">
+                            <span class="news-tag">Temporada</span>
+                            <h4>Nova fase do FR32SURVIVAL</h4>
+                            <p>O contador prepara a comunidade para a próxima etapa do servidor. Fique no Discord para avisos oficiais.</p>
+                        </article>
+                        <article class="news-item">
+                            <span class="news-tag">Rankings</span>
+                            <h4>Ranks ao vivo em implantação</h4>
+                            <p>Os dados do FrTopRanks serão exibidos no site assim que o endpoint do plugin estiver liberado no host.</p>
+                        </article>
+                    </div>
+                </div>
+
+                <div class="events-panel">
+                    <div class="panel-heading">
+                        <i class="fa-regular fa-calendar-days"></i>
+                        <h3>Agenda da comunidade</h3>
+                    </div>
+                    <div id="eventsList">
+                        <div class="event-item">
+                            <span>Sábado</span>
+                            <strong>20:00</strong>
+                            <p>Evento PvP ou desafio anunciado no Discord.</p>
+                        </div>
+                        <div class="event-item">
+                            <span>Domingo</span>
+                            <strong>18:00</strong>
+                            <p>Caça ao tesouro, build challenge ou atividade da temporada.</p>
+                        </div>
+                    </div>
+                    <a href="https://discord.gg/MNWtkEzM3B" target="_blank" class="events-discord-link">
+                        <i class="fa-brands fa-discord"></i>
+                        Ver avisos no Discord
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Seção de Rankings -->
+        <section id="estatisticas" class="rankings-section">
+            <h2 class="section-title">Estatísticas & Rankings</h2>
+            <p class="section-subtitle">Acompanhe a classificação dos jogadores em tempo real.</p>
+
+            <div class="rankings-controls">
+                <div class="tracker-tabs" id="trackerTabs">
+                    <!-- Abas de tracker geradas dinamicamente via JS -->
+                </div>
+                <div class="period-tabs" id="periodTabs">
+                    <button class="period-btn active" data-target-period="weekly">Semanal</button>
+                    <button class="period-btn" data-target-period="monthly">Mensal</button>
+                    <button class="period-btn" data-target-period="alltime">Geral</button>
+                </div>
+            </div>
+
+            <div class="rankings-content">
+                <div class="rankings-statusbar" id="rankStatusBar">
+                    <span id="rankStatusText">Aguardando sincronização dos rankings...</span>
+                    <span id="rankUpdatedAt">Última atualização: --</span>
+                </div>
+
+                <!-- Pódio para o Top 3 -->
+                <div class="podium-container" id="rankPodium">
+                    <!-- Gerado dinamicamente via JS -->
+                </div>
+
+                <!-- Lista para Ranks 4-10 -->
+                <div class="rank-list" id="rankList">
+                    <!-- Gerado dinamicamente via JS -->
+                </div>
+
+                <!-- Loading State -->
+                <div id="rankLoading" class="rankings-loading hidden">
+                    <div class="spinner"></div>
+                    <p>Carregando dados dos rankings...</p>
+                </div>
+
+                <!-- Empty State -->
+                <div id="rankEmpty" class="rankings-empty hidden">
+                    <i class="fa-solid fa-ranking-star"></i>
+                    <p>Nenhum dado registrado para esta categoria.</p>
+                </div>
+
+                <!-- Error State -->
+                <div id="rankError" class="rankings-empty rankings-error hidden">
+                    <i class="fa-solid fa-plug-circle-xmark"></i>
+                    <h3>Rankings indisponíveis</h3>
+                    <p>Não conseguimos conectar ao servidor de rankings agora. Tente novamente em alguns instantes.</p>
+                    <button class="btn-rank-retry" id="rankRetryBtn" type="button">
+                        <i class="fa-solid fa-rotate-right"></i>
+                        Tentar novamente
+                    </button>
                 </div>
             </div>
         </section>
@@ -298,45 +540,6 @@
             </div>
         </section>
 
-        <!-- Seção de Rankings -->
-        <section id="estatisticas" class="rankings-section">
-            <h2 class="section-title">Estatísticas & Rankings</h2>
-            <p class="section-subtitle">Acompanhe a classificação dos jogadores em tempo real.</p>
-
-            <div class="rankings-controls">
-                <div class="tracker-tabs" id="trackerTabs">
-                    <!-- Abas de tracker geradas dinamicamente via JS -->
-                </div>
-                <div class="period-tabs" id="periodTabs">
-                    <button class="period-btn active" data-target-period="weekly">Semanal</button>
-                    <button class="period-btn" data-target-period="monthly">Mensal</button>
-                    <button class="period-btn" data-target-period="alltime">Geral</button>
-                </div>
-            </div>
-
-            <div class="rankings-content">
-                <!-- Pódio para o Top 3 -->
-                <div class="podium-container" id="rankPodium">
-                    <!-- Gerado dinamicamente via JS -->
-                </div>
-
-                <!-- Lista para Ranks 4-10 -->
-                <div class="rank-list" id="rankList">
-                    <!-- Gerado dinamicamente via JS -->
-                </div>
-
-                <!-- Loading State -->
-                <div id="rankLoading" class="rankings-loading hidden">
-                    <div class="spinner"></div>
-                    <p>Carregando dados dos rankings...</p>
-                </div>
-
-                <!-- Empty State -->
-                <div id="rankEmpty" class="rankings-empty hidden">
-                    <p>Nenhum dado registrado para esta categoria.</p>
-                </div>
-            </div>
-        </section>
 
         <!-- Seção de Galeria de Construções -->
         <section id="galeria" class="gallery-section">
@@ -621,6 +824,51 @@
                     </div>
                 </div>
 
+            </div>
+        </section>
+
+        <!-- Seção de Loja / Compras -->
+        <section id="loja" class="shop-section">
+            <h2 class="section-title">Loja & Compras</h2>
+            <p class="section-subtitle">Uma área separada para apoiar o servidor, ver benefícios e encontrar canais oficiais de compra.</p>
+
+            <div class="shop-layout">
+                <div class="shop-hero-panel">
+                    <span class="shop-badge">Em preparação</span>
+                    <h3>Apoie o FR32SURVIVAL</h3>
+                    <p>Organize futuras compras com clareza: categorias, benefícios, regras de entrega e suporte direto pelo Discord.</p>
+                    <div class="shop-actions">
+                        <a href="https://discord.gg/MNWtkEzM3B" target="_blank" class="btn btn-primary">
+                            <i class="fa-brands fa-discord"></i> Comprar pelo Discord
+                        </a>
+                        <button type="button" class="btn btn-secondary hero-copy-btn" onclick="copyIP()">
+                            <i class="fa-regular fa-copy"></i> Copiar IP
+                        </button>
+                    </div>
+                </div>
+
+                <div class="shop-cards-grid">
+                    <div class="shop-card">
+                        <i class="fa-solid fa-gem"></i>
+                        <h3>VIPs e Benefícios</h3>
+                        <p>Espaço para planos, vantagens e duração dos benefícios quando a loja oficial estiver pronta.</p>
+                    </div>
+                    <div class="shop-card">
+                        <i class="fa-solid fa-gift"></i>
+                        <h3>Kits e Cosméticos</h3>
+                        <p>Itens de apoio que podem ser entregues dentro do jogo sem afetar a confiança da comunidade.</p>
+                    </div>
+                    <div class="shop-card">
+                        <i class="fa-solid fa-shield-heart"></i>
+                        <h3>Compra Segura</h3>
+                        <p>Use apenas canais oficiais. Em caso de dúvida, abra ticket no Discord antes de pagar.</p>
+                    </div>
+                    <div class="shop-card">
+                        <i class="fa-solid fa-ticket"></i>
+                        <h3>Suporte</h3>
+                        <p>Pedidos, comprovantes e problemas de entrega devem ser tratados pela staff via Discord.</p>
+                    </div>
+                </div>
             </div>
         </section>
     </div>

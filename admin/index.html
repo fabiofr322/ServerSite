@@ -77,6 +77,14 @@
                         <i class="fa-solid fa-comments"></i>
                         <span>Comentários</span>
                     </button>
+                    <button class="nav-tab-btn" data-tab="news" id="tabBtnNews">
+                        <i class="fa-solid fa-newspaper"></i>
+                        <span>Notícias</span>
+                    </button>
+                    <button class="nav-tab-btn" data-tab="events" id="tabBtnEvents">
+                        <i class="fa-solid fa-calendar-days"></i>
+                        <span>Eventos</span>
+                    </button>
                 </nav>
                 
                 <a href="../index.html" class="btn-back-site" target="_self">
@@ -445,6 +453,121 @@
                             </div>
                         </div>
 
+                    </div>
+                </section>
+
+
+                <!-- ABA 5: NOTÍCIAS / EVENTOS -->
+                <section class="tab-pane" id="tabAnnouncements">
+                    <div class="pane-header">
+                        <span class="pane-mode-badge" id="announcementModeBadge">Notícias</span>
+                        <h2 id="announcementPaneTitle">Notícias do Site</h2>
+                        <p id="announcementPaneDesc">Adicione, edite ou remova as notícias exibidas na página inicial.</p>
+                    </div>
+
+                    <div class="announcements-layout">
+                        <div class="admin-card">
+                            <h3 id="announcementFormTitle"><i class="fa-solid fa-plus"></i> Adicionar Publicação</h3>
+                            <p class="card-desc" id="announcementFormDesc">Cadastre uma notícia para aparecer na home do site.</p>
+
+                            <form id="formAnnouncement" class="admin-form">
+                                <input type="hidden" id="inputAnnouncementId" value="">
+                                <input type="hidden" id="selectAnnouncementType" value="news">
+
+                                <div class="form-group">
+                                    <label for="inputAnnouncementTitle">Título</label>
+                                    <div class="input-wrapper">
+                                        <i class="fa-solid fa-heading input-icon"></i>
+                                        <input type="text" id="inputAnnouncementTitle" placeholder="Ex: Nova temporada chegando" required maxlength="90">
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="inputAnnouncementTag">Tag / Dia</label>
+                                    <div class="input-wrapper">
+                                        <i class="fa-solid fa-tag input-icon"></i>
+                                        <input type="text" id="inputAnnouncementTag" placeholder="Ex: Temporada, Rankings, Sábado" required maxlength="32">
+                                    </div>
+                                </div>
+
+                                <div class="form-group" id="announcementTimeGroup">
+                                    <label for="inputAnnouncementTime">Horário (opcional para eventos)</label>
+                                    <div class="input-wrapper">
+                                        <i class="fa-regular fa-clock input-icon"></i>
+                                        <input type="text" id="inputAnnouncementTime" placeholder="Ex: 20:00" maxlength="20">
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="inputAnnouncementContent">Descrição</label>
+                                    <div class="input-wrapper">
+                                        <i class="fa-solid fa-align-left input-icon" style="top: 20px;"></i>
+                                        <textarea id="inputAnnouncementContent" placeholder="Texto que aparecerá no site..." required maxlength="280"></textarea>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="inputAnnouncementOrder">Ordem</label>
+                                    <div class="input-wrapper">
+                                        <i class="fa-solid fa-arrow-down-1-9 input-icon"></i>
+                                        <input type="number" id="inputAnnouncementOrder" value="0" min="0" max="999">
+                                    </div>
+                                </div>
+
+                                <label class="checkbox-row">
+                                    <input type="checkbox" id="inputAnnouncementPublished" checked>
+                                    <span>Publicado no site</span>
+                                </label>
+
+                                <div class="form-buttons-row">
+                                    <button type="submit" class="btn btn-primary" id="btnAnnouncementSubmit">
+                                        <i class="fa-solid fa-floppy-disk"></i> Salvar
+                                    </button>
+                                    <button type="button" class="btn btn-secondary hidden" id="btnAnnouncementCancelEdit">
+                                        Cancelar
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+
+                        <div class="admin-card stats-overview-card">
+                            <h3><i class="fa-solid fa-circle-info"></i> Como aparece no site?</h3>
+                            <div class="guide-content" id="announcementGuideContent">
+                                <p><i class="fa-solid fa-check"></i> Notícias aparecem na coluna <strong>Últimas notícias</strong>.</p>
+                                <p><i class="fa-solid fa-check"></i> Desmarque <strong>Publicado</strong> para guardar um rascunho.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="admin-card table-card">
+                        <div class="table-header-row">
+                            <h3 id="announcementsTableTitle"><i class="fa-solid fa-list"></i> Notícias cadastradas</h3>
+                            <div class="search-box">
+                                <i class="fa-solid fa-magnifying-glass"></i>
+                                <input type="text" id="inputSearchAnnouncements" placeholder="Buscar por título, tag ou descrição...">
+                            </div>
+                        </div>
+
+                        <div class="table-responsive">
+                            <table class="admin-table">
+                                <thead>
+                                    <tr>
+                                        <th>Tipo</th>
+                                        <th>Título</th>
+                                        <th>Tag/Horário</th>
+                                        <th>Status</th>
+                                        <th class="text-right">Ações</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tableAnnouncementsBody">
+                                    <tr>
+                                        <td colspan="5" class="table-loading-row">
+                                            <div class="spinner"></div> Carregando publicações...
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </section>
 

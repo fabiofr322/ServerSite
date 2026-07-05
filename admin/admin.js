@@ -27,6 +27,8 @@ let supabaseClient = null;
 let currentUser = null;
 let currentUserPermission = null;
 let allUsersList = []; // Cache local para busca instantânea no frontend
+let allAnnouncementsList = [];
+let currentAnnouncementType = 'news';
 
 // Inicialização do Supabase Client
 function initAdminSupabase() {
@@ -118,11 +120,12 @@ function setupAdminInterface() {
         switchTab('veterans');
     }
 
-    // Inicializar eventos de abas, logout, veteranos, temporadas e comentários
+    // Inicializar eventos de abas, logout, veteranos, temporadas, comentários e publicações
     setupGlobalEvents();
     setupVeteransEvents();
     setupSeasonsEvents();
     setupCommentsEvents();
+    setupAnnouncementsEvents();
 }
 
 function setupGlobalEvents() {
@@ -156,7 +159,10 @@ function switchTab(tabId) {
 
     // Adiciona classe ativa no botão clicado e no painel correspondente
     const activeBtn = document.querySelector(`.nav-tab-btn[data-tab="${tabId}"]`);
-    const activePane = document.getElementById(`tab${tabId.charAt(0).toUpperCase() + tabId.slice(1)}`);
+    const paneId = (tabId === 'news' || tabId === 'events')
+        ? 'tabAnnouncements'
+        : `tab${tabId.charAt(0).toUpperCase() + tabId.slice(1)}`;
+    const activePane = document.getElementById(paneId);
     
     if (activeBtn && activePane) {
         activeBtn.classList.add('active');
@@ -171,6 +177,9 @@ function switchTab(tabId) {
             loadSeasons();
         } else if (tabId === 'comments') {
             loadCommentsTab();
+        } else if (tabId === 'news' || tabId === 'events') {
+            setAnnouncementsMode(tabId === 'events' ? 'event' : 'news');
+            loadAnnouncementsList();
         }
     }
 }
@@ -1567,7 +1576,325 @@ window.loadAllComments = loadAllComments;
 window.highlightPhotoInModeration = highlightPhotoInModeration;
 
 // ---------------------------------------------------------------------
-// 5. SISTEMA DE TOAST NOTIFICATION PREMIUM
+// 5. ABA NOTÍCIAS/EVENTOS: GERENCIAMENTO DE PUBLICAÇÕES DO SITE
+// ---------------------------------------------------------------------
+function setupAnnouncementsEvents() {
+    const form = document.getElementById('formAnnouncement');
+    if (form) form.addEventListener('submit', handleAnnouncementSubmit);
+
+    const cancelBtn = document.getElementById('btnAnnouncementCancelEdit');
+    if (cancelBtn) cancelBtn.addEventListener('click', resetAnnouncementForm);
+
+    const searchInput = document.getElementById('inputSearchAnnouncements');
+    if (searchInput) {
+        searchInput.addEventListener('input', (event) => {
+            filterAnnouncementsTable(event.target.value);
+        });
+    }
+}
+
+function setAnnouncementsMode(type) {
+    currentAnnouncementType = type === 'event' ? 'event' : 'news';
+    const isEvent = currentAnnouncementType === 'event';
+
+    const typeInput = document.getElementById('selectAnnouncementType');
+    const badge = document.getElementById('announcementModeBadge');
+    const paneTitle = document.getElementById('announcementPaneTitle');
+    const paneDesc = document.getElementById('announcementPaneDesc');
+    const tableTitle = document.getElementById('announcementsTableTitle');
+    const guide = document.getElementById('announcementGuideContent');
+    const timeLabel = document.querySelector('label[for="inputAnnouncementTime"]');
+    const tagLabel = document.querySelector('label[for="inputAnnouncementTag"]');
+    const tagInput = document.getElementById('inputAnnouncementTag');
+    const timeInput = document.getElementById('inputAnnouncementTime');
+    const timeGroup = document.getElementById('announcementTimeGroup');
+
+    if (typeInput) typeInput.value = currentAnnouncementType;
+    if (badge) badge.textContent = isEvent ? 'Eventos' : 'Notícias';
+    if (paneTitle) paneTitle.textContent = isEvent ? 'Eventos do Site' : 'Notícias do Site';
+    if (paneDesc) paneDesc.textContent = isEvent
+        ? 'Adicione, edite ou remova os eventos exibidos na agenda da página inicial.'
+        : 'Adicione, edite ou remova as notícias exibidas na página inicial.';
+    if (tableTitle) {
+        tableTitle.innerHTML = isEvent
+            ? '<i class="fa-solid fa-list"></i> Eventos cadastrados'
+            : '<i class="fa-solid fa-list"></i> Notícias cadastradas';
+    }
+    if (guide) {
+        guide.innerHTML = isEvent
+            ? `
+                <p><i class="fa-solid fa-check"></i> Eventos aparecem na <strong>Agenda da comunidade</strong>.</p>
+                <p><i class="fa-solid fa-check"></i> Use a tag como dia ou categoria, por exemplo: Sábado.</p>
+                <p><i class="fa-solid fa-check"></i> Desmarque <strong>Publicado</strong> para guardar um rascunho.</p>
+            `
+            : `
+                <p><i class="fa-solid fa-check"></i> Notícias aparecem na coluna <strong>Últimas notícias</strong>.</p>
+                <p><i class="fa-solid fa-check"></i> Use a tag como categoria, por exemplo: Temporada.</p>
+                <p><i class="fa-solid fa-check"></i> Desmarque <strong>Publicado</strong> para guardar um rascunho.</p>
+            `;
+    }
+    if (timeGroup) timeGroup.classList.toggle('hidden', !isEvent);
+    if (timeLabel) timeLabel.textContent = 'Horário';
+    if (tagLabel) tagLabel.textContent = isEvent ? 'Dia / Tag' : 'Tag';
+    if (tagInput) tagInput.placeholder = isEvent ? 'Ex: Sábado, Domingo, Evento' : 'Ex: Temporada, Rankings, Aviso';
+    if (timeInput) {
+        timeInput.placeholder = isEvent ? 'Ex: 20:00' : 'Opcional';
+        timeInput.disabled = !isEvent;
+        if (!isEvent) timeInput.value = '';
+    }
+
+    resetAnnouncementForm(false);
+}
+
+async function loadAnnouncementsList() {
+    const tableBody = document.getElementById('tableAnnouncementsBody');
+    if (!tableBody) return;
+
+    tableBody.innerHTML = `
+        <tr>
+            <td colspan="5" class="table-loading-row">
+                <div class="spinner"></div> Carregando publicações...
+            </td>
+        </tr>
+    `;
+
+    try {
+        const { data, error } = await supabaseClient
+            .from('site_announcements')
+            .select('*')
+            .eq('type', currentAnnouncementType)
+            .order('sort_order', { ascending: true })
+            .order('created_at', { ascending: false });
+
+        if (error) throw error;
+
+        allAnnouncementsList = data || [];
+        renderAnnouncementsTable(allAnnouncementsList);
+    } catch (err) {
+        console.error("[Announcements] Erro ao carregar:", err);
+        tableBody.innerHTML = `
+            <tr>
+                <td colspan="5" class="table-empty-row announcements-setup-warning">
+                    <i class="fa-solid fa-database"></i>
+                    <strong>Configuração pendente no Supabase</strong>
+                    <span>Execute o arquivo <code>site_announcements.sql</code> no SQL Editor. Depois disso você poderá editar e remover os itens cadastrados.</span>
+                </td>
+            </tr>
+        `;
+        showToast("Execute o SQL de notícias/eventos no Supabase.", "error");
+    }
+}
+
+function renderAnnouncementsTable(items) {
+    const tableBody = document.getElementById('tableAnnouncementsBody');
+    if (!tableBody) return;
+
+    if (!items || items.length === 0) {
+        const emptyLabel = currentAnnouncementType === 'event' ? 'evento' : 'notícia';
+        tableBody.innerHTML = `
+            <tr>
+                <td colspan="5" class="table-empty-row">
+                    Nenhum ${emptyLabel} cadastrado.
+                </td>
+            </tr>
+        `;
+        return;
+    }
+
+    tableBody.innerHTML = '';
+    items.forEach(item => {
+        const typeLabel = item.type === 'event' ? 'Evento' : 'Notícia';
+        const typeIcon = item.type === 'event' ? 'fa-calendar-days' : 'fa-newspaper';
+        const statusLabel = item.is_published ? 'Publicado' : 'Rascunho';
+        const statusClass = item.is_published ? 'badge-published' : 'badge-draft';
+        const tagLine = item.type === 'event'
+            ? `${item.tag || 'Evento'}${item.event_time ? ' • ' + item.event_time : ''}`
+            : (item.tag || 'Notícia');
+
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td>
+                <span class="type-badge">
+                    <i class="fa-solid ${typeIcon}"></i> ${typeLabel}
+                </span>
+            </td>
+            <td>
+                <strong>${escapeHTML(item.title)}</strong>
+                <small class="table-subtext">${escapeHTML(item.content)}</small>
+            </td>
+            <td>${escapeHTML(tagLine)}</td>
+            <td><span class="status-badge ${statusClass}">${statusLabel}</span></td>
+            <td class="text-right">
+                <button class="btn-action btn-edit" onclick="editAnnouncement(${Number(item.id)})" title="Editar">
+                    <i class="fa-solid fa-pen"></i>
+                </button>
+                <button class="btn-action btn-demote" onclick="deleteAnnouncement(${Number(item.id)})" title="Excluir">
+                    <i class="fa-solid fa-trash"></i>
+                </button>
+            </td>
+        `;
+        tableBody.appendChild(row);
+    });
+}
+
+function filterAnnouncementsTable(query) {
+    const search = String(query || '').trim().toLowerCase();
+    if (!search) {
+        renderAnnouncementsTable(allAnnouncementsList);
+        return;
+    }
+
+    const filtered = allAnnouncementsList.filter(item => {
+        return [
+            item.type,
+            item.title,
+            item.tag,
+            item.event_time,
+            item.content,
+            item.is_published ? 'publicado' : 'rascunho'
+        ].some(value => String(value || '').toLowerCase().includes(search));
+    });
+
+    renderAnnouncementsTable(filtered);
+}
+
+async function handleAnnouncementSubmit(event) {
+    event.preventDefault();
+
+    const id = document.getElementById('inputAnnouncementId').value;
+    const type = document.getElementById('selectAnnouncementType').value;
+    const title = document.getElementById('inputAnnouncementTitle').value.trim();
+    const tag = document.getElementById('inputAnnouncementTag').value.trim();
+    const eventTime = document.getElementById('inputAnnouncementTime').value.trim();
+    const content = document.getElementById('inputAnnouncementContent').value.trim();
+    const sortOrder = Number(document.getElementById('inputAnnouncementOrder').value || 0);
+    const isPublished = document.getElementById('inputAnnouncementPublished').checked;
+    const btnSubmit = document.getElementById('btnAnnouncementSubmit');
+
+    if (!['news', 'event'].includes(type)) {
+        showToast("Tipo de publicação inválido.", "error");
+        return;
+    }
+
+    if (!title || !tag || !content) {
+        showToast("Preencha título, tag e descrição.", "error");
+        return;
+    }
+
+    const originalHtml = btnSubmit.innerHTML;
+    btnSubmit.disabled = true;
+    btnSubmit.innerHTML = `<span class="table-loading-row"><div class="spinner" style="margin:0; width:14px; height:14px;"></div> Salvando...</span>`;
+
+    const payload = {
+        type,
+        title,
+        tag,
+        event_time: type === 'event' ? eventTime : null,
+        content,
+        sort_order: Number.isFinite(sortOrder) ? sortOrder : 0,
+        is_published: isPublished,
+        updated_at: new Date().toISOString()
+    };
+
+    try {
+        if (id) {
+            const { error } = await supabaseClient
+                .from('site_announcements')
+                .update(payload)
+                .eq('id', id);
+            if (error) throw error;
+            showToast("Publicação atualizada com sucesso.", "success");
+        } else {
+            const { error } = await supabaseClient
+                .from('site_announcements')
+                .insert({
+                    ...payload,
+                    created_by: currentUser?.id || null
+                });
+            if (error) throw error;
+            showToast("Publicação adicionada com sucesso.", "success");
+        }
+
+    resetAnnouncementForm();
+        loadAnnouncementsList();
+    } catch (err) {
+        console.error("[Announcements] Erro ao salvar:", err);
+        showToast("Erro ao salvar publicação.", "error");
+    } finally {
+        btnSubmit.disabled = false;
+        btnSubmit.innerHTML = originalHtml;
+    }
+}
+
+function editAnnouncement(id) {
+    const item = allAnnouncementsList.find(entry => Number(entry.id) === Number(id));
+    if (!item) return;
+
+    document.getElementById('inputAnnouncementId').value = item.id;
+    document.getElementById('selectAnnouncementType').value = item.type || 'news';
+    document.getElementById('inputAnnouncementTitle').value = item.title || '';
+    document.getElementById('inputAnnouncementTag').value = item.tag || '';
+    document.getElementById('inputAnnouncementTime').value = item.event_time || '';
+    document.getElementById('inputAnnouncementContent').value = item.content || '';
+    document.getElementById('inputAnnouncementOrder').value = Number(item.sort_order) || 0;
+    document.getElementById('inputAnnouncementPublished').checked = item.is_published !== false;
+
+    document.getElementById('announcementFormTitle').innerHTML = item.type === 'event'
+        ? '<i class="fa-solid fa-pen"></i> Editar Evento'
+        : '<i class="fa-solid fa-pen"></i> Editar Notícia';
+    document.getElementById('announcementFormDesc').textContent = 'Altere as informações e salve para atualizar o site.';
+    document.getElementById('btnAnnouncementSubmit').innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Atualizar';
+    document.getElementById('btnAnnouncementCancelEdit').classList.remove('hidden');
+
+    document.getElementById('formAnnouncement').scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+function resetAnnouncementForm(keepMode = true) {
+    const form = document.getElementById('formAnnouncement');
+    if (form) form.reset();
+    document.getElementById('inputAnnouncementId').value = '';
+    if (!keepMode) {
+        document.getElementById('selectAnnouncementType').value = currentAnnouncementType;
+    } else {
+        document.getElementById('selectAnnouncementType').value = currentAnnouncementType;
+    }
+    document.getElementById('inputAnnouncementOrder').value = '0';
+    document.getElementById('inputAnnouncementPublished').checked = true;
+    const isEvent = currentAnnouncementType === 'event';
+    document.getElementById('announcementFormTitle').innerHTML = isEvent
+        ? '<i class="fa-solid fa-plus"></i> Adicionar Evento'
+        : '<i class="fa-solid fa-plus"></i> Adicionar Notícia';
+    document.getElementById('announcementFormDesc').textContent = isEvent
+        ? 'Cadastre um evento para aparecer na agenda da home.'
+        : 'Cadastre uma notícia para aparecer na home do site.';
+    document.getElementById('btnAnnouncementSubmit').innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Salvar';
+    document.getElementById('btnAnnouncementCancelEdit').classList.add('hidden');
+}
+
+async function deleteAnnouncement(id) {
+    if (!confirm("Tem certeza que deseja excluir esta publicação?")) return;
+
+    try {
+        const { error } = await supabaseClient
+            .from('site_announcements')
+            .delete()
+            .eq('id', id);
+
+        if (error) throw error;
+
+        showToast("Publicação removida.", "success");
+        loadAnnouncementsList();
+    } catch (err) {
+        console.error("[Announcements] Erro ao excluir:", err);
+        showToast("Erro ao excluir publicação.", "error");
+    }
+}
+
+window.editAnnouncement = editAnnouncement;
+window.deleteAnnouncement = deleteAnnouncement;
+
+// ---------------------------------------------------------------------
+// 6. SISTEMA DE TOAST NOTIFICATION PREMIUM
 // ---------------------------------------------------------------------
 function showToast(message, type = "info") {
     const toast = document.getElementById('adminToast');

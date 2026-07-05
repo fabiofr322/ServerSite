@@ -10,8 +10,12 @@ document.addEventListener('DOMContentLoaded', () => {
     setupGallery();
     setupRankings();
     setupDiscordStats();
+    setupNewsEvents();
     setupClicker();
 });
+
+const COMMENT_MAX_LENGTH = 300;
+const COMMENT_COOLDOWN_SECONDS = 60;
 
 /* ==========================================
    LÓGICA: NAVEGAÇÃO & MOBILE MENU & CÓPIA DE IP
@@ -19,6 +23,37 @@ document.addEventListener('DOMContentLoaded', () => {
 function setupNavigation() {
     const mobileMenuBtn = document.getElementById('mobileMenuBtn');
     const mobileDropdown = document.getElementById('mobileDropdown');
+    const tabSections = document.querySelectorAll('.container > section[id]');
+    const homeSectionIds = ['home', 'como-entrar', 'eventos', 'estatisticas', 'mural'];
+
+    function showSiteTab(targetId, updateHash = true) {
+        const normalizedId = targetId && document.getElementById(targetId) ? targetId : 'home';
+        const isHomeGroup = homeSectionIds.includes(normalizedId);
+        const activeNavId = isHomeGroup ? 'home' : normalizedId;
+
+        tabSections.forEach(section => {
+            const shouldShow = isHomeGroup
+                ? homeSectionIds.includes(section.id)
+                : section.id === normalizedId;
+            section.classList.toggle('site-tab-active', shouldShow);
+        });
+
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.classList.toggle('active', link.getAttribute('href') === `#${activeNavId}`);
+        });
+
+        if (updateHash) {
+            history.replaceState(null, '', `#${normalizedId}`);
+        }
+
+        const scrollTarget = document.getElementById(normalizedId);
+        const top = normalizedId === 'home' || !scrollTarget
+            ? 0
+            : Math.max(scrollTarget.offsetTop - 90, 0);
+        window.scrollTo({ top, behavior: 'smooth' });
+    }
+
+    window.showSiteTab = showSiteTab;
 
     // Toggle Menu Mobile
     if (mobileMenuBtn && mobileDropdown) {
@@ -50,45 +85,25 @@ function setupNavigation() {
         });
     }
 
-    // Rolagem suave para links internos
+    // Navegação por abas para links internos
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
         anchor.addEventListener('click', function (e) {
             const targetId = this.getAttribute('href');
             if (targetId === '#') return;
 
             const targetElement = document.querySelector(targetId);
-            if (targetElement) {
+            if (targetElement && targetElement.matches('.container > section[id]')) {
                 e.preventDefault();
-                const offsetPosition = targetElement.offsetTop - 90; // offset do cabeçalho
-                window.scrollTo({
-                    top: offsetPosition,
-                    behavior: 'smooth'
-                });
+                showSiteTab(targetId.slice(1));
             }
         });
     });
 
-    // Mapeamento de links ativos ao rolar a página
-    const sections = document.querySelectorAll('section[id]');
-    window.addEventListener('scroll', () => {
-        let currentSectionId = '';
-        const scrollPosition = window.scrollY + 120;
-
-        sections.forEach(section => {
-            const sectionTop = section.offsetTop;
-            const sectionHeight = section.offsetHeight;
-            if (scrollPosition >= sectionTop && scrollPosition < sectionTop + sectionHeight) {
-                currentSectionId = section.getAttribute('id');
-            }
-        });
-
-        document.querySelectorAll('.nav-link').forEach(link => {
-            link.classList.remove('active');
-            if (link.getAttribute('href') === `#${currentSectionId}`) {
-                link.classList.add('active');
-            }
-        });
+    window.addEventListener('hashchange', () => {
+        showSiteTab((window.location.hash || '#home').slice(1), false);
     });
+
+    showSiteTab((window.location.hash || '#home').slice(1), false);
 }
 
 // Lógica Global de Cópia de IP
@@ -128,12 +143,63 @@ function showToast() {
     }
 }
 
+async function setupMinecraftStatus() {
+    const dot = document.getElementById('serverStatusDot');
+    const statusText = document.getElementById('serverStatusText');
+    const playersText = document.getElementById('serverPlayers');
+    const versionText = document.getElementById('serverVersion');
+    const versionLabel = 'Versão 1.21.1+';
+
+    if (!dot || !statusText || !playersText || !versionText) return;
+
+    const setState = (state, label, players) => {
+        dot.classList.remove('checking', 'online', 'offline');
+        dot.classList.add(state);
+        statusText.textContent = label;
+        playersText.textContent = players;
+        versionText.textContent = versionLabel;
+    };
+
+    try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 5000);
+        const response = await fetch('https://api.mcsrvstat.us/3/enx-cirion-92.enx.host:10062', {
+            cache: 'no-store',
+            signal: controller.signal
+        });
+        clearTimeout(timeoutId);
+
+        if (!response.ok) throw new Error('Minecraft status API offline');
+
+        const data = await response.json();
+
+        if (data.online) {
+            const online = data.players?.online ?? 0;
+            const max = data.players?.max ?? '--';
+            setState('online', 'Servidor Online', `${online}/${max} jogadores`);
+        } else {
+            setState('offline', 'Servidor Offline', '0 jogadores online');
+        }
+    } catch (error) {
+        console.warn('[Minecraft Status] Não foi possível consultar o status:', error);
+        setState('offline', 'Status indisponível', '--/-- jogadores');
+    }
+}
 /* ==========================================
    LÓGICA: CONTAGEM REGRESSIVA (MISTERIOSA)
    ========================================== */
 function setupCountdown() {
     // Alvo: 10 de Julho de 2026 às 19:00 (Horário de Brasília, UTC-3)
     const targetDate = new Date('2026-07-10T19:00:00-03:00').getTime();
+    const serverStatusCard = document.getElementById('serverStatusCard');
+    let statusRevealed = false;
+
+    function revealServerStatus() {
+        if (statusRevealed) return;
+        statusRevealed = true;
+        if (serverStatusCard) serverStatusCard.classList.remove('hidden');
+        setupMinecraftStatus();
+    }
 
     function update() {
         const now = new Date().getTime();
@@ -149,6 +215,8 @@ function setupCountdown() {
             if (hoursEl) hoursEl.textContent = '00';
             if (minutesEl) minutesEl.textContent = '00';
             if (secondsEl) secondsEl.textContent = '00';
+            revealServerStatus();
+            clearInterval(countdownInterval);
             return;
         }
 
@@ -163,7 +231,7 @@ function setupCountdown() {
         if (secondsEl) secondsEl.textContent = String(seconds).padStart(2, '0');
     }
 
-    setInterval(update, 1000);
+    const countdownInterval = setInterval(update, 1000);
     update();
 }
 
@@ -406,6 +474,7 @@ async function setupDynamicGallery() {
 
                 galleryGrid.innerHTML += `
                     <div class="album-card" data-season="${Number(album.seasonNumber) || 0}" data-images="${escapeHTML(imagesAttr)}">
+                        <div class="album-season-badge">Temporada ${Number(album.seasonNumber) || 0}</div>
                         <div class="album-cover">
                             <img src="${escapeHTML(coverImage)}" alt="Capa do álbum ${escapeHTML(album.title)}">
                             ${hasMultiple ? `
@@ -415,14 +484,18 @@ async function setupDynamicGallery() {
                             ` : ''}
                         </div>
                         <h3 class="album-title">${escapeHTML(album.title)}</h3>
-                        <div class="album-footer" style="display: flex; justify-content: space-between; align-items: center; margin-top: auto; width: 100%;">
-                            <div class="album-author-info" style="margin-top: 0; margin-bottom: 0;">
+                        <div class="album-meta-row">
+                            <span><i class="fa-regular fa-images"></i> ${album.images.length} ${album.images.length === 1 ? 'foto' : 'fotos'}</span>
+                            <span><i class="fa-regular fa-clock"></i> ${album.created_at ? new Date(album.created_at).toLocaleDateString('pt-BR') : 'Arquivo'}</span>
+                        </div>
+                        <div class="album-footer">
+                            <div class="album-author-info">
                                 <img class="album-author-avatar" src="https://mc-heads.net/avatar/${encodeURIComponent(author)}/16" alt="Avatar de ${escapeHTML(author)}" onerror="this.src='icon/Fr32_Icon.png'">
                                 <span class="album-author-name">${escapeHTML(author)}</span>
                             </div>
-                            <div class="album-stats" style="display: flex; gap: 8px; font-size: 0.75rem; color: var(--text-muted); font-weight: 700;">
-                                <span class="album-stat-likes"><i class="fa-solid fa-heart" style="color: var(--primary); margin-right: 3px;"></i> <span class="likes-badge" data-album-key="${escapeHTML(album.title)}">0</span></span>
-                                <span class="album-stat-comments"><i class="fa-solid fa-comment" style="color: var(--secondary); margin-right: 3px;"></i> <span class="comments-badge" data-album-key="${escapeHTML(album.title)}">0</span></span>
+                            <div class="album-stats">
+                                <span class="album-stat-likes"><i class="fa-solid fa-heart"></i> <span class="likes-badge" data-album-key="${escapeHTML(album.title)}">0</span></span>
+                                <span class="album-stat-comments"><i class="fa-solid fa-comment"></i> <span class="comments-badge" data-album-key="${escapeHTML(album.title)}">0</span></span>
                             </div>
                         </div>
                     </div>
@@ -459,6 +532,50 @@ function bindGalleryInteractions() {
 
     let currentAlbumImages = [];
     let currentImageIndex = 0;
+
+    function enhanceAlbumCard(card) {
+        const season = card.getAttribute('data-season') || '?';
+        const imagesAttr = card.getAttribute('data-images') || '';
+        const images = imagesAttr
+            ? imagesAttr.split(',').map(img => img.trim()).filter(Boolean)
+            : [];
+        const photoCount = Math.max(images.length, card.querySelectorAll('.album-cover img').length, 1);
+        const authorInfo = card.querySelector('.album-author-info');
+
+        if (!card.querySelector('.album-season-badge')) {
+            const badge = document.createElement('div');
+            badge.className = 'album-season-badge';
+            badge.textContent = `Temporada ${season}`;
+            card.insertBefore(badge, card.firstChild);
+        }
+
+        if (!card.querySelector('.album-meta-row')) {
+            const title = card.querySelector('.album-title');
+            const meta = document.createElement('div');
+            meta.className = 'album-meta-row';
+            meta.innerHTML = `
+                <span><i class="fa-regular fa-images"></i> ${photoCount} ${photoCount === 1 ? 'foto' : 'fotos'}</span>
+                <span><i class="fa-regular fa-clock"></i> Arquivo</span>
+            `;
+            if (title) title.insertAdjacentElement('afterend', meta);
+        }
+
+        if (!card.querySelector('.album-footer')) {
+            const footer = document.createElement('div');
+            footer.className = 'album-footer';
+            if (authorInfo) footer.appendChild(authorInfo);
+            const stats = document.createElement('div');
+            stats.className = 'album-stats album-stats-placeholder';
+            stats.innerHTML = `
+                <span><i class="fa-solid fa-heart"></i> --</span>
+                <span><i class="fa-solid fa-comment"></i> --</span>
+            `;
+            footer.appendChild(stats);
+            card.appendChild(footer);
+        }
+    }
+
+    albumCards.forEach(enhanceAlbumCard);
 
     // 1. Capa dinâmica para álbuns de múltiplas fotos
     albumCards.forEach(card => {
@@ -542,6 +659,9 @@ function bindGalleryInteractions() {
         modalImg.src = currentAlbumImages[index];
         if (counter) {
             counter.textContent = `${index + 1} / ${currentAlbumImages.length}`;
+        }
+        if (typeof window.loadPhotoInteractions === 'function') {
+            window.loadPhotoInteractions(currentAlbumImages[index]);
         }
     }
 
@@ -809,6 +929,11 @@ function setupRankings() {
     const listContainer = document.getElementById('rankList');
     const loadingState = document.getElementById('rankLoading');
     const emptyState = document.getElementById('rankEmpty');
+    const errorState = document.getElementById('rankError');
+    const retryBtn = document.getElementById('rankRetryBtn');
+    const statusBar = document.getElementById('rankStatusBar');
+    const statusText = document.getElementById('rankStatusText');
+    const updatedAtText = document.getElementById('rankUpdatedAt');
 
     if (!trackerTabsContainer) return;
 
@@ -828,6 +953,22 @@ function setupRankings() {
     let ranksData = null;
     let activeTracker = 'minerador';
     let activePeriod = 'weekly';
+    let lastUpdatedAt = null;
+
+    function setRankingState(state, message = '') {
+        if (loadingState) loadingState.classList.toggle('hidden', state !== 'loading');
+        if (emptyState) emptyState.classList.toggle('hidden', state !== 'empty');
+        if (errorState) errorState.classList.toggle('hidden', state !== 'error');
+        podiumContainer.classList.toggle('hidden', state !== 'ready');
+        listContainer.classList.toggle('hidden', state !== 'ready');
+        if (statusBar) statusBar.dataset.state = state;
+        if (statusText && message) statusText.textContent = message;
+        if (updatedAtText) {
+            updatedAtText.textContent = lastUpdatedAt
+                ? `Última atualização: ${lastUpdatedAt.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}`
+                : 'Última atualização: --';
+        }
+    }
 
     // Gerar botões de trackers dinamicamente
     let trackerTabsHtml = '';
@@ -851,22 +992,23 @@ function setupRankings() {
             entries = ranksData[activeTracker][activePeriod];
         }
 
-        // Se não houver dados, oculta os contêineres e exibe o estado vazio
         if (entries.length === 0) {
-            podiumContainer.classList.add('hidden');
-            listContainer.classList.add('hidden');
-            if (emptyState) emptyState.classList.remove('hidden');
+            const trackerName = TRACKER_META[activeTracker]?.name || 'ranking';
+            const periodName = document.querySelector(`.period-btn[data-target-period="${activePeriod}"]`)?.textContent || 'período';
+            setRankingState('empty', `Sem jogadores em ${trackerName} no período ${periodName}.`);
+            if (emptyState) {
+                const emptyText = emptyState.querySelector('p');
+                if (emptyText) emptyText.textContent = 'Nenhum jogador apareceu neste ranking ainda.';
+            }
             return;
         }
 
-        // Se houver dados, garante que os contêineres estejam visíveis e oculta o estado vazio
-        podiumContainer.classList.remove('hidden');
-        listContainer.classList.remove('hidden');
-        if (emptyState) emptyState.classList.add('hidden');
+        setRankingState('ready', 'Rankings sincronizados com o servidor.');
 
         entries = entries.map(e => ({
             ...e,
-            playerDisplayName: e.playerName
+            playerName: safeMinecraftUsername(e.playerName),
+            playerDisplayName: safeMinecraftUsername(e.playerName)
         }));
 
         // 1. Separar o TOP 3 (Pódio)
@@ -879,14 +1021,14 @@ function setupRankings() {
         // Renderizar 2º Lugar
         if (second) {
             podiumHtml += `
-                <div class="podium-item second ${isPlaceholder ? 'placeholder-opacity' : ''}">
+                <div class="podium-item second">
                     <div class="avatar-wrapper">
-                        <img src="https://mc-heads.net/avatar/${second.playerName}/80" alt="${second.playerDisplayName}" width="80" height="80">
+                        <img src="https://mc-heads.net/avatar/${encodeURIComponent(second.playerName)}/80" alt="${escapeHTML(second.playerDisplayName)}" width="80" height="80">
                     </div>
                     <div class="podium-step">
                         <span class="podium-step-number">2</span>
-                        <span class="podium-player-name">${second.playerDisplayName}</span>
-                        <span class="podium-player-score">${second.formattedScore || second.score}</span>
+                        <span class="podium-player-name">${escapeHTML(second.playerDisplayName)}</span>
+                        <span class="podium-player-score">${escapeHTML(second.formattedScore || second.score)}</span>
                     </div>
                 </div>
             `;
@@ -895,15 +1037,15 @@ function setupRankings() {
         // Renderizar 1º Lugar
         if (first) {
             podiumHtml += `
-                <div class="podium-item first ${isPlaceholder ? 'placeholder-opacity' : ''}">
+                <div class="podium-item first">
                     <div class="avatar-wrapper">
                         <span class="avatar-crown">👑</span>
-                        <img src="https://mc-heads.net/avatar/${first.playerName}/96" alt="${first.playerDisplayName}" width="96" height="96">
+                        <img src="https://mc-heads.net/avatar/${encodeURIComponent(first.playerName)}/96" alt="${escapeHTML(first.playerDisplayName)}" width="96" height="96">
                     </div>
                     <div class="podium-step">
                         <span class="podium-step-number">1</span>
-                        <span class="podium-player-name">${first.playerDisplayName}</span>
-                        <span class="podium-player-score">${first.formattedScore || first.score}</span>
+                        <span class="podium-player-name">${escapeHTML(first.playerDisplayName)}</span>
+                        <span class="podium-player-score">${escapeHTML(first.formattedScore || first.score)}</span>
                     </div>
                 </div>
             `;
@@ -912,14 +1054,14 @@ function setupRankings() {
         // Renderizar 3º Lugar
         if (third) {
             podiumHtml += `
-                <div class="podium-item third ${isPlaceholder ? 'placeholder-opacity' : ''}">
+                <div class="podium-item third">
                     <div class="avatar-wrapper">
-                        <img src="https://mc-heads.net/avatar/${third.playerName}/80" alt="${third.playerDisplayName}" width="80" height="80">
+                        <img src="https://mc-heads.net/avatar/${encodeURIComponent(third.playerName)}/80" alt="${escapeHTML(third.playerDisplayName)}" width="80" height="80">
                     </div>
                     <div class="podium-step">
                         <span class="podium-step-number">3</span>
-                        <span class="podium-player-name">${third.playerDisplayName}</span>
-                        <span class="podium-player-score">${third.formattedScore || third.score}</span>
+                        <span class="podium-player-name">${escapeHTML(third.playerDisplayName)}</span>
+                        <span class="podium-player-score">${escapeHTML(third.formattedScore || third.score)}</span>
                     </div>
                 </div>
             `;
@@ -932,11 +1074,11 @@ function setupRankings() {
         let listHtml = '';
         listEntries.forEach(entry => {
             listHtml += `
-                <div class="rank-list-item ${isPlaceholder ? 'placeholder-opacity' : ''}">
+                <div class="rank-list-item">
                     <span class="item-position">${entry.position}º</span>
-                    <img class="item-avatar" src="https://mc-heads.net/avatar/${entry.playerName}/32" alt="${entry.playerDisplayName}" width="38" height="38">
-                    <span class="item-name">${entry.playerDisplayName}</span>
-                    <span class="item-score">${entry.formattedScore || entry.score}</span>
+                    <img class="item-avatar" src="https://mc-heads.net/avatar/${encodeURIComponent(entry.playerName)}/32" alt="${escapeHTML(entry.playerDisplayName)}" width="38" height="38">
+                    <span class="item-name">${escapeHTML(entry.playerDisplayName)}</span>
+                    <span class="item-score">${escapeHTML(entry.formattedScore || entry.score)}</span>
                 </div>
             `;
         });
@@ -944,34 +1086,31 @@ function setupRankings() {
     }
 
     async function fetchRanks() {
-        if (loadingState) loadingState.classList.remove('hidden');
-        podiumContainer.classList.add('hidden');
-        listContainer.classList.add('hidden');
-        if (emptyState) emptyState.classList.add('hidden');
+        setRankingState('loading', 'Buscando rankings em tempo real...');
 
         try {
             // Tenta obter da API em tempo real
             const controller = new AbortController();
             const timeoutId = setTimeout(() => controller.abort(), 3000);
-            const response = await fetch(API_URL, { signal: controller.signal });
+            const response = await fetch(API_URL, { cache: 'no-store', signal: controller.signal });
             clearTimeout(timeoutId);
 
             if (!response.ok) throw new Error('API offline');
             const data = await response.json();
-            ranksData = data.ranks;
+            ranksData = data.ranks || {};
+            lastUpdatedAt = new Date();
             console.log("Estatísticas carregadas em tempo real!");
 
-            if (loadingState) loadingState.classList.add('hidden');
             renderActiveRank();
         } catch (error) {
-            console.warn("API de Ranks indisponível. Deixando os rankings vazios conforme solicitado.", error);
+            console.warn("API de Ranks indisponível:", error);
             ranksData = null;
-            if (loadingState) loadingState.classList.add('hidden');
-            podiumContainer.classList.add('hidden');
-            listContainer.classList.add('hidden');
-            if (emptyState) emptyState.classList.remove('hidden');
+            lastUpdatedAt = null;
+            setRankingState('error', 'Falha ao conectar com a API de rankings.');
         }
     }
+
+    if (retryBtn) retryBtn.addEventListener('click', fetchRanks);
 
     // Ouvintes de Evento nos Trackers
     trackerTabs.forEach(tab => {
@@ -1003,6 +1142,8 @@ function setupRankings() {
 async function setupDiscordStats() {
     const inviteCode = 'MNWtkEzM3B';
     const statsText = document.getElementById('discordStatsText');
+    const membersCount = document.getElementById('discordMembersCount');
+    const onlineCount = document.getElementById('discordOnlineCount');
     if (!statsText) return;
 
     try {
@@ -1014,10 +1155,72 @@ async function setupDiscordStats() {
         const online = data.approximate_presence_count;
 
         const fmt = new Intl.NumberFormat('pt-BR');
-        statsText.textContent = `${fmt.format(members)} membros (${fmt.format(online)} online)`;
+        statsText.textContent = 'Entre para avisos, suporte e eventos';
+        if (membersCount) membersCount.textContent = fmt.format(members || 0);
+        if (onlineCount) onlineCount.textContent = fmt.format(online || 0);
     } catch (err) {
         console.warn("Erro ao carregar status do Discord:", err);
-        statsText.textContent = "Comunidade no Discord";
+        statsText.textContent = "Comunidade, suporte e eventos";
+        if (membersCount) membersCount.textContent = '--';
+        if (onlineCount) onlineCount.textContent = '--';
+    }
+}
+
+/* ==========================================
+   LÓGICA: NOTÍCIAS E EVENTOS DINÂMICOS
+   ========================================== */
+async function setupNewsEvents() {
+    const newsList = document.getElementById('newsList');
+    const eventsList = document.getElementById('eventsList');
+    if (!newsList || !eventsList) return;
+
+    const waitForSupabase = async () => {
+        for (let attempt = 0; attempt < 50; attempt++) {
+            if (supabaseClient) return true;
+            await new Promise(resolve => setTimeout(resolve, 100));
+        }
+        return false;
+    };
+
+    try {
+        const ready = await waitForSupabase();
+        if (!ready) return;
+
+        const { data, error } = await supabaseClient
+            .from('site_announcements')
+            .select('type, title, tag, event_time, content, sort_order')
+            .eq('is_published', true)
+            .order('sort_order', { ascending: true })
+            .order('created_at', { ascending: false })
+            .limit(20);
+
+        if (error) throw error;
+        if (!data || data.length === 0) return;
+
+        const news = data.filter(item => item.type === 'news').slice(0, 3);
+        const events = data.filter(item => item.type === 'event').slice(0, 4);
+
+        if (news.length > 0) {
+            newsList.innerHTML = news.map(item => `
+                <article class="news-item">
+                    <span class="news-tag">${escapeHTML(item.tag || 'Notícia')}</span>
+                    <h4>${escapeHTML(item.title)}</h4>
+                    <p>${escapeHTML(item.content)}</p>
+                </article>
+            `).join('');
+        }
+
+        if (events.length > 0) {
+            eventsList.innerHTML = events.map(item => `
+                <div class="event-item">
+                    <span>${escapeHTML(item.tag || 'Evento')}</span>
+                    <strong>${escapeHTML(item.event_time || '--:--')}</strong>
+                    <p>${escapeHTML(item.content)}</p>
+                </div>
+            `).join('');
+        }
+    } catch (err) {
+        console.warn("[Notícias/Eventos] Mantendo conteúdo estático:", err);
     }
 }
 
@@ -1267,6 +1470,7 @@ let currentPhotoLikesCount = 0;
 let userHasLikedCurrentPhoto = false;
 let activePhotoPath = '';
 let likeLock = false;
+let photoInteractionsLoadId = 0;
 
 // Injetar dinamicamente elementos de HTML no DOM
 function injectHtmlElements() {
@@ -1561,8 +1765,14 @@ function injectHtmlElements() {
                     Faça <span class="auth-link" onclick="openAuthModal()">login</span> para curtir e comentar nesta foto.
                 </div>
                 <form id="commentForm" class="comment-form hidden" onsubmit="handleCommentSubmit(event)" autocomplete="off">
-                    <input type="text" id="commentInput" placeholder="Escreva um comentário..." required autocomplete="off">
-                    <button type="submit" class="btn-send-comment">
+                    <div class="comment-field-wrap">
+                        <input type="text" id="commentInput" placeholder="Escreva um comentario..." maxlength="${COMMENT_MAX_LENGTH}" required autocomplete="off">
+                        <div class="comment-form-meta">
+                            <span id="commentFeedback" class="comment-feedback">Comentarios passam por moderacao da equipe.</span>
+                            <span id="commentCounter" class="comment-counter">0/${COMMENT_MAX_LENGTH}</span>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn-send-comment" id="btnSendComment" aria-label="Enviar comentario">
                         <i class="fa-solid fa-paper-plane"></i>
                     </button>
                 </form>
@@ -1575,6 +1785,7 @@ function injectHtmlElements() {
         albumModal.innerHTML = '';
         albumModal.innerHTML = '<span class="close-modal" id="closeAlbumModalBtn">&times;</span>';
         albumModal.appendChild(wrapper);
+        setupPhotoInteractionControls();
 
         // Re-associar botão fechar original
         const newCloseBtn = document.getElementById('closeAlbumModalBtn');
@@ -1669,13 +1880,10 @@ function setupSupabaseAuthAndInteractions() {
         }, 0);
     });
 
-    // Registrar o click do botão de Like
-    const btnLike = document.getElementById('btnLike');
-    if (btnLike) {
-        btnLike.addEventListener('click', handleLikeToggle);
-    }
+    // Registrar controles de curtidas e comentarios
+    setupPhotoInteractionControls();
 
-    // Configurar observador para atualizações na troca de imagens (MutationObserver)
+// Configurar observador para atualizações na troca de imagens (MutationObserver)
     const modalImg = document.getElementById('modalImage');
     if (modalImg) {
         const observer = new MutationObserver((mutations) => {
@@ -2681,7 +2889,18 @@ window.loadProfileSettings = loadProfileSettings;
 
 
 window.loadPhotoInteractions = async function (photoPath) {
-    if (!supabaseClient) return;
+    const loadId = ++photoInteractionsLoadId;
+    const likesCountEl = document.getElementById('likesCount');
+    const commentsList = document.getElementById('commentsList');
+
+    if (likesCountEl) likesCountEl.textContent = 'Carregando curtidas...';
+    if (commentsList) commentsList.innerHTML = '<div class="comment-empty-message">Carregando comentarios...</div>';
+
+    if (!supabaseClient) {
+        if (likesCountEl) likesCountEl.textContent = '0 curtidas';
+        if (commentsList) commentsList.innerHTML = '<div class="comment-empty-message">Conectando ao Supabase...</div>';
+        return;
+    }
 
     activePhotoPath = getRelativePhotoPath(photoPath);
 
@@ -2693,11 +2912,14 @@ window.loadPhotoInteractions = async function (photoPath) {
             .eq('photo_path', activePhotoPath);
 
         if (!error) {
+            if (loadId !== photoInteractionsLoadId) return;
             currentPhotoLikesCount = count || 0;
-            const likesCountEl = document.getElementById('likesCount');
             if (likesCountEl) {
                 likesCountEl.textContent = `${currentPhotoLikesCount} ${currentPhotoLikesCount === 1 ? 'curtida' : 'curtidas'}`;
             }
+        } else {
+            if (likesCountEl) likesCountEl.textContent = 'Erro nas curtidas';
+            throw error;
         }
 
         // 2. Verificar se o usuário logado já curtiu
@@ -2716,6 +2938,7 @@ window.loadPhotoInteractions = async function (photoPath) {
         }
 
         // Atualiza ícone do botão
+        if (loadId !== photoInteractionsLoadId) return;
         const btnLike = document.getElementById('btnLike');
         if (btnLike) {
             if (userHasLikedCurrentPhoto) {
@@ -2738,10 +2961,13 @@ window.loadPhotoInteractions = async function (photoPath) {
             .eq('photo_path', activePhotoPath)
             .order('created_at', { ascending: true });
 
-        const commentsList = document.getElementById('commentsList');
         if (commentsList) {
+            if (loadId !== photoInteractionsLoadId) return;
             commentsList.innerHTML = '';
-            if (!error && commentsData && commentsData.length > 0) {
+            if (error) {
+                console.error("Erro ao buscar comentarios:", error);
+                commentsList.innerHTML = '<div class="comment-empty-message">Nao foi possivel carregar os comentarios.</div>';
+            } else if (commentsData && commentsData.length > 0) {
                 // Buscar profiles associados
                 const userIds = [...new Set(commentsData.map(c => c.user_id))];
                 let profilesMap = {};
@@ -2873,15 +3099,97 @@ async function handleLikeToggle() {
 }
 
 // Enviar Comentário
+function getCommentCooldownKey() {
+    return currentUser ? `fr32_comment_last_${currentUser.id}` : 'fr32_comment_last_guest';
+}
+
+function getCommentCooldownRemaining() {
+    const lastSentAt = Number(localStorage.getItem(getCommentCooldownKey()) || 0);
+    if (!lastSentAt) return 0;
+
+    const elapsedSeconds = Math.floor((Date.now() - lastSentAt) / 1000);
+    return Math.max(0, COMMENT_COOLDOWN_SECONDS - elapsedSeconds);
+}
+
+function setCommentFeedback(message, type = 'info') {
+    const feedback = document.getElementById('commentFeedback');
+    if (!feedback) return;
+
+    feedback.textContent = message;
+    feedback.classList.remove('is-error', 'is-success', 'is-warning');
+    if (type !== 'info') {
+        feedback.classList.add(`is-${type}`);
+    }
+}
+
+function updateCommentCounter() {
+    const input = document.getElementById('commentInput');
+    const counter = document.getElementById('commentCounter');
+    if (!input || !counter) return;
+
+    const length = input.value.length;
+    counter.textContent = `${length}/${COMMENT_MAX_LENGTH}`;
+    counter.classList.toggle('is-warning', length >= COMMENT_MAX_LENGTH * 0.85);
+    counter.classList.toggle('is-error', length >= COMMENT_MAX_LENGTH);
+}
+
+function setupCommentFormControls() {
+    const input = document.getElementById('commentInput');
+    if (!input) return;
+
+    input.maxLength = COMMENT_MAX_LENGTH;
+    input.addEventListener('input', () => {
+        updateCommentCounter();
+        const remaining = getCommentCooldownRemaining();
+        if (remaining > 0) {
+            setCommentFeedback(`Aguarde ${remaining}s para comentar novamente.`, 'warning');
+        } else {
+            setCommentFeedback('Comentarios passam por moderacao da equipe.');
+        }
+    });
+
+    updateCommentCounter();
+}
+
+function setupPhotoInteractionControls() {
+    const btnLike = document.getElementById('btnLike');
+    if (btnLike && !btnLike.dataset.likeBound) {
+        btnLike.addEventListener('click', handleLikeToggle);
+        btnLike.dataset.likeBound = 'true';
+    }
+
+    setupCommentFormControls();
+}
+
 async function handleCommentSubmit(event) {
     event.preventDefault();
     if (!supabaseClient || !currentUser) return;
 
     const input = document.getElementById('commentInput');
+    const submitButton = document.getElementById('btnSendComment');
     const content = input?.value?.trim();
 
-    if (!content) return;
+    if (!content) {
+        setCommentFeedback('Digite uma mensagem antes de enviar.', 'warning');
+        return;
+    }
+
+    if (content.length > COMMENT_MAX_LENGTH) {
+        setCommentFeedback(`Comentario muito grande. Use ate ${COMMENT_MAX_LENGTH} caracteres.`, 'error');
+        return;
+    }
+
+    const cooldownRemaining = getCommentCooldownRemaining();
+    if (cooldownRemaining > 0) {
+        setCommentFeedback(`Voce esta comentando rapido demais. Tente novamente em ${cooldownRemaining}s.`, 'warning');
+        input?.classList.add('comment-input-shake');
+        setTimeout(() => input?.classList.remove('comment-input-shake'), 450);
+        return;
+    }
+
     if (input) input.disabled = true;
+    if (submitButton) submitButton.disabled = true;
+    setCommentFeedback('Enviando comentario...', 'info');
 
     try {
         const { error } = await supabaseClient
@@ -2893,7 +3201,11 @@ async function handleCommentSubmit(event) {
             });
 
         if (error) throw error;
+
+        localStorage.setItem(getCommentCooldownKey(), String(Date.now()));
         if (input) input.value = '';
+        updateCommentCounter();
+        setCommentFeedback('Comentario enviado. A equipe pode moderar se necessario.', 'success');
 
         await window.loadPhotoInteractions(activePhotoPath);
 
@@ -2902,9 +3214,18 @@ async function handleCommentSubmit(event) {
         }
     } catch (err) {
         console.error("Erro ao comentar:", err);
-        window.showNotification("Erro ao postar comentário.", "fa-solid fa-circle-xmark");
+        const message = String(err?.message || '').toLowerCase();
+        if (message.includes('rate_limit') || message.includes('comment_rate_limit')) {
+            setCommentFeedback('Voce esta comentando rapido demais. Aguarde um minuto.', 'warning');
+        } else if (message.includes('comment_content_length') || message.includes('check constraint')) {
+            setCommentFeedback(`Comentario invalido. Use entre 1 e ${COMMENT_MAX_LENGTH} caracteres.`, 'error');
+        } else {
+            setCommentFeedback('Erro ao postar comentario. Tente novamente.', 'error');
+        }
+        window.showNotification("Erro ao postar comentario.", "fa-solid fa-circle-xmark");
     } finally {
         if (input) input.disabled = false;
+        if (submitButton) submitButton.disabled = false;
     }
 }
 
