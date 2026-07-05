@@ -13,7 +13,7 @@ create table if not exists public.profiles (
   id uuid references auth.users on delete cascade primary key,
   minecraft_username text unique not null,
   updated_at timestamp with time zone default timezone('utc'::text, now()) not null,
-  constraint username_length check (char_length(minecraft_username) >= 3)
+  constraint profiles_minecraft_username_format check (minecraft_username ~ '^[A-Za-z0-9_]{3,16}$')
 );
 
 -- Habilitar RLS
@@ -70,7 +70,7 @@ create table if not exists public.comments (
   photo_path text not null,
   content text not null,
   created_at timestamp with time zone default timezone('utc'::text, now()) not null,
-  constraint comment_content_length check (char_length(trim(content)) >= 1)
+  constraint comment_content_length check (char_length(trim(content)) between 1 and 500)
 );
 
 -- Habilitar RLS

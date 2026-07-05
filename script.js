@@ -261,13 +261,13 @@ async function loadDynamicVeteranos() {
         if (veterans && veterans.length > 0) {
             grid.innerHTML = '';
             veterans.forEach(vet => {
-                const username = vet.minecraft_username;
+                const username = safeMinecraftUsername(vet.minecraft_username);
                 grid.innerHTML += `
                     <div class="veteran-card">
                         <div class="veteran-glow"></div>
-                        <img src="https://mc-heads.net/body/${username}/100" alt="${username}" class="veteran-skin" onerror="this.src='icon/Fr32_Icon.png'">
+                        <img src="https://mc-heads.net/body/${encodeURIComponent(username)}/100" alt="${escapeHTML(username)}" class="veteran-skin" onerror="this.src='icon/Fr32_Icon.png'">
                         <div class="veteran-info">
-                            <span class="veteran-name">${username}</span>
+                            <span class="veteran-name">${escapeHTML(username)}</span>
                             <span class="veteran-badge">${escapeHTML(vet.title || 'Veterano')}</span>
                             <span class="veteran-desc">${escapeHTML(vet.description || '')}</span>
                         </div>
@@ -399,14 +399,15 @@ async function setupDynamicGallery() {
 
         if (albumList.length > 0) {
             albumList.forEach(album => {
-                const imagesAttr = album.images.join(', ');
-                const coverImage = album.images[0] || 'icon/Fr32_Icon.png';
+                const imagesAttr = album.images.map(safeImageUrl).join(', ');
+                const coverImage = safeImageUrl(album.images[0]) || 'icon/Fr32_Icon.png';
                 const hasMultiple = album.images.length > 1;
+                const author = safeMinecraftUsername(album.author);
 
                 galleryGrid.innerHTML += `
-                    <div class="album-card" data-season="${album.seasonNumber}" data-images="${imagesAttr}">
+                    <div class="album-card" data-season="${Number(album.seasonNumber) || 0}" data-images="${escapeHTML(imagesAttr)}">
                         <div class="album-cover">
-                            <img src="${coverImage}" alt="Capa do álbum ${escapeHTML(album.title)}">
+                            <img src="${escapeHTML(coverImage)}" alt="Capa do álbum ${escapeHTML(album.title)}">
                             ${hasMultiple ? `
                                 <div class="album-icon">
                                     <i class="fa-regular fa-images"></i>
@@ -416,8 +417,8 @@ async function setupDynamicGallery() {
                         <h3 class="album-title">${escapeHTML(album.title)}</h3>
                         <div class="album-footer" style="display: flex; justify-content: space-between; align-items: center; margin-top: auto; width: 100%;">
                             <div class="album-author-info" style="margin-top: 0; margin-bottom: 0;">
-                                <img class="album-author-avatar" src="https://mc-heads.net/avatar/${album.author}/16" alt="Avatar de ${escapeHTML(album.author)}" onerror="this.src='icon/Fr32_Icon.png'">
-                                <span class="album-author-name">${escapeHTML(album.author)}</span>
+                                <img class="album-author-avatar" src="https://mc-heads.net/avatar/${encodeURIComponent(author)}/16" alt="Avatar de ${escapeHTML(author)}" onerror="this.src='icon/Fr32_Icon.png'">
+                                <span class="album-author-name">${escapeHTML(author)}</span>
                             </div>
                             <div class="album-stats" style="display: flex; gap: 8px; font-size: 0.75rem; color: var(--text-muted); font-weight: 700;">
                                 <span class="album-stat-likes"><i class="fa-solid fa-heart" style="color: var(--primary); margin-right: 3px;"></i> <span class="likes-badge" data-album-key="${escapeHTML(album.title)}">0</span></span>
@@ -1749,7 +1750,9 @@ function updateUserInterface() {
     if (!navUserArea) return;
 
     if (currentUser && currentProfile) {
-        const nick = currentProfile.minecraft_username;
+        const nick = safeMinecraftUsername(currentProfile.minecraft_username);
+        const encodedNick = encodeURIComponent(nick);
+        const escapedNick = escapeHTML(nick);
         
         let adminBtnHtml = '';
         if (isCurrentUserAdmin) {
@@ -1766,8 +1769,8 @@ function updateUserInterface() {
                 <button onclick="openSettingsModal()" class="btn-settings-nav" title="Configurações da Conta" style="margin-right: 10px; color: var(--secondary); display: inline-flex; align-items: center; justify-content: center; width: 30px; height: 30px; border-radius: 50%; background: rgba(139, 0, 255, 0.1); border: 1px solid rgba(139, 0, 255, 0.35); transition: all 0.3s ease; box-shadow: 0 0 8px rgba(139, 0, 255, 0.2); cursor: pointer;">
                     <i class="fa-solid fa-gear" style="font-size: 0.95rem;"></i>
                 </button>
-                <img src="https://mc-heads.net/avatar/${nick}/22" class="nav-user-avatar" alt="Avatar de ${nick}">
-                <span class="nav-user-name">${nick}</span>
+                <img src="https://mc-heads.net/avatar/${encodedNick}/22" class="nav-user-avatar" alt="Avatar de ${escapedNick}">
+                <span class="nav-user-name">${escapedNick}</span>
                 <button class="btn-logout-nav" onclick="handleLogout()" title="Sair do painel">
                     <i class="fa-solid fa-right-from-bracket"></i>
                 </button>
@@ -1796,8 +1799,8 @@ function updateUserInterface() {
                         </button>
                     </div>
                     <div style="display: flex; align-items: center; gap: 8px;">
-                        <img src="https://mc-heads.net/avatar/${nick}/22" class="nav-user-avatar" alt="Avatar">
-                        <span class="nav-user-name">${nick}</span>
+                        <img src="https://mc-heads.net/avatar/${encodedNick}/22" class="nav-user-avatar" alt="Avatar">
+                        <span class="nav-user-name">${escapedNick}</span>
                     </div>
                     <button class="btn-logout-nav" onclick="handleLogout()" style="width: 100%; justify-content: center;">
                         <i class="fa-solid fa-right-from-bracket"></i> Sair
@@ -1984,8 +1987,8 @@ async function handleRegister(event) {
         window.showNotification("Preencha todos os campos.", "fa-solid fa-triangle-exclamation");
         return;
     }
-    if (minecraft.length < 3) {
-        window.showNotification("O Nick do Minecraft deve ter pelo menos 3 caracteres.", "fa-solid fa-triangle-exclamation");
+    if (!isValidMinecraftUsername(minecraft)) {
+        window.showNotification("Nick inválido! Use de 3 a 16 caracteres, contendo apenas letras, números e underline (_).", "fa-solid fa-triangle-exclamation");
         return;
     }
 
@@ -2757,15 +2760,15 @@ window.loadPhotoInteractions = async function (photoPath) {
                 }
 
                 commentsData.forEach(comment => {
-                    const username = profilesMap[comment.user_id] || 'Jogador';
+                    const username = safeMinecraftUsername(profilesMap[comment.user_id]);
                     const dateText = formatRelativeTime(new Date(comment.created_at));
 
                     commentsList.innerHTML += `
                         <div class="comment-item">
-                            <img src="https://mc-heads.net/avatar/${username}/26" class="comment-avatar" alt="Avatar">
+                            <img src="https://mc-heads.net/avatar/${encodeURIComponent(username)}/26" class="comment-avatar" alt="Avatar">
                             <div class="comment-content-block">
                                 <div class="comment-header-meta">
-                                    <span class="comment-player-name">${username}</span>
+                                    <span class="comment-player-name">${escapeHTML(username)}</span>
                                     <span class="comment-date-time">${dateText}</span>
                                 </div>
                                 <div class="comment-text">${escapeHTML(comment.content)}</div>
@@ -2908,7 +2911,7 @@ async function handleCommentSubmit(event) {
 // Helper: Escape HTML contra injeção de script (XSS)
 function escapeHTML(str) {
     if (!str) return '';
-    return str.replace(/[&<>'"]/g, 
+    return String(str).replace(/[&<>'"]/g,
         tag => ({
             '&': '&amp;',
             '<': '&lt;',
@@ -2917,6 +2920,24 @@ function escapeHTML(str) {
             '"': '&quot;'
         }[tag] || tag)
     );
+}
+
+function isValidMinecraftUsername(username) {
+    return /^[A-Za-z0-9_]{3,16}$/.test(String(username || ''));
+}
+
+function safeMinecraftUsername(username) {
+    const value = String(username || '').trim();
+    return isValidMinecraftUsername(value) ? value : 'Jogador';
+}
+
+function safeImageUrl(path) {
+    const value = String(path || '').trim();
+    if (!value) return '';
+    if (/[\u0000-\u001f<>"'`]/.test(value)) return '';
+    if (value.startsWith('https://dzfmtmlgbyxnqjdwutfp.supabase.co/storage/v1/object/public/seasons/')) return value;
+    if (/^(Images|icon|eventos)\/[A-Za-z0-9_ .&%()\/-]+\.(png|jpg|jpeg|webp|gif)$/i.test(value)) return value;
+    return '';
 }
 
 // Helper: Formatar data relativa amigável

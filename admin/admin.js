@@ -247,10 +247,10 @@ function renderUsersTable(users) {
         const row = document.createElement('tr');
         
         // Definir Minecraft Username (Nick)
-        const username = user.minecraft_username || 'Sem Registro (Web)';
+        const username = safeMinecraftUsername(user.minecraft_username);
         // Avatar do Minecraft head do jogador usando mc-heads.net
         const avatarUrl = user.minecraft_username 
-            ? `https://mc-heads.net/avatar/${user.minecraft_username}/24`
+            ? `https://mc-heads.net/avatar/${encodeURIComponent(username)}/24`
             : '../icon/Fr32_Icon.png';
 
         // Definir Badge do Cargo
@@ -263,28 +263,28 @@ function renderUsersTable(users) {
         } else if (user.role === 'admin') {
             badgeHtml = `<span class="role-badge badge-admin"><i class="fa-solid fa-user-shield"></i> Administrador</span>`;
             actionBtnHtml = `
-                <button class="btn-action btn-demote" onclick="changeUserRole('${user.id}', 'demote', '${user.email}')">
+                <button class="btn-action btn-demote" onclick="changeUserRole('${escapeJSString(user.id)}', 'demote', '${escapeJSString(user.email)}')">
                     <i class="fa-solid fa-user-minus"></i> Rebaixar
                 </button>
             `;
         } else {
             badgeHtml = `<span class="role-badge badge-player"><i class="fa-solid fa-gamepad"></i> Jogador</span>`;
             actionBtnHtml = `
-                <button class="btn-action btn-promote" onclick="changeUserRole('${user.id}', 'promote', '${user.email}')">
+                <button class="btn-action btn-promote" onclick="changeUserRole('${escapeJSString(user.id)}', 'promote', '${escapeJSString(user.email)}')">
                     <i class="fa-solid fa-user-plus"></i> Tornar Admin
                 </button>
             `;
         }
 
         row.innerHTML = `
-            <td><strong>${user.email}</strong></td>
+            <td><strong>${escapeHTML(user.email)}</strong></td>
             <td>
                 <div class="avatar-info">
-                    <img src="${avatarUrl}" alt="${username}" class="table-mc-avatar">
-                    <span>${username}</span>
+                    <img src="${avatarUrl}" alt="${escapeHTML(username)}" class="table-mc-avatar">
+                    <span>${escapeHTML(username)}</span>
                 </div>
             </td>
-            <td><span class="uuid-text">${user.id}</span></td>
+            <td><span class="uuid-text">${escapeHTML(user.id)}</span></td>
             <td>${badgeHtml}</td>
             <td class="text-right">${actionBtnHtml}</td>
         `;
@@ -490,28 +490,28 @@ function renderVeteransTable(veterans) {
 
     veterans.forEach(vet => {
         const row = document.createElement('tr');
-        const username = vet.minecraft_username;
-        const avatarUrl = `https://mc-heads.net/avatar/${username}/24`;
+        const username = safeMinecraftUsername(vet.minecraft_username);
+        const avatarUrl = `https://mc-heads.net/avatar/${encodeURIComponent(username)}/24`;
 
         row.innerHTML = `
             <td>
                 <div class="avatar-info">
-                    <img src="${avatarUrl}" alt="${username}" class="table-mc-avatar" onerror="this.src='../icon/Fr32_Icon.png'">
-                    <a href="https://mc-heads.net/body/${username}" target="_blank" title="Ver Skin Completa" style="color: var(--primary); font-size: 0.8rem;">
+                    <img src="${avatarUrl}" alt="${escapeHTML(username)}" class="table-mc-avatar" onerror="this.src='../icon/Fr32_Icon.png'">
+                    <a href="https://mc-heads.net/body/${encodeURIComponent(username)}" target="_blank" rel="noopener noreferrer" title="Ver Skin Completa" style="color: var(--primary); font-size: 0.8rem;">
                         <i class="fa-solid fa-up-right-from-square"></i>
                     </a>
                 </div>
             </td>
-            <td><strong>${username}</strong></td>
+            <td><strong>${escapeHTML(username)}</strong></td>
             <td><span class="role-badge badge-admin"><i class="fa-solid fa-tag"></i> ${escapeHTML(vet.title)}</span></td>
             <td style="max-width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${escapeHTML(vet.description)}">
                 ${escapeHTML(vet.description)}
             </td>
             <td class="text-right">
-                <button class="btn-action btn-promote" onclick="editVeteran(${vet.id})" style="margin-right: 6px; border-color: rgba(255, 170, 0, 0.4); color: #ffa500; background: rgba(255, 170, 0, 0.05);">
+                <button class="btn-action btn-promote" onclick="editVeteran(${Number(vet.id)})" style="margin-right: 6px; border-color: rgba(255, 170, 0, 0.4); color: #ffa500; background: rgba(255, 170, 0, 0.05);">
                     <i class="fa-solid fa-user-pen"></i> Editar
                 </button>
-                <button class="btn-action btn-demote" onclick="deleteVeteran(${vet.id}, '${username}')">
+                <button class="btn-action btn-demote" onclick="deleteVeteran(${Number(vet.id)}, '${escapeJSString(username)}')">
                     <i class="fa-solid fa-trash-can"></i> Excluir
                 </button>
             </td>
@@ -549,6 +549,11 @@ async function handleVeteranFormSubmit(e) {
 
     if (!nick || !title || !description) {
         showToast("Preencha todos os campos do formulário.", "error");
+        return;
+    }
+
+    if (!isValidMinecraftUsername(nick)) {
+        showToast("Nick inválido. Use de 3 a 16 caracteres: letras, números e underline (_).", "error");
         return;
     }
 
@@ -836,6 +841,16 @@ async function handleUploadPhotoSubmit(e) {
         return;
     }
 
+    if (!isValidMinecraftUsername(author)) {
+        showToast("Autor inválido. Use um nick Minecraft válido.", "error");
+        return;
+    }
+
+    if (!/^image\/(png|jpe?g|webp|gif)$/i.test(file.type) || file.size > 5 * 1024 * 1024) {
+        showToast("Envie uma imagem PNG, JPG, WEBP ou GIF de até 5 MB.", "error");
+        return;
+    }
+
     const selectedSeason = allSeasonsList.find(s => s.id == seasonId);
     if (!selectedSeason) return;
 
@@ -981,6 +996,7 @@ function renderSeasonPhotos(photos) {
 
         albumList.forEach(album => {
             const albumSection = document.createElement('div');
+            const safeAuthor = safeMinecraftUsername(album.author);
             albumSection.className = 'admin-album-section';
             albumSection.style.background = 'rgba(255, 255, 255, 0.01)';
             albumSection.style.border = '1px solid rgba(255, 255, 255, 0.04)';
@@ -991,10 +1007,10 @@ function renderSeasonPhotos(photos) {
             // Cabeçalho do álbum
             const headerHtml = `
                 <div class="admin-album-header" style="display: flex; align-items: center; gap: 12px; margin-bottom: 1.2rem; border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 0.8rem;">
-                    <img src="https://mc-heads.net/avatar/${album.author}/24" class="table-mc-avatar" onerror="this.src='../icon/Fr32_Icon.png'">
+                    <img src="https://mc-heads.net/avatar/${encodeURIComponent(safeAuthor)}/24" class="table-mc-avatar" onerror="this.src='../icon/Fr32_Icon.png'">
                     <div>
                         <h4 style="margin: 0; color: #fff; font-size: 1.05rem; font-weight: 700;">${escapeHTML(album.title)}</h4>
-                        <span style="font-size: 0.8rem; color: var(--text-muted);">Por: <strong>${escapeHTML(album.author)}</strong> • ${album.photos.length} foto(s)</span>
+                        <span style="font-size: 0.8rem; color: var(--text-muted);">Por: <strong>${escapeHTML(safeAuthor)}</strong> • ${album.photos.length} foto(s)</span>
                     </div>
                 </div>
             `;
@@ -1008,7 +1024,7 @@ function renderSeasonPhotos(photos) {
                 const card = document.createElement('div');
                 card.className = 'gallery-item-card';
 
-                const resolvedSrc = resolveImagePath(photo.photo_path);
+                const resolvedSrc = resolveImagePath(photo.photo_path) || '../icon/Fr32_Icon.png';
                 const titleText = photo.title || 'Sem título';
                 const authorText = photo.author_name || 'Desconhecido';
                 const descText = photo.description ? `: ${photo.description}` : '';
@@ -1016,8 +1032,8 @@ function renderSeasonPhotos(photos) {
 
                 card.innerHTML = `
                     <div class="gallery-img-wrapper">
-                        <img src="${resolvedSrc}" alt="${escapeHTML(legendText)}" loading="lazy">
-                        <button class="btn-delete-photo" onclick="deleteSeasonPhoto(${photo.id}, '${photo.photo_path}')" title="Excluir Foto da Galeria">
+                        <img src="${escapeHTML(resolvedSrc)}" alt="${escapeHTML(legendText)}" loading="lazy">
+                        <button class="btn-delete-photo" onclick="deleteSeasonPhoto(${Number(photo.id)}, '${escapeJSString(photo.photo_path)}')" title="Excluir Foto da Galeria">
                             <i class="fa-solid fa-trash-can"></i>
                         </button>
                     </div>
@@ -1054,7 +1070,7 @@ function renderSeasonPhotos(photos) {
             const card = document.createElement('div');
             card.className = 'gallery-item-card';
 
-            const resolvedSrc = resolveImagePath(photo.photo_path);
+            const resolvedSrc = resolveImagePath(photo.photo_path) || '../icon/Fr32_Icon.png';
             const titleText = photo.title || 'Sem título';
             const authorText = photo.author_name || 'Desconhecido';
             const descText = photo.description ? `: ${photo.description}` : '';
@@ -1062,8 +1078,8 @@ function renderSeasonPhotos(photos) {
 
             card.innerHTML = `
                 <div class="gallery-img-wrapper">
-                    <img src="${resolvedSrc}" alt="${escapeHTML(legendText)}" loading="lazy">
-                    <button class="btn-delete-photo" onclick="deleteSeasonPhoto(${photo.id}, '${photo.photo_path}')" title="Excluir Foto da Galeria">
+                    <img src="${escapeHTML(resolvedSrc)}" alt="${escapeHTML(legendText)}" loading="lazy">
+                    <button class="btn-delete-photo" onclick="deleteSeasonPhoto(${Number(photo.id)}, '${escapeJSString(photo.photo_path)}')" title="Excluir Foto da Galeria">
                         <i class="fa-solid fa-trash-can"></i>
                     </button>
                 </div>
@@ -1338,23 +1354,23 @@ async function loadModerationComments(photoPath) {
 
         commentsList.innerHTML = '';
         comments.forEach(comment => {
-            const username = profilesMap[comment.user_id] || 'Jogador';
-            const avatarUrl = `https://mc-heads.net/avatar/${username}/26`;
+            const username = safeMinecraftUsername(profilesMap[comment.user_id]);
+            const avatarUrl = `https://mc-heads.net/avatar/${encodeURIComponent(username)}/26`;
             const dateText = new Date(comment.created_at).toLocaleString('pt-BR');
 
             const item = document.createElement('div');
             item.className = 'moderation-comment-item';
 
             item.innerHTML = `
-                <img src="${avatarUrl}" alt="${username}" class="comment-avatar" onerror="this.src='../icon/Fr32_Icon.png'">
+                <img src="${avatarUrl}" alt="${escapeHTML(username)}" class="comment-avatar" onerror="this.src='../icon/Fr32_Icon.png'">
                 <div class="comment-body">
                     <div class="comment-meta">
-                        <span class="comment-user">${username}</span>
+                        <span class="comment-user">${escapeHTML(username)}</span>
                         <span class="comment-time">${dateText}</span>
                     </div>
                     <div class="comment-text">${escapeHTML(comment.content)}</div>
                 </div>
-                <button class="btn-delete-comment" onclick="deleteComment(${comment.id})" title="Deletar Comentário">
+                <button class="btn-delete-comment" onclick="deleteComment(${Number(comment.id)})" title="Deletar Comentário">
                     <i class="fa-solid fa-trash-can"></i>
                 </button>
             `;
@@ -1467,25 +1483,25 @@ async function loadAllComments() {
 
         commentsList.innerHTML = '';
         comments.forEach(comment => {
-            const username = profilesMap[comment.user_id] || 'Jogador';
-            const avatarUrl = `https://mc-heads.net/avatar/${username}/26`;
+            const username = safeMinecraftUsername(profilesMap[comment.user_id]);
+            const avatarUrl = `https://mc-heads.net/avatar/${encodeURIComponent(username)}/26`;
             const dateText = new Date(comment.created_at).toLocaleString('pt-BR');
-            const commentPhotoSrc = resolveImagePath(comment.photo_path);
+            const commentPhotoSrc = resolveImagePath(comment.photo_path) || '../icon/Fr32_Icon.png';
 
             const item = document.createElement('div');
             item.className = 'moderation-comment-item';
 
             item.innerHTML = `
-                <img src="${avatarUrl}" alt="${username}" class="comment-avatar" onerror="this.src='../icon/Fr32_Icon.png'">
+                <img src="${avatarUrl}" alt="${escapeHTML(username)}" class="comment-avatar" onerror="this.src='../icon/Fr32_Icon.png'">
                 <div class="comment-body">
                     <div class="comment-meta">
-                        <span class="comment-user">${username}</span>
+                        <span class="comment-user">${escapeHTML(username)}</span>
                         <span class="comment-time">${dateText}</span>
                     </div>
                     <div class="comment-text">${escapeHTML(comment.content)}</div>
                 </div>
-                <img src="${commentPhotoSrc}" alt="Preview" class="comment-preview-thumb" style="width: 44px; height: 44px; object-fit: cover; border-radius: 8px; border: 1px solid rgba(255,255,255,0.08); margin: 0 10px; cursor: pointer; transition: transform 0.2s;" title="Clique para ver a foto original" onclick="highlightPhotoInModeration('${comment.photo_path}')">
-                <button class="btn-delete-comment" onclick="deleteComment(${comment.id}, true)" title="Deletar Comentário">
+                <img src="${escapeHTML(commentPhotoSrc)}" alt="Preview" class="comment-preview-thumb" style="width: 44px; height: 44px; object-fit: cover; border-radius: 8px; border: 1px solid rgba(255,255,255,0.08); margin: 0 10px; cursor: pointer; transition: transform 0.2s;" title="Clique para ver a foto original" onclick="highlightPhotoInModeration('${escapeJSString(comment.photo_path)}')">
+                <button class="btn-delete-comment" onclick="deleteComment(${Number(comment.id)}, true)" title="Deletar Comentário">
                     <i class="fa-solid fa-trash-can"></i>
                 </button>
             `;
@@ -1583,17 +1599,22 @@ function showToast(message, type = "info") {
 
 // Helper: Resolve o caminho de imagens locais ou externas
 function resolveImagePath(path) {
-    if (!path) return '';
-    if (path.startsWith('http://') || path.startsWith('https://') || path.startsWith('/')) {
-        return path;
+    const value = String(path || '').trim();
+    if (!value) return '';
+    if (/[\u0000-\u001f<>"'`]/.test(value)) return '';
+    if (value.startsWith('https://dzfmtmlgbyxnqjdwutfp.supabase.co/storage/v1/object/public/seasons/')) {
+        return value;
     }
-    return '../' + path;
+    if (/^(Images|icon|eventos)\/[A-Za-z0-9_ .&%()\/-]+\.(png|jpg|jpeg|webp|gif)$/i.test(value)) {
+        return '../' + value;
+    }
+    return '';
 }
 
 // Helper: Escape HTML contra injeção de script (XSS)
 function escapeHTML(str) {
     if (!str) return '';
-    return str.replace(/[&<>'"]/g, 
+    return String(str).replace(/[&<>'"]/g,
         tag => ({
             '&': '&amp;',
             '<': '&lt;',
@@ -1602,6 +1623,19 @@ function escapeHTML(str) {
             '"': '&quot;'
         }[tag] || tag)
     );
+}
+
+function escapeJSString(str) {
+    return String(str || '').replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/\r?\n/g, ' ');
+}
+
+function isValidMinecraftUsername(username) {
+    return /^[A-Za-z0-9_]{3,16}$/.test(String(username || ''));
+}
+
+function safeMinecraftUsername(username) {
+    const value = String(username || '').trim();
+    return isValidMinecraftUsername(value) ? value : 'Jogador';
 }
 
 // Inicializa o script quando o documento HTML terminar de carregar

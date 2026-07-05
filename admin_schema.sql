@@ -30,7 +30,7 @@ begin
       and role in ('admin', 'super_admin')
   );
 end;
-$$ language plpgsql security definer;
+$$ language plpgsql security definer set search_path = public, auth;
 
 -- Função (exclusiva para Super Admin) para buscar o ID de um usuário pelo email
 create or replace function public.get_user_id_by_email(search_email text)
@@ -46,7 +46,7 @@ begin
     raise exception 'Acesso negado. Apenas o Super Admin principal pode buscar IDs por e-mail.';
   end if;
 end;
-$$ language plpgsql security definer;
+$$ language plpgsql security definer set search_path = public, auth;
 
 -- Função (exclusiva para Super Admin) para listar todos os usuários cadastrados com suas permissões
 create or replace function public.get_all_users_for_admin()
@@ -72,7 +72,7 @@ begin
     raise exception 'Acesso negado. Apenas o Super Admin principal pode listar os usuários.';
   end if;
 end;
-$$ language plpgsql security definer;
+$$ language plpgsql security definer set search_path = public, auth;
 
 -- ---------------------------------------------------------------------
 -- 3. Proteção Irrevogável do Super Admin
@@ -93,7 +93,7 @@ begin
   end if;
   return new;
 end;
-$$ language plpgsql security definer;
+$$ language plpgsql security definer set search_path = public, auth;
 
 drop trigger if exists check_super_admin_changes on public.user_permissions;
 create trigger check_super_admin_changes
@@ -125,7 +125,7 @@ begin
 
   return new;
 end;
-$$ language plpgsql security definer;
+$$ language plpgsql security definer set search_path = public, auth;
 
 -- Garante que o Super Admin existente seja registrado caso já tenha criado a conta anteriormente
 insert into public.user_permissions (user_id, role, email)
@@ -144,7 +144,7 @@ drop policy if exists "Usuários autenticados podem ver permissões" on public.u
 create policy "Usuários autenticados podem ver permissões"
   on public.user_permissions
   for select
-  using (auth.role() = 'authenticated');
+  using (auth.uid() = user_id or public.is_admin(auth.uid()));
 
 -- Apenas o e-mail do Super Admin principal (extraído de forma segura do JWT) pode modificar a tabela
 drop policy if exists "Apenas Super Admin pode inserir permissões" on public.user_permissions;
@@ -175,7 +175,8 @@ create table if not exists public.veterans (
   minecraft_username text unique not null,
   title text, -- Ex: "Líder Lendário", "Magnata da 1ª Temp"
   description text, -- Descrição do feito do jogador
-  created_at timestamp with time zone default timezone('utc'::text, now()) not null
+  created_at timestamp with time zone default timezone('utc'::text, now()) not null,
+  constraint veterans_minecraft_username_format check (minecraft_username ~ '^[A-Za-z0-9_]{3,16}$')
 );
 
 -- Ativar RLS
@@ -214,9 +215,13 @@ create table public.seasons (
 create table public.season_photos (
   id bigint generated always as identity primary key,
   season_id bigint references public.seasons on delete cascade not null,
-  photo_path text not null unique, -- Caminho no Storage, ex: "seasons/season_9/imagem1.png"
+  photo_path text not null unique, -- Caminho no Storage ou URL publica do Supabase
   description text, -- Legenda da foto (opcional)
-  created_at timestamp with time zone default timezone('utc'::text, now()) not null
+  created_at timestamp with time zone default timezone('utc'::text, now()) not null,
+  constraint season_photos_photo_path_safe check (
+    photo_path like 'https://dzfmtmlgbyxnqjdwutfp.supabase.co/storage/v1/object/public/seasons/%'
+    or photo_path ~ '^(Images|icon|eventos)/[A-Za-z0-9_ .&%()/-]+\.(png|jpg|jpeg|webp|gif)$'
+  )
 );
 
 

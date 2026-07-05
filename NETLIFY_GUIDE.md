@@ -1,65 +1,48 @@
-# Guia de Integração: FrTopRanks + Netlify
+# Guia de Integracao: FrTopRanks + Netlify
 
-Como o seu site está hospedado na **Netlify** (que usa HTTPS por padrão) e o seu servidor de Minecraft roda em HTTP, os navegadores modernos bloquearão requisições diretas de rankings por segurança (erro de *Mixed Content*).
+O site deve buscar rankings pela rota publica:
 
-Para resolver isso de forma elegante, segura e sem precisar configurar certificados SSL complexos no seu servidor de Minecraft, usaremos o recurso de **Redirecionamento/Proxy da Netlify**.
+```text
+/api/ranks
+```
 
-Siga o passo a passo abaixo para conectar o plugin com o seu site:
+Essa rota aponta para a Netlify Function:
 
----
+```text
+/.netlify/functions/ranks
+```
 
-## Passo 1: Configurar o Plugin no Servidor de Minecraft
+A funcao le o token pelo ambiente da Netlify e faz a chamada ao backend de rankings no servidor.
 
-1. Acesse os arquivos do seu servidor de Minecraft e abra a pasta `plugins/FrTopRanks/config.yml`.
-2. Configure a seção `website` da seguinte forma:
-   ```yaml
-   website:
-     enabled: true
-     port: 8080                      # Porta que o plugin usará (certifique-se de que está liberada no host)
-     token: "frgroup"                # Chave secreta definida para segurança
-     url: "http://your-website.com/api/ranks"
-     send-interval-seconds: 300
-   ```
-3. Salve o arquivo e digite `/topadmin reload` no console do Minecraft (ou reinicie o servidor).
-4. **Importante**: Certifique-se de que a porta configurada (ex: `8080`) está aberta/liberada no firewall da sua hospedagem de Minecraft.
+## Configurar o plugin
 
----
+No servidor Minecraft, configure o plugin para enviar os dados para o site:
 
-## Passo 2: Configurar o Proxy na Netlify
+```yaml
+website:
+  enabled: true
+  port: 8080
+  token: "use_um_token_novo_e_forte"
+  url: "https://seu-site.netlify.app/api/ranks"
+  send-interval-seconds: 300
+```
 
-Para que o site consiga buscar os dados sem bloqueio de segurança e mantendo o seu token oculto dos jogadores que inspecionam o site:
+Depois execute `/topadmin reload` ou reinicie o servidor.
 
-1. Na raiz da pasta do seu site (`ServerSite`), crie um arquivo chamado **`_redirects`** (sem extensão).
-2. Adicione a seguinte linha dentro do arquivo:
-   ```text
-   /api/ranks  http://fr32survival.com:8080/ranks?token=frgroup  200!
-   ```
-   *Esta linha já está totalmente pré-configurada no seu arquivo local `_redirects`!*
+## Configurar a Netlify
 
-> [!TIP]
-> Com essa regra, quando o navegador do jogador solicitar `https://seu-site.netlify.app/api/ranks`, a própria Netlify buscará em segundo plano (via HTTP seguro interno) o seu servidor de Minecraft e enviará os dados de volta. O jogador nunca verá o IP bruto do servidor ou o Token de segurança!
+No painel da Netlify, crie a variavel de ambiente:
 
----
+```text
+RANKS_TOKEN=use_o_mesmo_token_configurado_no_plugin
+```
 
-## Passo 3: Atualizar o Site (`index.html`)
+O arquivo `_redirects` deve conter:
 
-Agora, configure o site para buscar os dados através do proxy que acabamos de criar na Netlify:
+```text
+/api/ranks  /.netlify/functions/ranks  200
+```
 
-1. Abra o arquivo `index.html` do seu site.
-2. Procure pela linha onde a variável `API_URL` está definida (por volta da linha 1622):
-   ```javascript
-   const API_URL = 'http://localhost:8080/ranks'; 
-   ```
-3. Altere-a para apontar para a nossa rota do proxy:
-   ```javascript
-   const API_URL = '/api/ranks'; 
-   ```
-4. Salve o arquivo.
+## Observacao de seguranca
 
----
-
-## Passo 4: Publicar as Alterações
-
-Envie as atualizações do seu repositório local (`index.html` e o novo arquivo `_redirects`) para o GitHub. A Netlify fará o deploy automático e a sincronização em tempo real entrará em ação!
-
-Se o servidor de Minecraft estiver desligado ou a porta inacessível, o site exibirá os rankings de demonstração (mockup) automaticamente para que a página nunca fique em branco ou quebrada.
+O token antigo foi removido dos arquivos publicos. Como ele ja apareceu no repositorio, trate-o como vazado e troque por um novo.
