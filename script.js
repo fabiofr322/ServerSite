@@ -12,10 +12,110 @@ document.addEventListener('DOMContentLoaded', () => {
     setupDiscordStats();
     setupNewsEvents();
     setupClicker();
+    setupVipStore();
 });
 
 const COMMENT_MAX_LENGTH = 300;
 const COMMENT_COOLDOWN_SECONDS = 60;
+
+const VIP_PACKAGES = {
+    ametista: {
+        title: 'VIP Ametista',
+        tier: 'VIP',
+        price: 'R$ 20,90',
+        image: 'https://mc-heads.net/body/fabiofr32/220',
+        theme: 'ametista',
+        subtitle: 'O essencial para sua jornada no survival.',
+        showcase: [
+            { icon: 'fa-solid fa-user-shield', title: 'Visual VIP', text: 'Tag exclusiva e presenca no chat.' },
+            { icon: 'fa-solid fa-gem', title: 'Kit inicial', text: 'Diamante, shulker, totens e suprimentos.' },
+            { icon: 'fa-solid fa-calendar-week', title: 'Kit semanal', text: 'Macas, totens e cenouras a cada 7 dias.' }
+        ],
+        description: [
+            'Tag personalizada no chat e TAB.',
+            'Chat colorido usando o simbolo &.',
+            'Auto-Armor ao resgatar kits.',
+            '/feed para encher a fome com 30 minutos de cooldown.',
+            '/workbench ou /craft em qualquer lugar.',
+            'Slot reservado para entrar mesmo quando o servidor estiver lotado.'
+        ],
+        initialKit: [
+            'Set Diamante com Protecao III e Inquebravel III.',
+            'Espada de Diamante com Afiacao IV e Saque II.',
+            '1 Shulker Box e 2 Totens da Imortalidade.',
+            '16 Macas Douradas e 32 Cenouras Douradas.'
+        ],
+        weeklyKit: [
+            '16 Macas Douradas.',
+            '2 Totens da Imortalidade.',
+            '128 Cenouras Douradas.'
+        ]
+    },
+    cerejeira: {
+        title: 'VIP Cerejeira',
+        tier: 'VIP+',
+        price: 'R$ 29,90',
+        image: 'https://mc-heads.net/body/KellCerejinha/220',
+        theme: 'cerejeira',
+        subtitle: 'Poder de Netherite e exploracao mais pratica.',
+        showcase: [
+            { icon: 'fa-solid fa-user-shield', title: 'Visual VIP+', text: 'Destaque Cerejeira por 30 dias.' },
+            { icon: 'fa-solid fa-cubes', title: 'Comandos extras', text: '/condense, /hat, /ec e /near.' },
+            { icon: 'fa-solid fa-calendar-week', title: 'Kit semanal', text: 'Mais totens e suprimentos para explorar.' }
+        ],
+        description: [
+            'Todos os beneficios do VIP Ametista.',
+            '/condense para transformar pepitas e lingotes em blocos.',
+            '/hat para usar blocos na cabeca.',
+            '/enderchest ou /ec em qualquer lugar.',
+            '/near para ver jogadores por perto em raio de 100 blocos.',
+            '+5 homes adicionais.'
+        ],
+        initialKit: [
+            'Set Netherite com Protecao IV e Inquebravel III.',
+            'Espada de Netherite com Afiacao V e Saque III.',
+            '4 Totens da Imortalidade.',
+            '32 Macas Douradas, 64 Cenouras Douradas e 1 Shulker Box.'
+        ],
+        weeklyKit: [
+            '32 Macas Douradas.',
+            '5 Totens da Imortalidade.',
+            '128 Cenouras Douradas.'
+        ]
+    },
+    lendario: {
+        title: 'VIP Lendario',
+        tier: 'VIP MAX',
+        price: 'R$ 49,90',
+        image: 'https://mc-heads.net/body/vNeoo/220',
+        theme: 'lendario',
+        subtitle: 'A elite do servidor com comandos avancados e os melhores kits.',
+        showcase: [
+            { icon: 'fa-solid fa-crown', title: 'Visual lendario', text: 'Plano maximo para apoiadores.' },
+            { icon: 'fa-solid fa-screwdriver-wrench', title: 'Reparo e clima', text: '/fix, /repair, /pweather e /recipe.' },
+            { icon: 'fa-solid fa-calendar-week', title: 'Kit semanal', text: 'O maior kit recorrente entre os VIPs.' }
+        ],
+        description: [
+            'Todos os beneficios do VIP Ametista e Cerejeira.',
+            '/fix ou /repair para reparar o item na mao com 24h de cooldown.',
+            '/pweather para mudar o clima apenas para voce.',
+            '/recipe para ver receitas sem sair do jogo.',
+            '+15 homes adicionais.'
+        ],
+        initialKit: [
+            'Set Netherite Full com Protecao IV, Inquebravel III e Remendo.',
+            'Espada com Afiacao V, Saque III, Aspecto Flamejante II e Remendo.',
+            'Kit de ferramentas Netherite com Eficiencia V, Inquebravel III e Remendo.',
+            '10 Totens da Imortalidade.',
+            '64 Macas Douradas, 128 Cenouras Douradas e 1 Shulker Box.'
+        ],
+        weeklyKit: [
+            '48 Macas Douradas.',
+            '7 Totens da Imortalidade.',
+            '128 Cenouras Douradas.'
+        ]
+    }
+};
 
 /* ==========================================
    LÓGICA: NAVEGAÇÃO & MOBILE MENU & CÓPIA DE IP
@@ -143,6 +243,97 @@ function showToast() {
     }
 }
 
+function renderVipList(items = []) {
+    return items.map(item => `<li><i class="fa-solid fa-check"></i>${escapeHTML(item)}</li>`).join('');
+}
+
+function renderVipShowcase(items = []) {
+    return items.map(item => `
+        <div class="vip-showcase-card">
+            <i class="${escapeHTML(item.icon)}"></i>
+            <strong>${escapeHTML(item.title)}</strong>
+            <span>${escapeHTML(item.text)}</span>
+        </div>
+    `).join('');
+}
+
+function openVipPackage(packageId) {
+    const data = VIP_PACKAGES[packageId];
+    const modal = document.getElementById('vipPackageModal');
+    if (!data || !modal) return;
+
+    const media = document.getElementById('vipPackageMedia');
+    const title = document.getElementById('vipPackageTitle');
+    const subtitle = document.getElementById('vipPackageSubtitle');
+    const price = document.getElementById('vipPackagePrice');
+    const description = document.getElementById('vipPackageDescription');
+    const initialKit = document.getElementById('vipPackageInitialKit');
+    const weeklyKit = document.getElementById('vipPackageWeeklyKit');
+    const showcase = document.getElementById('vipPackageShowcase');
+
+    if (media) {
+        media.className = `vip-package-media theme-${data.theme}`;
+        media.innerHTML = `
+            <span>${escapeHTML(data.tier)}</span>
+            <img src="${escapeHTML(data.image)}" alt="${escapeHTML(data.title)}">
+        `;
+    }
+    if (title) title.textContent = data.title;
+    if (subtitle) subtitle.textContent = data.subtitle;
+    if (price) price.textContent = data.price;
+    if (description) description.innerHTML = renderVipList(data.description);
+    if (initialKit) initialKit.innerHTML = renderVipList(data.initialKit);
+    if (weeklyKit) weeklyKit.innerHTML = renderVipList(data.weeklyKit);
+    if (showcase) showcase.innerHTML = renderVipShowcase(data.showcase);
+
+    modal.classList.add('show');
+    modal.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeVipPackage() {
+    const modal = document.getElementById('vipPackageModal');
+    if (!modal) return;
+    modal.classList.remove('show');
+    modal.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = 'auto';
+}
+
+function addVipToCartMock() {
+    window.showNotification('Produto separado. Finalize pelo Discord oficial.', 'fa-solid fa-cart-shopping');
+}
+
+function setupVipStore() {
+    document.querySelectorAll('.vip-product-card[data-vip-id]').forEach(card => {
+        if (card.dataset.vipBound) return;
+        card.dataset.vipBound = 'true';
+        card.addEventListener('click', (event) => {
+            if (event.target.closest('a, button, details, summary')) return;
+            openVipPackage(card.dataset.vipId);
+        });
+        card.addEventListener('keydown', (event) => {
+            if (event.key !== 'Enter' && event.key !== ' ') return;
+            event.preventDefault();
+            openVipPackage(card.dataset.vipId);
+        });
+    });
+
+    const modal = document.getElementById('vipPackageModal');
+    if (modal && !modal.dataset.closeBound) {
+        modal.dataset.closeBound = 'true';
+        modal.addEventListener('click', (event) => {
+            if (event.target === modal) closeVipPackage();
+        });
+    }
+
+    if (!document.body.dataset.vipEscapeBound) {
+        document.body.dataset.vipEscapeBound = 'true';
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape') closeVipPackage();
+        });
+    }
+}
+
 async function setupMinecraftStatus() {
     const dot = document.getElementById('serverStatusDot');
     const statusText = document.getElementById('serverStatusText');
@@ -163,7 +354,7 @@ async function setupMinecraftStatus() {
     try {
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 5000);
-        const response = await fetch('https://api.mcsrvstat.us/3/enx-cirion-92.enx.host:10062', {
+        const response = await fetch('https://api.mcsrvstat.us/3/enx-cirion-92.enx.host:10026', {
             cache: 'no-store',
             signal: controller.signal
         });
@@ -753,6 +944,10 @@ function bindGalleryInteractions() {
     }
 
     document.onkeydown = (e) => {
+        if (e.key === 'Escape' && document.getElementById('vipPackageModal')?.classList.contains('show')) {
+            closeVipPackage();
+            return;
+        }
         if (!modal.classList.contains('show')) return;
         if (e.key === 'ArrowRight' && currentAlbumImages.length > 1) {
             currentImageIndex = (currentImageIndex + 1) % currentAlbumImages.length;
@@ -3343,6 +3538,9 @@ window.handleLogin = handleLogin;
 window.handleRegister = handleRegister;
 window.handleLogout = handleLogout;
 window.handleCommentSubmit = handleCommentSubmit;
+window.openVipPackage = openVipPackage;
+window.closeVipPackage = closeVipPackage;
+window.addVipToCartMock = addVipToCartMock;
 window.showNotification = function(message, iconClass = 'fa-solid fa-check', duration = 3000) {
     const toast = document.getElementById('toast');
     if (!toast) return;

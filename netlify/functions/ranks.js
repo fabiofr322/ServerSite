@@ -1,4 +1,4 @@
-const RANKS_ENDPOINT = 'http://enx-cirion-92.enx.host:10062/ranks';
+const RANKS_ENDPOINT = 'http://enx-cirion-92.enx.host:10026/ranks';
 
 exports.handler = async function handler() {
     const token = process.env.RANKS_TOKEN;
