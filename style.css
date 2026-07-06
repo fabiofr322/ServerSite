@@ -2692,6 +2692,169 @@ section.site-tab-active {
     background: rgba(255, 20, 147, 0.12);
 }
 
+/* Top Clans */
+.clans-content {
+    width: 100%;
+    max-width: 980px;
+    margin: 2rem auto 0;
+    padding: 2rem;
+    border-radius: 20px;
+    border: 1px solid rgba(255, 20, 147, 0.14);
+    background: linear-gradient(180deg, rgba(20, 4, 36, 0.68), rgba(8, 2, 18, 0.5));
+    box-shadow: 0 22px 52px rgba(0, 0, 0, 0.32);
+}
+
+.clans-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1.25rem;
+}
+
+.clans-header h3 {
+    color: #fff;
+    font-size: 1.45rem;
+    margin: 0.2rem 0 0.35rem;
+}
+
+.clans-header p {
+    color: var(--text-muted);
+    font-size: 0.92rem;
+    line-height: 1.5;
+}
+
+.section-kicker {
+    display: inline-flex;
+    color: var(--primary);
+    font-size: 0.72rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 1.4px;
+}
+
+.clans-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.9rem;
+}
+
+.clan-card {
+    position: relative;
+    overflow: hidden;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 1rem;
+    padding: 1rem;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.035);
+    transition: transform 0.25s ease, border-color 0.25s ease, background 0.25s ease;
+}
+
+.clan-card:hover {
+    transform: translateY(-4px);
+    border-color: rgba(255, 20, 147, 0.35);
+    background: rgba(255, 20, 147, 0.07);
+}
+
+.clan-card::before {
+    content: '';
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 4px;
+    background: var(--secondary);
+    opacity: 0.75;
+}
+
+.clan-card.is-first::before {
+    background: var(--accent-gold);
+}
+
+.clan-card.is-second::before {
+    background: var(--accent-silver);
+}
+
+.clan-card.is-third::before {
+    background: var(--accent-bronze);
+}
+
+.clan-rank {
+    position: absolute;
+    top: 0.8rem;
+    right: 0.9rem;
+    color: rgba(255, 255, 255, 0.18);
+    font-family: var(--font-gaming);
+    font-size: 0.78rem;
+}
+
+.clan-emblem {
+    display: grid;
+    place-items: center;
+    width: 58px;
+    height: 58px;
+    border-radius: 10px;
+    border: 1px solid rgba(255, 20, 147, 0.28);
+    background: radial-gradient(circle at top, rgba(255, 20, 147, 0.28), rgba(139, 0, 255, 0.08));
+    color: #fff;
+    font-weight: 900;
+    letter-spacing: 1px;
+}
+
+.clan-main {
+    min-width: 0;
+    padding-right: 2.2rem;
+}
+
+.clan-tag {
+    color: var(--primary);
+    font-size: 0.72rem;
+    font-weight: 900;
+    text-transform: uppercase;
+}
+
+.clan-main h4 {
+    color: #fff;
+    margin: 0.2rem 0 0.25rem;
+    font-size: 1rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.clan-main p {
+    color: var(--text-muted);
+    font-size: 0.8rem;
+}
+
+.clan-stats {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 0.45rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.clan-stats span {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    min-width: 0;
+}
+
+.clan-stats strong {
+    color: #fff;
+    font-size: 0.92rem;
+}
+
+.clan-stats small {
+    color: var(--text-dimmed);
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    font-weight: 800;
+}
+
 .hidden {
     display: none !important;
 }
@@ -3218,6 +3381,10 @@ footer a:hover {
     .shop-storefront,
     .shop-cards-grid {
         grid-template-columns: 1fr 1fr;
+    }
+
+    .clans-grid {
+        grid-template-columns: 1fr;
     }
 
     .news-events-layout,
@@ -4665,6 +4832,36 @@ footer a:hover {
 
 /* Responsividade do modal de configurações */
 @media (max-width: 768px) {
+    .clans-content {
+        padding: 1.2rem;
+        border-radius: 14px;
+    }
+
+    .clans-header {
+        flex-direction: column;
+    }
+
+    .clans-header .btn-rank-retry {
+        width: 100%;
+    }
+
+    .clan-card {
+        grid-template-columns: 1fr;
+    }
+
+    .clan-emblem {
+        width: 52px;
+        height: 52px;
+    }
+
+    .clan-main {
+        padding-right: 0;
+    }
+
+    .clan-stats {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
     .settings-container {
         flex-direction: column;
         height: 90vh;

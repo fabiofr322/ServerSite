@@ -9,6 +9,7 @@ document.addEventListener('DOMContentLoaded', () => {
     setupParticles();
     setupGallery();
     setupRankings();
+    setupTopClans();
     setupDiscordStats();
     setupNewsEvents();
     setupClicker();
@@ -1334,6 +1335,110 @@ function setupRankings() {
 /* ==========================================
    LÓGICA: CONTADOR DO DISCORD
    ========================================== */
+function setupTopClans() {
+    const API_URL = '/api/clans';
+    const grid = document.getElementById('clansGrid');
+    const loadingState = document.getElementById('clansLoading');
+    const emptyState = document.getElementById('clansEmpty');
+    const errorState = document.getElementById('clansError');
+    const retryBtn = document.getElementById('clansRetryBtn');
+    const statusBar = document.getElementById('clansStatusBar');
+    const statusText = document.getElementById('clansStatusText');
+    const updatedAtText = document.getElementById('clansUpdatedAt');
+    let lastUpdatedAt = null;
+
+    if (!grid) return;
+
+    function setClansState(state, message = '') {
+        if (loadingState) loadingState.classList.toggle('hidden', state !== 'loading');
+        if (emptyState) emptyState.classList.toggle('hidden', state !== 'empty');
+        if (errorState) errorState.classList.toggle('hidden', state !== 'error');
+        grid.classList.toggle('hidden', state !== 'ready');
+        if (statusBar) statusBar.dataset.state = state;
+        if (statusText && message) statusText.textContent = message;
+        if (updatedAtText) {
+            updatedAtText.textContent = lastUpdatedAt
+                ? `Ultima atualizacao: ${lastUpdatedAt.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}`
+                : 'Ultima atualizacao: --';
+        }
+    }
+
+    function formatNumber(value) {
+        return Number(value || 0).toLocaleString('pt-BR');
+    }
+
+    function renderClans(clans) {
+        if (!Array.isArray(clans) || clans.length === 0) {
+            grid.innerHTML = '';
+            setClansState('empty', 'Nenhum clan registrado no ranking ainda.');
+            return;
+        }
+
+        const topClans = clans.slice(0, 8);
+        grid.innerHTML = topClans.map(clan => {
+            const position = Number(clan.position) || 0;
+            const name = String(clan.name || 'Clan sem nome').trim() || 'Clan sem nome';
+            const tag = String(clan.tag || name.slice(0, 3)).trim() || 'CLN';
+            const leader = String(clan.leader || 'Nao informado').trim() || 'Nao informado';
+            const level = Number(clan.level) || 0;
+            const points = Number(clan.points) || 0;
+            const members = Number(clan.members) || 0;
+            const kills = Number(clan.kills) || 0;
+            const kdr = Number(clan.kdr) || 0;
+            const podiumClass = position === 1 ? 'is-first' : position === 2 ? 'is-second' : position === 3 ? 'is-third' : '';
+
+            return `
+                <article class="clan-card ${podiumClass}">
+                    <div class="clan-rank">#${position || '-'}</div>
+                    <div class="clan-emblem">${escapeHTML(tag.slice(0, 3).toUpperCase())}</div>
+                    <div class="clan-main">
+                        <span class="clan-tag">[${escapeHTML(tag)}]</span>
+                        <h4>${escapeHTML(name)}</h4>
+                        <p>Lider: ${escapeHTML(leader)}</p>
+                    </div>
+                    <div class="clan-stats">
+                        <span><strong>${formatNumber(points)}</strong><small>Pontos</small></span>
+                        <span><strong>${formatNumber(members)}</strong><small>Membros</small></span>
+                        <span><strong>${formatNumber(level)}</strong><small>Level</small></span>
+                        <span><strong>${formatNumber(kills)}</strong><small>Kills</small></span>
+                        <span><strong>${kdr.toFixed(2)}</strong><small>KDR</small></span>
+                    </div>
+                </article>
+            `;
+        }).join('');
+
+        setClansState('ready', 'Top Clans sincronizado com o servidor.');
+    }
+
+    async function fetchClans() {
+        setClansState('loading', 'Buscando Top Clans em tempo real...');
+
+        try {
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 3500);
+            const response = await fetch(API_URL, { cache: 'no-store', signal: controller.signal });
+            clearTimeout(timeoutId);
+
+            if (!response.ok) throw new Error('API de clans offline');
+            const data = await response.json();
+            if (data.error && (!data.clans || data.clans.length === 0)) {
+                throw new Error(data.error);
+            }
+
+            lastUpdatedAt = new Date();
+            renderClans(data.clans || []);
+        } catch (error) {
+            console.warn('API de clans indisponivel:', error);
+            lastUpdatedAt = null;
+            grid.innerHTML = '';
+            setClansState('error', 'Falha ao conectar com a API de clans.');
+        }
+    }
+
+    if (retryBtn) retryBtn.addEventListener('click', fetchClans);
+    fetchClans();
+}
+
 async function setupDiscordStats() {
     const inviteCode = 'MNWtkEzM3B';
     const statsText = document.getElementById('discordStatsText');

@@ -284,6 +284,7 @@
                     <p>Problemas, denúncias e dúvidas podem ser enviados para a equipe pelo Discord.</p>
                 </div>
             </div>
+
         </section>
 
         <!-- Seção de Regras -->
@@ -316,6 +317,7 @@
                     </a>
                 </div>
             </div>
+
         </section>
 
 
@@ -360,6 +362,7 @@
                     </a>
                 </div>
             </div>
+
         </section>
 
         <!-- Seção de Rankings -->
@@ -415,6 +418,45 @@
                         <i class="fa-solid fa-rotate-right"></i>
                         Tentar novamente
                     </button>
+                </div>
+            </div>
+
+            <div class="clans-content" id="topClansPanel">
+                <div class="clans-header">
+                    <div>
+                        <span class="section-kicker">UltimateClans</span>
+                        <h3>Top Clans</h3>
+                        <p>Os clans mais fortes da temporada, organizados por pontos e desempenho.</p>
+                    </div>
+                    <button class="btn-rank-retry" id="clansRetryBtn" type="button">
+                        <i class="fa-solid fa-rotate-right"></i>
+                        Atualizar
+                    </button>
+                </div>
+
+                <div class="rankings-statusbar" id="clansStatusBar">
+                    <span id="clansStatusText">Aguardando dados dos clans...</span>
+                    <span id="clansUpdatedAt">Ultima atualizacao: --</span>
+                </div>
+
+                <div id="clansLoading" class="rankings-loading hidden">
+                    <div class="spinner"></div>
+                    <p>Carregando Top Clans...</p>
+                </div>
+
+                <div id="clansEmpty" class="rankings-empty hidden">
+                    <i class="fa-solid fa-shield-halved"></i>
+                    <p>Nenhum clan apareceu no ranking ainda.</p>
+                </div>
+
+                <div id="clansError" class="rankings-empty rankings-error hidden">
+                    <i class="fa-solid fa-plug-circle-xmark"></i>
+                    <h3>Top Clans indisponivel</h3>
+                    <p>Nao conseguimos conectar ao ranking de clans agora.</p>
+                </div>
+
+                <div class="clans-grid" id="clansGrid">
+                    <!-- Gerado dinamicamente via JS -->
                 </div>
             </div>
         </section>
