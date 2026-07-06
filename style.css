@@ -2344,7 +2344,7 @@ section.site-tab-active {
     display: flex;
     flex-direction: column;
     align-items: center;
-    width: 160px;
+    width: 176px;
     position: relative;
     transition: transform 0.3s ease;
 }
@@ -2396,11 +2396,13 @@ section.site-tab-active {
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: flex-start;
+    justify-content: center;
     padding: 1rem 0.5rem;
     position: relative;
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
     z-index: 2;
+    box-sizing: border-box;
+    gap: 0.25rem;
 }
 
 .podium-step::before {
@@ -2415,29 +2417,39 @@ section.site-tab-active {
 
 .podium-step-number {
     font-family: var(--font-gaming);
-    font-size: 2.2rem;
+    font-size: 1.85rem;
     opacity: 0.15;
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.15rem;
     font-weight: 900;
+    line-height: 1;
 }
 
 .podium-player-name {
-    font-family: var(--font-gaming);
-    font-size: 0.68rem;
+    display: block;
+    width: 100%;
+    font-family: var(--font-main);
+    font-size: 0.82rem;
+    font-weight: 900;
     color: #fff;
-    letter-spacing: 0.5px;
-    max-width: 90%;
+    letter-spacing: 0;
+    max-width: 100%;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
     text-align: center;
-    margin-bottom: 4px;
+    margin-bottom: 0;
+    line-height: 1.2;
+    position: relative;
+    z-index: 2;
 }
 
 .podium-player-score {
-    font-size: 0.85rem;
+    font-size: 0.82rem;
     font-weight: 800;
     color: var(--text-muted);
+    line-height: 1.2;
+    position: relative;
+    z-index: 2;
 }
 
 /* Customização por Classificação */
@@ -2449,14 +2461,14 @@ section.site-tab-active {
 }
 
 .podium-item.first .avatar-wrapper img {
-    width: 96px;
-    height: 96px;
+    width: 88px;
+    height: 88px;
     border: 3px solid var(--accent-gold);
     box-shadow: 0 0 25px rgba(255, 170, 0, 0.35);
 }
 
 .podium-item.first .podium-step {
-    height: 120px;
+    min-height: 120px;
     border-color: rgba(255, 170, 0, 0.35);
     background: linear-gradient(180deg, rgba(255, 170, 0, 0.08) 0%, rgba(255, 170, 0, 0.01) 100%);
 }
@@ -2473,7 +2485,7 @@ section.site-tab-active {
 
 .podium-item.first .podium-player-name {
     color: var(--accent-gold);
-    font-size: 0.72rem;
+    font-size: 0.88rem;
 }
 
 /* 2º Lugar (Esquerda, Médio) */
@@ -2489,7 +2501,7 @@ section.site-tab-active {
 }
 
 .podium-item.second .podium-step {
-    height: 90px;
+    min-height: 112px;
     border-color: rgba(209, 213, 220, 0.2);
     background: linear-gradient(180deg, rgba(209, 213, 220, 0.05) 0%, rgba(209, 213, 220, 0.01) 100%);
 }
@@ -2516,7 +2528,7 @@ section.site-tab-active {
 }
 
 .podium-item.third .podium-step {
-    height: 70px;
+    min-height: 112px;
     border-color: rgba(205, 127, 50, 0.2);
     background: linear-gradient(180deg, rgba(205, 127, 50, 0.05) 0%, rgba(205, 127, 50, 0.01) 100%);
 }
