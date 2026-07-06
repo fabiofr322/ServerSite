@@ -8,6 +8,7 @@ document.addEventListener('DOMContentLoaded', () => {
     setupCountdown();
     setupParticles();
     setupGallery();
+    setupHomeRankCarousel();
     setupRankings();
     setupTopClans();
     setupDiscordStats();
@@ -126,6 +127,7 @@ function setupNavigation() {
     const mobileDropdown = document.getElementById('mobileDropdown');
     const tabSections = document.querySelectorAll('.container > section[id]');
     const homeSectionIds = ['home', 'como-entrar', 'eventos', 'estatisticas', 'mural'];
+    const navDropdowns = document.querySelectorAll('.nav-dropdown');
 
     function showSiteTab(targetId, updateHash = true) {
         const normalizedId = targetId && document.getElementById(targetId) ? targetId : 'home';
@@ -142,6 +144,9 @@ function setupNavigation() {
         document.querySelectorAll('.nav-link').forEach(link => {
             link.classList.toggle('active', link.getAttribute('href') === `#${activeNavId}`);
         });
+        document.querySelectorAll('.nav-dropdown-toggle').forEach(button => {
+            button.classList.toggle('active', normalizedId === 'rankings-jogadores' || normalizedId === 'rankings-clans');
+        });
 
         if (updateHash) {
             history.replaceState(null, '', `#${normalizedId}`);
@@ -155,6 +160,26 @@ function setupNavigation() {
     }
 
     window.showSiteTab = showSiteTab;
+
+    navDropdowns.forEach(dropdown => {
+        const toggle = dropdown.querySelector('.nav-dropdown-toggle');
+        const links = dropdown.querySelectorAll('.nav-dropdown-menu .nav-link');
+
+        if (toggle) {
+            toggle.addEventListener('click', (event) => {
+                event.stopPropagation();
+                dropdown.classList.toggle('is-open');
+            });
+        }
+
+        links.forEach(link => {
+            link.addEventListener('click', (event) => {
+                dropdown.classList.remove('is-open');
+                event.currentTarget.blur();
+                if (toggle) toggle.blur();
+            });
+        });
+    });
 
     // Toggle Menu Mobile
     if (mobileMenuBtn && mobileDropdown) {
@@ -171,6 +196,12 @@ function setupNavigation() {
 
         // Fechar ao clicar fora
         document.addEventListener('click', (e) => {
+            navDropdowns.forEach(dropdown => {
+                if (!dropdown.contains(e.target)) {
+                    dropdown.classList.remove('is-open');
+                }
+            });
+
             if (!mobileDropdown.contains(e.target) && !mobileMenuBtn.contains(e.target)) {
                 mobileDropdown.classList.remove('show');
                 mobileMenuBtn.querySelector('i').className = 'fa-solid fa-bars';
@@ -1118,6 +1149,125 @@ function bindGalleryInteractions() {
 /* ==========================================
    LÓGICA: RANKINGS DO SERVIDOR (DASHBOARD)
    ========================================== */
+const RANKS_API_URL = '/api/ranks';
+const CLANS_API_URL = '/api/clans';
+const HOME_TRACKER_META = {
+    minerador: { name: 'Minerador', icon: '⛏️' },
+    assassino: { name: 'Assassino', icon: '⚔️' },
+    sobrevivente: { name: 'Playtime', icon: '⏱️' },
+    pescador: { name: 'Pescador', icon: '🎣' },
+    construtor: { name: 'Construtor', icon: '🏗️' },
+    domador: { name: 'Domador', icon: '🐾' },
+    explorador: { name: 'Explorador', icon: '🗺️' },
+    cacador: { name: 'Cacador', icon: '🏹' }
+};
+const PERIOD_META = {
+    weekly: 'Semanal',
+    monthly: 'Mensal',
+    alltime: 'Geral'
+};
+
+function getRankScore(entry) {
+    return entry.formattedScore || entry.score || '0';
+}
+
+function setupHomeRankCarousel() {
+    const podium = document.getElementById('homeRankPodium');
+    const loadingState = document.getElementById('homeRankLoading');
+    const emptyState = document.getElementById('homeRankEmpty');
+    const errorState = document.getElementById('homeRankError');
+    const statusBar = document.getElementById('homeRankStatusBar');
+    const statusText = document.getElementById('homeRankStatusText');
+    const updatedAtText = document.getElementById('homeRankUpdatedAt');
+    const title = document.getElementById('homeRankTitle');
+    const subtitle = document.getElementById('homeRankSubtitle');
+    const kicker = document.getElementById('homeRankKicker');
+    let slides = [];
+    let activeSlide = 0;
+    let timer = null;
+    let lastUpdatedAt = null;
+
+    if (!podium) return;
+
+    function setState(state, message = '') {
+        if (loadingState) loadingState.classList.toggle('hidden', state !== 'loading');
+        if (emptyState) emptyState.classList.toggle('hidden', state !== 'empty');
+        if (errorState) errorState.classList.toggle('hidden', state !== 'error');
+        podium.classList.toggle('hidden', state !== 'ready');
+        if (statusBar) statusBar.dataset.state = state;
+        if (statusText && message) statusText.textContent = message;
+        if (updatedAtText) {
+            updatedAtText.textContent = lastUpdatedAt
+                ? `Ultima atualizacao: ${lastUpdatedAt.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}`
+                : 'Ultima atualizacao: --';
+        }
+    }
+
+    function collectSlides(ranksData) {
+        const collected = [];
+        Object.entries(ranksData || {}).forEach(([tracker, periods]) => {
+            Object.entries(periods || {}).forEach(([period, entries]) => {
+                if (Array.isArray(entries) && entries.length > 0) {
+                    collected.push({ tracker, period, entries: entries.slice(0, 3) });
+                }
+            });
+        });
+        return collected;
+    }
+
+    function renderSlide() {
+        if (!slides.length) {
+            setState('empty', 'Nenhum ranking com jogadores encontrado.');
+            return;
+        }
+
+        const slide = slides[activeSlide % slides.length];
+        const tracker = HOME_TRACKER_META[slide.tracker] || { name: slide.tracker, icon: '🏆' };
+        const period = PERIOD_META[slide.period] || slide.period;
+        if (kicker) kicker.textContent = `${tracker.icon} ${period}`;
+        if (title) title.textContent = `Top ${tracker.name}`;
+        if (subtitle) subtitle.textContent = 'Alternando automaticamente entre rankings com jogadores.';
+
+        podium.innerHTML = slide.entries.map((entry, index) => {
+            const username = safeMinecraftUsername(entry.playerName);
+            return `
+                <article class="home-rank-card">
+                    <span class="home-rank-position">#${entry.position || index + 1}</span>
+                    <img src="https://mc-heads.net/avatar/${encodeURIComponent(username)}/64" alt="${escapeHTML(username)}">
+                    <strong>${escapeHTML(username)}</strong>
+                    <span>${escapeHTML(getRankScore(entry))}</span>
+                </article>
+            `;
+        }).join('');
+        setState('ready', `Mostrando ${tracker.name} - ${period}.`);
+    }
+
+    async function fetchHomeRanks() {
+        setState('loading', 'Buscando rankings ativos...');
+        try {
+            const response = await fetch(RANKS_API_URL, { cache: 'no-store' });
+            if (!response.ok) throw new Error('API offline');
+            const data = await response.json();
+            slides = collectSlides(data.ranks || {});
+            activeSlide = 0;
+            lastUpdatedAt = new Date();
+            renderSlide();
+            if (timer) clearInterval(timer);
+            timer = setInterval(() => {
+                activeSlide = (activeSlide + 1) % Math.max(slides.length, 1);
+                renderSlide();
+            }, 5500);
+        } catch (error) {
+            console.warn('Carrossel de rankings indisponivel:', error);
+            slides = [];
+            lastUpdatedAt = null;
+            setState('error', 'Falha ao conectar com a API de rankings.');
+        }
+    }
+
+    fetchHomeRanks();
+}
+
 function setupRankings() {
     const trackerTabsContainer = document.getElementById('trackerTabs');
     const periodBtns = document.querySelectorAll('.period-btn');
@@ -1336,8 +1486,10 @@ function setupRankings() {
    LÓGICA: CONTADOR DO DISCORD
    ========================================== */
 function setupTopClans() {
-    const API_URL = '/api/clans';
     const grid = document.getElementById('clansGrid');
+    const homeList = document.getElementById('homeClansList');
+    const homeLoading = document.getElementById('homeClansLoading');
+    const homeEmpty = document.getElementById('homeClansEmpty');
     const loadingState = document.getElementById('clansLoading');
     const emptyState = document.getElementById('clansEmpty');
     const errorState = document.getElementById('clansError');
@@ -1345,15 +1497,27 @@ function setupTopClans() {
     const statusBar = document.getElementById('clansStatusBar');
     const statusText = document.getElementById('clansStatusText');
     const updatedAtText = document.getElementById('clansUpdatedAt');
+    const rankingTabs = document.querySelectorAll('[data-clan-ranking]');
+    const rankingTitle = document.getElementById('clansRankingTitle');
+    const rankingSubtitle = document.getElementById('clansRankingSubtitle');
     let lastUpdatedAt = null;
+    let rankingsData = {};
+    let activeRanking = 'points';
 
-    if (!grid) return;
+    if (!grid && !homeList) return;
+
+    const RANKING_META = {
+        points: { title: 'Top Clans por Pontos', subtitle: 'Os clans mais fortes da temporada, organizados por pontos.', field: 'points', label: 'Pontos' },
+        kills: { title: 'Top Clans por Kills', subtitle: 'Clans com maior presenca em combate.', field: 'kills', label: 'Kills' },
+        kdr: { title: 'Top Clans por KDR', subtitle: 'Ranking por eficiencia em combate.', field: 'kdr', label: 'KDR' },
+        members: { title: 'Top Clans por Membros', subtitle: 'Clans com as maiores equipes ativas.', field: 'members', label: 'Membros' }
+    };
 
     function setClansState(state, message = '') {
         if (loadingState) loadingState.classList.toggle('hidden', state !== 'loading');
         if (emptyState) emptyState.classList.toggle('hidden', state !== 'empty');
         if (errorState) errorState.classList.toggle('hidden', state !== 'error');
-        grid.classList.toggle('hidden', state !== 'ready');
+        if (grid) grid.classList.toggle('hidden', state !== 'ready');
         if (statusBar) statusBar.dataset.state = state;
         if (statusText && message) statusText.textContent = message;
         if (updatedAtText) {
@@ -1363,16 +1527,59 @@ function setupTopClans() {
         }
     }
 
+    function setHomeClansState(state) {
+        if (homeLoading) homeLoading.classList.toggle('hidden', state !== 'loading');
+        if (homeEmpty) homeEmpty.classList.toggle('hidden', state !== 'empty');
+        if (homeList) homeList.classList.toggle('hidden', state !== 'ready');
+    }
+
     function formatNumber(value) {
         return Number(value || 0).toLocaleString('pt-BR');
     }
 
+    function normalizeRankings(data) {
+        if (data.rankings && typeof data.rankings === 'object') {
+            return data.rankings;
+        }
+        return { points: Array.isArray(data.clans) ? data.clans : [] };
+    }
+
+    function renderHomeClans(clans) {
+        if (!homeList) return;
+        const topThree = (clans || []).slice(0, 3);
+        if (!topThree.length) {
+            homeList.innerHTML = '';
+            setHomeClansState('empty');
+            return;
+        }
+
+        homeList.innerHTML = topThree.map(clan => {
+            const position = Number(clan.position) || 0;
+            const tag = String(clan.tag || 'CLN').trim() || 'CLN';
+            const name = String(clan.name || 'Clan sem nome').trim() || 'Clan sem nome';
+            const points = Number(clan.points) || 0;
+            return `
+                <a href="#rankings-clans" class="home-clan-row" target="_self">
+                    <span>#${position || '-'}</span>
+                    <strong>[${escapeHTML(tag)}] ${escapeHTML(name)}</strong>
+                    <small>${formatNumber(points)} pts</small>
+                </a>
+            `;
+        }).join('');
+        setHomeClansState('ready');
+    }
+
     function renderClans(clans) {
+        if (!grid) return;
         if (!Array.isArray(clans) || clans.length === 0) {
             grid.innerHTML = '';
             setClansState('empty', 'Nenhum clan registrado no ranking ainda.');
             return;
         }
+
+        const meta = RANKING_META[activeRanking] || RANKING_META.points;
+        if (rankingTitle) rankingTitle.textContent = meta.title;
+        if (rankingSubtitle) rankingSubtitle.textContent = meta.subtitle;
 
         const topClans = clans.slice(0, 8);
         grid.innerHTML = topClans.map(clan => {
@@ -1385,6 +1592,9 @@ function setupTopClans() {
             const members = Number(clan.members) || 0;
             const kills = Number(clan.kills) || 0;
             const kdr = Number(clan.kdr) || 0;
+            const mainValue = meta.field === 'kdr'
+                ? kdr.toFixed(2)
+                : formatNumber(clan[meta.field] || 0);
             const podiumClass = position === 1 ? 'is-first' : position === 2 ? 'is-second' : position === 3 ? 'is-third' : '';
 
             return `
@@ -1397,9 +1607,9 @@ function setupTopClans() {
                         <p>Lider: ${escapeHTML(leader)}</p>
                     </div>
                     <div class="clan-stats">
+                        <span><strong>${mainValue}</strong><small>${escapeHTML(meta.label)}</small></span>
                         <span><strong>${formatNumber(points)}</strong><small>Pontos</small></span>
                         <span><strong>${formatNumber(members)}</strong><small>Membros</small></span>
-                        <span><strong>${formatNumber(level)}</strong><small>Level</small></span>
                         <span><strong>${formatNumber(kills)}</strong><small>Kills</small></span>
                         <span><strong>${kdr.toFixed(2)}</strong><small>KDR</small></span>
                     </div>
@@ -1410,32 +1620,49 @@ function setupTopClans() {
         setClansState('ready', 'Top Clans sincronizado com o servidor.');
     }
 
+    function renderActiveClanRanking() {
+        renderClans(rankingsData[activeRanking] || []);
+    }
+
     async function fetchClans() {
         setClansState('loading', 'Buscando Top Clans em tempo real...');
+        setHomeClansState('loading');
 
         try {
             const controller = new AbortController();
             const timeoutId = setTimeout(() => controller.abort(), 3500);
-            const response = await fetch(API_URL, { cache: 'no-store', signal: controller.signal });
+            const response = await fetch(CLANS_API_URL, { cache: 'no-store', signal: controller.signal });
             clearTimeout(timeoutId);
 
             if (!response.ok) throw new Error('API de clans offline');
             const data = await response.json();
-            if (data.error && (!data.clans || data.clans.length === 0)) {
+            rankingsData = normalizeRankings(data);
+            if (data.error && (!rankingsData.points || rankingsData.points.length === 0)) {
                 throw new Error(data.error);
             }
 
             lastUpdatedAt = new Date();
-            renderClans(data.clans || []);
+            renderHomeClans(rankingsData.points || []);
+            renderActiveClanRanking();
         } catch (error) {
             console.warn('API de clans indisponivel:', error);
             lastUpdatedAt = null;
-            grid.innerHTML = '';
+            if (grid) grid.innerHTML = '';
+            if (homeList) homeList.innerHTML = '';
+            setHomeClansState('empty');
             setClansState('error', 'Falha ao conectar com a API de clans.');
         }
     }
 
     if (retryBtn) retryBtn.addEventListener('click', fetchClans);
+    rankingTabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+            rankingTabs.forEach(item => item.classList.remove('active'));
+            tab.classList.add('active');
+            activeRanking = tab.dataset.clanRanking || 'points';
+            renderActiveClanRanking();
+        });
+    });
     fetchClans();
 }
 

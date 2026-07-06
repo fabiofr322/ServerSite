@@ -56,6 +56,15 @@
             </div>
             <ul class="nav-menu">
                 <li><a href="#home" class="nav-link" target="_self">Início</a></li>
+                <li class="nav-dropdown">
+                    <button class="nav-link nav-dropdown-toggle" type="button">
+                        Rankings <i class="fa-solid fa-chevron-down"></i>
+                    </button>
+                    <div class="nav-dropdown-menu">
+                        <a href="#rankings-jogadores" class="nav-link" target="_self">Jogadores</a>
+                        <a href="#rankings-clans" class="nav-link" target="_self">Clans</a>
+                    </div>
+                </li>
                 <li><a href="#galeria" class="nav-link" target="_self">Galeria</a></li>
                 <li><a href="#loja" class="nav-link" target="_self">Loja</a></li>
             </ul>
@@ -75,6 +84,8 @@
     <!-- Menu Mobile Dropdown -->
     <ul class="mobile-dropdown" id="mobileDropdown">
         <li><a href="#home" class="nav-link" target="_self">Início</a></li>
+        <li><a href="#rankings-jogadores" class="nav-link" target="_self">Rankings de Jogadores</a></li>
+        <li><a href="#rankings-clans" class="nav-link" target="_self">Rankings de Clans</a></li>
         <li><a href="#galeria" class="nav-link" target="_self">Galeria</a></li>
         <li><a href="#loja" class="nav-link" target="_self">Loja</a></li>
     </ul>
@@ -367,8 +378,68 @@
 
         <!-- Seção de Rankings -->
         <section id="estatisticas" class="rankings-section">
-            <h2 class="section-title">Estatísticas & Rankings</h2>
-            <p class="section-subtitle">Acompanhe a classificação dos jogadores em tempo real.</p>
+            <h2 class="section-title">Destaques da Temporada</h2>
+            <p class="section-subtitle">Rankings passando automaticamente com os dados ativos do servidor.</p>
+
+            <div class="home-rankings-layout">
+                <div class="rankings-content home-rank-carousel">
+                    <div class="rankings-statusbar" id="homeRankStatusBar">
+                        <span id="homeRankStatusText">Buscando rankings ativos...</span>
+                        <span id="homeRankUpdatedAt">Ultima atualizacao: --</span>
+                    </div>
+                    <div class="home-rank-head">
+                        <span class="section-kicker" id="homeRankKicker">FrTopRanks</span>
+                        <h3 id="homeRankTitle">Rankings de jogadores</h3>
+                        <p id="homeRankSubtitle">Somente categorias com jogadores aparecem aqui.</p>
+                    </div>
+                    <div class="home-rank-podium" id="homeRankPodium"></div>
+                    <div id="homeRankLoading" class="rankings-loading hidden">
+                        <div class="spinner"></div>
+                        <p>Carregando destaques...</p>
+                    </div>
+                    <div id="homeRankEmpty" class="rankings-empty hidden">
+                        <i class="fa-solid fa-ranking-star"></i>
+                        <p>Nenhum ranking com jogadores encontrado ainda.</p>
+                    </div>
+                    <div id="homeRankError" class="rankings-empty rankings-error hidden">
+                        <i class="fa-solid fa-plug-circle-xmark"></i>
+                        <h3>Rankings indisponiveis</h3>
+                        <p>Nao conseguimos conectar aos rankings agora.</p>
+                    </div>
+                    <a href="#rankings-jogadores" class="btn-rank-retry home-rank-link" target="_self">
+                        <i class="fa-solid fa-chart-simple"></i>
+                        Ver rankings completos
+                    </a>
+                </div>
+
+                <div class="clans-content home-clans-summary" id="homeClansPanel">
+                    <div class="clans-header">
+                        <div>
+                            <span class="section-kicker">UltimateClans</span>
+                            <h3>Top Clans</h3>
+                            <p>Resumo dos clans mais fortes por pontos.</p>
+                        </div>
+                    </div>
+                    <div id="homeClansList" class="home-clans-list"></div>
+                    <div id="homeClansLoading" class="rankings-loading hidden">
+                        <div class="spinner"></div>
+                        <p>Carregando clans...</p>
+                    </div>
+                    <div id="homeClansEmpty" class="rankings-empty hidden">
+                        <i class="fa-solid fa-shield-halved"></i>
+                        <p>Nenhum clan no ranking ainda.</p>
+                    </div>
+                    <a href="#rankings-clans" class="btn-rank-retry home-rank-link" target="_self">
+                        <i class="fa-solid fa-shield-halved"></i>
+                        Ver ranking de clans
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <section id="rankings-jogadores" class="rankings-section">
+            <h2 class="section-title">Rankings de Jogadores</h2>
+            <p class="section-subtitle">Escolha categoria e periodo para ver os destaques do FrTopRanks.</p>
 
             <div class="rankings-controls">
                 <div class="tracker-tabs" id="trackerTabs">
@@ -421,12 +492,27 @@
                 </div>
             </div>
 
+        </section>
+
+        <section id="rankings-clans" class="rankings-section clans-page-section">
+            <h2 class="section-title">Rankings de Clans</h2>
+            <p class="section-subtitle">Compare os clans por pontos, kills, KDR e membros.</p>
+
+            <div class="rankings-controls">
+                <div class="period-tabs clan-ranking-tabs" id="clanRankingTabs">
+                    <button class="period-btn active" data-clan-ranking="points">Pontos</button>
+                    <button class="period-btn" data-clan-ranking="kills">Kills</button>
+                    <button class="period-btn" data-clan-ranking="kdr">KDR</button>
+                    <button class="period-btn" data-clan-ranking="members">Membros</button>
+                </div>
+            </div>
+
             <div class="clans-content" id="topClansPanel">
                 <div class="clans-header">
                     <div>
                         <span class="section-kicker">UltimateClans</span>
-                        <h3>Top Clans</h3>
-                        <p>Os clans mais fortes da temporada, organizados por pontos e desempenho.</p>
+                        <h3 id="clansRankingTitle">Top Clans por Pontos</h3>
+                        <p id="clansRankingSubtitle">Os clans mais fortes da temporada, organizados por pontos.</p>
                     </div>
                     <button class="btn-rank-retry" id="clansRetryBtn" type="button">
                         <i class="fa-solid fa-rotate-right"></i>
