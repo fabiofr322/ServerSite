@@ -119,6 +119,146 @@ const VIP_PACKAGES = {
     }
 };
 
+const DEFAULT_VIP_PRODUCTS = [
+    {
+        id: 'topazio',
+        title: 'VIP Topazio',
+        tier: 'VIP START',
+        price: 'R$ 9,99',
+        numericPrice: 9.99,
+        duration: '30 dias',
+        image: 'https://mc-heads.net/body/Steve/220',
+        theme: 'topazio',
+        recommended: false,
+        ribbon: '',
+        subtitle: 'O primeiro passo para apoiar o servidor com vantagens essenciais.',
+        description: [
+            'Tag VIP no chat e TAB.',
+            'Chat colorido usando o simbolo &.',
+            'Auto-Armor ao resgatar kits.',
+            'Kit principal mensal e kit semanal de suprimentos.'
+        ],
+        showcase: [
+            { icon: 'fa-solid fa-tag', title: 'Tag VIP', text: 'Identidade no chat e TAB.' },
+            { icon: 'fa-solid fa-box-open', title: 'Kit mensal', text: 'Itens iniciais para a temporada.' },
+            { icon: 'fa-solid fa-calendar-week', title: 'Kit semanal', text: 'Suprimentos recorrentes.' }
+        ],
+        features: ['Tag VIP', 'Chat colorido', 'Auto-Armor', 'Kit mensal', 'Kit semanal'],
+        initialKit: ['Set de Ferro com Protecao II e Inquebravel II.', 'Espada de Ferro com Afiacao III e Inquebravel II.', 'Picareta de Diamante com Eficiencia III e Inquebravel II.', '1 Totem da Imortalidade.', '8 Macas Douradas, 32 Cenouras Douradas, 16 Ferros e 1 Bolo Especial.'],
+        weeklyKit: ['1 Totem da Imortalidade.', '8 Macas Douradas.', '64 Cenouras Douradas.', '16 Ferros.']
+    },
+    {
+        id: 'ametista',
+        title: 'VIP Ametista',
+        tier: 'VIP',
+        price: 'R$ 15,90',
+        numericPrice: 15.90,
+        duration: '30 dias',
+        image: 'https://mc-heads.net/body/fabiofr32/220',
+        theme: 'ametista',
+        recommended: false,
+        ribbon: '',
+        subtitle: 'O essencial para sua jornada no survival.',
+        description: ['Tag personalizada no chat e TAB.', 'Chat colorido usando o simbolo &.', 'Auto-Armor ao resgatar kits.', '/feed com cooldown.', '/workbench ou /craft em qualquer lugar.', 'Slot reservado.'],
+        showcase: [
+            { icon: 'fa-solid fa-user-shield', title: 'Visual VIP', text: 'Tag exclusiva e presenca no chat.' },
+            { icon: 'fa-solid fa-gem', title: 'Kit mensal', text: 'Diamante, shulker, totens e suprimentos.' },
+            { icon: 'fa-solid fa-calendar-week', title: 'Kit semanal', text: 'Macas, totens e cenouras a cada 7 dias.' }
+        ],
+        features: ['/feed', '/workbench', 'Slot reservado', 'Set diamante', 'Kit semanal'],
+        initialKit: ['Set Diamante com Protecao III e Inquebravel III.', 'Espada e ferramentas de Diamante.', '2 Totens da Imortalidade.', '16 Macas Douradas.', '1 Shulker Box e bolo especial.'],
+        weeklyKit: ['2 Totens da Imortalidade.', '16 Macas Douradas.', '128 Cenouras Douradas.']
+    },
+    {
+        id: 'jade',
+        title: 'VIP Jade',
+        tier: 'VIP PRO',
+        price: 'R$ 25,90',
+        numericPrice: 25.90,
+        duration: '30 dias',
+        image: 'https://mc-heads.net/body/Alex/220',
+        theme: 'jade',
+        recommended: false,
+        ribbon: '',
+        subtitle: 'Mais recursos, mais conforto e kits mais fortes para evoluir.',
+        description: ['Beneficios gerais de VIP.', 'Kits com mais totens e alimentos.', 'Recursos adicionais para economia e progresso.', 'Kit semanal reforcado.'],
+        showcase: [
+            { icon: 'fa-solid fa-leaf', title: 'Progressao', text: 'Plano equilibrado para evoluir.' },
+            { icon: 'fa-solid fa-shield-heart', title: 'Sobrevivencia', text: 'Totens e alimentos em boa quantidade.' },
+            { icon: 'fa-solid fa-gem', title: 'Recursos', text: 'Diamantes e suprimentos extras.' }
+        ],
+        features: ['Tag VIP Jade', 'Chat colorido', 'Auto-Armor', 'Kit mensal reforcado', 'Kit semanal Jade'],
+        initialKit: ['Set Netherite com Protecao III, Inquebravel III, Remendo e trim.', 'Espada Netherite com Afiacao V, Aspecto Flamejante II, Saque III e Remendo.', 'Machado, picareta e pa de Netherite com Eficiencia V e Remendo.', '5 Totens da Imortalidade.', '40 Macas Douradas, 128 Cenouras Douradas, 64 Diamantes, 32 Ferros, 32 Perolas, 16 Ender Chests, escudo, 2 Shulkers e bolo.'],
+        weeklyKit: ['4 Totens da Imortalidade.', '32 Macas Douradas.', '128 Cenouras Douradas.', '32 Diamantes.']
+    },
+    {
+        id: 'cerejeira',
+        title: 'VIP Cerejeira',
+        tier: 'RECOMENDADO',
+        price: 'R$ 29,90',
+        numericPrice: 29.90,
+        duration: '30 dias',
+        image: 'https://mc-heads.net/body/KellCerejinha/220',
+        theme: 'cerejeira',
+        recommended: true,
+        ribbon: 'Recomendado',
+        subtitle: 'Poder de Netherite e exploracao mais pratica.',
+        description: ['Todos os beneficios do VIP Ametista.', '/condense para transformar recursos em blocos.', '/hat para usar blocos na cabeca.', '/enderchest ou /ec em qualquer lugar.', '/near em raio de 100 blocos.', '+5 homes adicionais.'],
+        showcase: [
+            { icon: 'fa-solid fa-user-shield', title: 'Visual VIP+', text: 'Destaque Cerejeira por 30 dias.' },
+            { icon: 'fa-solid fa-cubes', title: 'Comandos extras', text: '/condense, /hat, /ec e /near.' },
+            { icon: 'fa-solid fa-calendar-week', title: 'Kit semanal', text: 'Mais totens e suprimentos para explorar.' }
+        ],
+        features: ['/condense', '/hat', '/ec', '/near', '+5 homes'],
+        initialKit: ['Set Netherite com Protecao IV e Inquebravel III.', 'Espada Netherite com Afiacao V e Saque III.', '4 Totens da Imortalidade.', '32 Macas Douradas e 64 Cenouras Douradas.', '1 Shulker Box.'],
+        weeklyKit: ['5 Totens da Imortalidade.', '32 Macas Douradas.', '128 Cenouras Douradas.']
+    },
+    {
+        id: 'lendario',
+        title: 'VIP Lendario',
+        tier: 'VIP MAX',
+        price: 'R$ 49,90',
+        numericPrice: 49.90,
+        duration: '30 dias',
+        image: 'https://mc-heads.net/body/vNeoo/220',
+        theme: 'lendario',
+        recommended: false,
+        ribbon: '',
+        subtitle: 'A elite do servidor com comandos avancados e os melhores kits.',
+        description: ['Todos os beneficios anteriores.', '/fix ou /repair com cooldown.', '/pweather para clima individual.', '/recipe para consultar receitas.', '+15 homes adicionais.'],
+        showcase: [
+            { icon: 'fa-solid fa-crown', title: 'Visual lendario', text: 'Plano maximo para apoiadores.' },
+            { icon: 'fa-solid fa-screwdriver-wrench', title: 'Reparo e clima', text: '/fix, /repair, /pweather e /recipe.' },
+            { icon: 'fa-solid fa-calendar-week', title: 'Kit semanal', text: 'O maior kit recorrente entre os VIPs.' }
+        ],
+        features: ['/fix', '/pweather', '/recipe', '+15 homes', 'Kit Netherite completo'],
+        initialKit: ['Set Netherite Full com Protecao IV, Inquebravel III e Remendo.', 'Espada e ferramentas Netherite com encantamentos altos.', '8 Totens da Imortalidade.', '64 Macas e 192 Cenouras Douradas.', 'Diamantes, ferros, perolas, ender chests, shulker e bolo.'],
+        weeklyKit: ['7 Totens da Imortalidade.', '48 Macas Douradas.', '128 Cenouras Douradas.', 'Recursos extras semanais.']
+    },
+    {
+        id: 'onix',
+        title: 'VIP Onix',
+        tier: 'VIP ELITE',
+        price: 'R$ 59,90',
+        numericPrice: 59.90,
+        duration: '30 dias',
+        image: 'https://mc-heads.net/body/Herobrine/220',
+        theme: 'onix',
+        recommended: false,
+        ribbon: 'Elite',
+        subtitle: 'O plano mais completo para quem quer apoiar no nivel maximo.',
+        description: ['Beneficios VIP de alto nivel.', 'Kits mais completos do servidor.', 'Mais recursos para economia e combate.', 'Kit semanal premium.'],
+        showcase: [
+            { icon: 'fa-solid fa-meteor', title: 'Elite', text: 'Plano mais forte da loja.' },
+            { icon: 'fa-solid fa-shield-halved', title: 'Kits premium', text: 'Itens de alto valor para a temporada.' },
+            { icon: 'fa-solid fa-star', title: 'Destaque', text: 'Visual e suporte de apoiador maximo.' }
+        ],
+        features: ['Tag Onix', 'Chat colorido', 'Auto-Armor', 'Kit mensal premium', 'Kit semanal premium'],
+        initialKit: ['Set Netherite com Protecao IV, Inquebravel III, Remendo, Respiracao III, Queda Suave IV e trim.', 'Espada Netherite com Afiacao V, Aspecto Flamejante II, Saque III, Remendo e Inquebravel III.', 'Machado, picareta, pa e enxada de Netherite com Eficiencia V, Remendo e Inquebravel III.', '7 Totens da Imortalidade.', '56 Macas Douradas, 128 Cenouras Douradas, 64 Diamantes, 64 Ferros, 40 Perolas, 24 Ender Chests, escudo, 2 Shulkers, bolo, Totem na offhand e balde de agua.'],
+        weeklyKit: ['6 Totens da Imortalidade.', '40 Macas Douradas.', '128 Cenouras Douradas.', '48 Diamantes.']
+    }
+];
+
 /* ==========================================
    LÓGICA: NAVEGAÇÃO & MOBILE MENU & CÓPIA DE IP
    ========================================== */
@@ -291,8 +431,127 @@ function renderVipShowcase(items = []) {
     `).join('');
 }
 
+let activeVipProducts = [...DEFAULT_VIP_PRODUCTS];
+
+function normalizeVipProduct(product) {
+    return {
+        ...product,
+        id: product.slug || product.id,
+        title: product.name || product.title,
+        price: product.price_text || product.price,
+        numericPrice: Number(product.numericPrice ?? product.price ?? 0),
+        duration: product.duration || product.duration_text || '30 dias',
+        features: Array.isArray(product.features) ? product.features : [],
+        description: Array.isArray(product.description) ? product.description : [],
+        initialKit: Array.isArray(product.initial_kit) ? product.initial_kit : (product.initialKit || []),
+        weeklyKit: Array.isArray(product.weekly_kit) ? product.weekly_kit : (product.weeklyKit || []),
+        showcase: Array.isArray(product.showcase) ? product.showcase : [],
+        recommended: Boolean(product.is_featured ?? product.recommended),
+        ribbon: product.ribbon || (product.is_featured ? 'Recomendado' : ''),
+        theme: product.theme || product.slug || product.id || 'ametista',
+        image: product.image_url || product.image || 'icon/Fr32_Icon.png'
+    };
+}
+
+function getVipProducts() {
+    return activeVipProducts.map(normalizeVipProduct).sort((a, b) => {
+        const orderA = Number(a.sort_order ?? 999);
+        const orderB = Number(b.sort_order ?? 999);
+        if (orderA !== orderB) return orderA - orderB;
+        return Number(a.numericPrice || 0) - Number(b.numericPrice || 0);
+    });
+}
+
+function getVipPackage(packageId) {
+    return getVipProducts().find(product => product.id === packageId) || VIP_PACKAGES[packageId];
+}
+
+function renderVipProducts(products = getVipProducts()) {
+    const grid = document.getElementById('vipProductsGrid');
+    if (!grid) return;
+
+    grid.innerHTML = products.map(product => `
+        <article class="vip-product-card vip-${escapeHTML(product.theme)} ${product.recommended ? 'recommended' : ''}" data-vip-id="${escapeHTML(product.id)}" tabindex="0" role="button" aria-label="Ver detalhes do ${escapeHTML(product.title)}">
+            ${product.ribbon ? `<div class="vip-ribbon">${escapeHTML(product.ribbon)}</div>` : ''}
+            <div class="vip-visual">
+                <span class="vip-tier-tag">${escapeHTML(product.tier || 'VIP')}</span>
+                <img src="${escapeHTML(product.image)}" alt="Visual ${escapeHTML(product.title)}">
+            </div>
+            <div class="vip-product-body">
+                <div class="vip-title-row">
+                    <div>
+                        <span class="vip-duration">${escapeHTML(product.duration)}</span>
+                        <h3>${escapeHTML(product.title)}</h3>
+                    </div>
+                    <span class="vip-price">${escapeHTML(product.price)}</span>
+                </div>
+                <p>${escapeHTML(product.subtitle || '')}</p>
+                <ul class="vip-feature-list">
+                    ${product.features.slice(0, 5).map(feature => `<li><i class="fa-solid fa-check"></i> ${escapeHTML(feature)}</li>`).join('')}
+                </ul>
+                <details class="vip-kit-details">
+                    <summary>Ver kits incluidos</summary>
+                    <div class="vip-kit-columns">
+                        <div>
+                            <strong>Kit principal</strong>
+                            <span>${escapeHTML((product.initialKit || []).slice(0, 4).join(', '))}</span>
+                        </div>
+                        <div>
+                            <strong>Kit semanal</strong>
+                            <span>${escapeHTML((product.weeklyKit || []).slice(0, 4).join(', '))}</span>
+                        </div>
+                    </div>
+                </details>
+                <div class="vip-actions">
+                    <button type="button" class="vip-info-btn vip-more-btn" title="Saber mais" onclick="openVipPackage('${escapeHTML(product.id)}')"><i class="fa-solid fa-circle-info"></i> Saber mais</button>
+                    <a href="https://discord.gg/MNWtkEzM3B" target="_blank" class="btn btn-primary vip-buy-btn">
+                        <i class="fa-solid fa-basket-shopping"></i> Comprar agora
+                    </a>
+                </div>
+            </div>
+        </article>
+    `).join('');
+}
+
+function bindVipProductCards() {
+    document.querySelectorAll('.vip-product-card[data-vip-id]').forEach(card => {
+        if (card.dataset.vipBound) return;
+        card.dataset.vipBound = 'true';
+        card.addEventListener('click', (event) => {
+            if (event.target.closest('a, button, details, summary')) return;
+            openVipPackage(card.dataset.vipId);
+        });
+        card.addEventListener('keydown', (event) => {
+            if (event.key !== 'Enter' && event.key !== ' ') return;
+            event.preventDefault();
+            openVipPackage(card.dataset.vipId);
+        });
+    });
+}
+
+async function loadVipProductsFromSupabase() {
+    if (!supabaseClient) return;
+
+    try {
+        const { data, error } = await supabaseClient
+            .from('site_products')
+            .select('*')
+            .eq('is_published', true)
+            .order('sort_order', { ascending: true });
+
+        if (error) throw error;
+        if (!Array.isArray(data) || data.length === 0) return;
+
+        activeVipProducts = data.map(normalizeVipProduct);
+        renderVipProducts();
+        bindVipProductCards();
+    } catch (error) {
+        console.warn('[Loja] Produtos dinamicos indisponiveis, usando catalogo padrao:', error.message);
+    }
+}
+
 function openVipPackage(packageId) {
-    const data = VIP_PACKAGES[packageId];
+    const data = getVipPackage(packageId);
     const modal = document.getElementById('vipPackageModal');
     if (!data || !modal) return;
 
@@ -338,19 +597,9 @@ function addVipToCartMock() {
 }
 
 function setupVipStore() {
-    document.querySelectorAll('.vip-product-card[data-vip-id]').forEach(card => {
-        if (card.dataset.vipBound) return;
-        card.dataset.vipBound = 'true';
-        card.addEventListener('click', (event) => {
-            if (event.target.closest('a, button, details, summary')) return;
-            openVipPackage(card.dataset.vipId);
-        });
-        card.addEventListener('keydown', (event) => {
-            if (event.key !== 'Enter' && event.key !== ' ') return;
-            event.preventDefault();
-            openVipPackage(card.dataset.vipId);
-        });
-    });
+    renderVipProducts();
+    bindVipProductCards();
+    loadVipProductsFromSupabase();
 
     const modal = document.getElementById('vipPackageModal');
     if (modal && !modal.dataset.closeBound) {
@@ -3877,6 +4126,7 @@ function initSupabase() {
     if (window.supabase) {
         supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         setupSupabaseAuthAndInteractions();
+        loadVipProductsFromSupabase();
     } else {
         // Fallback: aguardar até 5s para o SDK carregar
         let tentativas = 0;
@@ -3886,6 +4136,7 @@ function initSupabase() {
                 clearInterval(intervalo);
                 supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
                 setupSupabaseAuthAndInteractions();
+                loadVipProductsFromSupabase();
             } else if (tentativas >= 50) {
                 clearInterval(intervalo);
                 console.error('[Auth] SDK do Supabase não carregou após 5s.');

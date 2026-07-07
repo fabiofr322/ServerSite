@@ -85,6 +85,10 @@
                         <i class="fa-solid fa-calendar-days"></i>
                         <span>Eventos</span>
                     </button>
+                    <button class="nav-tab-btn" data-tab="products" id="tabBtnProducts">
+                        <i class="fa-solid fa-store"></i>
+                        <span>Produtos/VIPs</span>
+                    </button>
                 </nav>
                 
                 <a href="../index.html" class="btn-back-site" target="_self">
@@ -563,6 +567,210 @@
                                     <tr>
                                         <td colspan="5" class="table-loading-row">
                                             <div class="spinner"></div> Carregando publicações...
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+
+                <!-- ABA 6: PRODUTOS / VIPS -->
+                <section class="tab-pane" id="tabProducts">
+                    <div class="pane-header">
+                        <span class="pane-mode-badge">Loja</span>
+                        <h2>Produtos e VIPs</h2>
+                        <p>Cadastre, edite ou remova os VIPs exibidos na aba de compras do site.</p>
+                    </div>
+
+                    <div class="announcements-layout">
+                        <div class="admin-card">
+                            <h3 id="productFormTitle"><i class="fa-solid fa-plus"></i> Adicionar Produto</h3>
+                            <p class="card-desc" id="productFormDesc">Use um produto por plano VIP. Cada linha nos campos longos vira um item da lista no site.</p>
+
+                            <form id="formProduct" class="admin-form">
+                                <input type="hidden" id="inputProductId" value="">
+
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="inputProductName">Nome</label>
+                                        <div class="input-wrapper">
+                                            <i class="fa-solid fa-crown input-icon"></i>
+                                            <input type="text" id="inputProductName" placeholder="Ex: VIP Cerejeira" required maxlength="80">
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="inputProductSlug">Slug</label>
+                                        <div class="input-wrapper">
+                                            <i class="fa-solid fa-link input-icon"></i>
+                                            <input type="text" id="inputProductSlug" placeholder="vip-cerejeira" required maxlength="48">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="inputProductPriceText">Preco exibido</label>
+                                        <div class="input-wrapper">
+                                            <i class="fa-solid fa-brazilian-real-sign input-icon"></i>
+                                            <input type="text" id="inputProductPriceText" placeholder="R$ 29,90" required maxlength="24">
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="inputProductDuration">Duracao</label>
+                                        <div class="input-wrapper">
+                                            <i class="fa-regular fa-clock input-icon"></i>
+                                            <input type="text" id="inputProductDuration" value="30 dias" maxlength="32">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="inputProductTier">Selo</label>
+                                        <div class="input-wrapper">
+                                            <i class="fa-solid fa-medal input-icon"></i>
+                                            <input type="text" id="inputProductTier" placeholder="VIP, RECOMENDADO, VIP ELITE" maxlength="32">
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="inputProductTheme">Tema visual</label>
+                                        <div class="input-wrapper">
+                                            <i class="fa-solid fa-palette input-icon"></i>
+                                            <select id="inputProductTheme">
+                                                <option value="topazio">Topazio</option>
+                                                <option value="ametista">Ametista</option>
+                                                <option value="jade">Jade</option>
+                                                <option value="cerejeira">Cerejeira</option>
+                                                <option value="lendario">Lendario</option>
+                                                <option value="onix">Onix</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="inputProductImage">Imagem / Skin</label>
+                                    <div class="input-wrapper">
+                                        <i class="fa-solid fa-image input-icon"></i>
+                                        <input type="url" id="inputProductImage" placeholder="https://mc-heads.net/body/Nick/220">
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="inputProductSubtitle">Descricao curta</label>
+                                    <div class="input-wrapper">
+                                        <i class="fa-solid fa-align-left input-icon"></i>
+                                        <input type="text" id="inputProductSubtitle" placeholder="Resumo que aparece no card" maxlength="160">
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="inputProductFeatures">Beneficios principais</label>
+                                    <div class="input-wrapper">
+                                        <i class="fa-solid fa-list-check input-icon" style="top: 20px;"></i>
+                                        <textarea id="inputProductFeatures" placeholder="Um beneficio por linha" required></textarea>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="inputProductDescription">Descricao detalhada</label>
+                                    <div class="input-wrapper">
+                                        <i class="fa-solid fa-circle-info input-icon" style="top: 20px;"></i>
+                                        <textarea id="inputProductDescription" placeholder="Uma vantagem por linha"></textarea>
+                                    </div>
+                                </div>
+
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="inputProductInitialKit">Kit principal</label>
+                                        <div class="input-wrapper">
+                                            <i class="fa-solid fa-box-open input-icon" style="top: 20px;"></i>
+                                            <textarea id="inputProductInitialKit" placeholder="Um item por linha"></textarea>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="inputProductWeeklyKit">Kit semanal</label>
+                                        <div class="input-wrapper">
+                                            <i class="fa-solid fa-calendar-week input-icon" style="top: 20px;"></i>
+                                            <textarea id="inputProductWeeklyKit" placeholder="Um item por linha"></textarea>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="inputProductOrder">Ordem</label>
+                                        <div class="input-wrapper">
+                                            <i class="fa-solid fa-arrow-down-1-9 input-icon"></i>
+                                            <input type="number" id="inputProductOrder" value="0" min="0" max="999">
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="inputProductRibbon">Faixa opcional</label>
+                                        <div class="input-wrapper">
+                                            <i class="fa-solid fa-ribbon input-icon"></i>
+                                            <input type="text" id="inputProductRibbon" placeholder="Ex: Recomendado" maxlength="32">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <label class="checkbox-row">
+                                    <input type="checkbox" id="inputProductFeatured">
+                                    <span>Destacar produto</span>
+                                </label>
+
+                                <label class="checkbox-row">
+                                    <input type="checkbox" id="inputProductPublished" checked>
+                                    <span>Publicado no site</span>
+                                </label>
+
+                                <div class="form-buttons-row">
+                                    <button type="submit" class="btn btn-primary" id="btnProductSubmit">
+                                        <i class="fa-solid fa-floppy-disk"></i> Salvar
+                                    </button>
+                                    <button type="button" class="btn btn-secondary hidden" id="btnProductCancelEdit">
+                                        Cancelar
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+
+                        <div class="admin-card stats-overview-card">
+                            <h3><i class="fa-solid fa-circle-info"></i> Dicas da loja</h3>
+                            <div class="guide-content">
+                                <p><i class="fa-solid fa-check"></i> O Cerejeira pode ficar marcado como <strong>Destacar produto</strong>.</p>
+                                <p><i class="fa-solid fa-check"></i> Use a ordem para manter os planos do mais barato ao mais caro.</p>
+                                <p><i class="fa-solid fa-check"></i> Desmarque <strong>Publicado</strong> para esconder um VIP sem apagar.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="admin-card table-card">
+                        <div class="table-header-row">
+                            <h3><i class="fa-solid fa-store"></i> Produtos cadastrados</h3>
+                            <div class="search-box">
+                                <i class="fa-solid fa-magnifying-glass"></i>
+                                <input type="text" id="inputSearchProducts" placeholder="Buscar produto, preco ou selo...">
+                            </div>
+                        </div>
+
+                        <div class="table-responsive">
+                            <table class="admin-table">
+                                <thead>
+                                    <tr>
+                                        <th>Produto</th>
+                                        <th>Preco</th>
+                                        <th>Selo</th>
+                                        <th>Status</th>
+                                        <th class="text-right">Acoes</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tableProductsBody">
+                                    <tr>
+                                        <td colspan="5" class="table-loading-row">
+                                            <div class="spinner"></div> Carregando produtos...
                                         </td>
                                     </tr>
                                 </tbody>

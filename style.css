@@ -1497,12 +1497,24 @@ section.site-tab-active {
     background: radial-gradient(circle at 50% 25%, rgba(181, 95, 255, 0.75), rgba(70, 9, 112, 0.8) 48%, rgba(12, 0, 24, 0.95));
 }
 
+.vip-topazio .vip-visual {
+    background: radial-gradient(circle at 50% 25%, rgba(255, 210, 74, 0.76), rgba(128, 78, 0, 0.76) 48%, rgba(12, 0, 24, 0.95));
+}
+
+.vip-jade .vip-visual {
+    background: radial-gradient(circle at 50% 25%, rgba(48, 230, 150, 0.72), rgba(18, 107, 69, 0.76) 48%, rgba(12, 0, 24, 0.95));
+}
+
 .vip-cerejeira .vip-visual {
     background: radial-gradient(circle at 50% 25%, rgba(255, 92, 181, 0.78), rgba(143, 25, 95, 0.75) 48%, rgba(12, 0, 24, 0.95));
 }
 
 .vip-lendario .vip-visual {
     background: radial-gradient(circle at 50% 25%, rgba(255, 212, 94, 0.8), rgba(120, 66, 0, 0.78) 48%, rgba(12, 0, 24, 0.95));
+}
+
+.vip-onix .vip-visual {
+    background: radial-gradient(circle at 50% 25%, rgba(145, 145, 170, 0.66), rgba(37, 35, 54, 0.86) 48%, rgba(4, 0, 12, 0.98));
 }
 
 .vip-visual img {
@@ -1755,12 +1767,24 @@ section.site-tab-active {
     background: radial-gradient(circle at 50% 30%, rgba(181, 95, 255, 0.78), rgba(66, 9, 107, 0.82) 52%, rgba(9, 0, 18, 1));
 }
 
+.vip-package-media.theme-topazio {
+    background: radial-gradient(circle at 50% 30%, rgba(255, 210, 74, 0.78), rgba(128, 78, 0, 0.82) 52%, rgba(9, 0, 18, 1));
+}
+
+.vip-package-media.theme-jade {
+    background: radial-gradient(circle at 50% 30%, rgba(48, 230, 150, 0.74), rgba(18, 107, 69, 0.82) 52%, rgba(9, 0, 18, 1));
+}
+
 .vip-package-media.theme-cerejeira {
     background: radial-gradient(circle at 50% 30%, rgba(255, 92, 181, 0.78), rgba(126, 19, 88, 0.82) 52%, rgba(9, 0, 18, 1));
 }
 
 .vip-package-media.theme-lendario {
     background: radial-gradient(circle at 50% 30%, rgba(255, 212, 94, 0.8), rgba(122, 67, 0, 0.82) 52%, rgba(9, 0, 18, 1));
+}
+
+.vip-package-media.theme-onix {
+    background: radial-gradient(circle at 50% 30%, rgba(145, 145, 170, 0.68), rgba(37, 35, 54, 0.88) 52%, rgba(4, 0, 12, 1));
 }
 
 .vip-package-media span {

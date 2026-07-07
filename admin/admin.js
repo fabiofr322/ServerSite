@@ -28,6 +28,7 @@ let currentUser = null;
 let currentUserPermission = null;
 let allUsersList = []; // Cache local para busca instantânea no frontend
 let allAnnouncementsList = [];
+let allProductsList = [];
 let currentAnnouncementType = 'news';
 
 // Inicialização do Supabase Client
@@ -126,6 +127,7 @@ function setupAdminInterface() {
     setupSeasonsEvents();
     setupCommentsEvents();
     setupAnnouncementsEvents();
+    setupProductsEvents();
 }
 
 function setupGlobalEvents() {
@@ -180,6 +182,8 @@ function switchTab(tabId) {
         } else if (tabId === 'news' || tabId === 'events') {
             setAnnouncementsMode(tabId === 'events' ? 'event' : 'news');
             loadAnnouncementsList();
+        } else if (tabId === 'products') {
+            loadProductsList();
         }
     }
 }
@@ -1894,7 +1898,319 @@ window.editAnnouncement = editAnnouncement;
 window.deleteAnnouncement = deleteAnnouncement;
 
 // ---------------------------------------------------------------------
-// 6. SISTEMA DE TOAST NOTIFICATION PREMIUM
+// 6. ABA PRODUTOS/VIPS: GERENCIAMENTO DA LOJA
+// ---------------------------------------------------------------------
+function setupProductsEvents() {
+    const form = document.getElementById('formProduct');
+    if (form) form.addEventListener('submit', handleProductSubmit);
+
+    const cancelBtn = document.getElementById('btnProductCancelEdit');
+    if (cancelBtn) cancelBtn.addEventListener('click', resetProductForm);
+
+    const searchInput = document.getElementById('inputSearchProducts');
+    if (searchInput) {
+        searchInput.addEventListener('input', (event) => {
+            filterProductsTable(event.target.value);
+        });
+    }
+
+    const nameInput = document.getElementById('inputProductName');
+    const slugInput = document.getElementById('inputProductSlug');
+    if (nameInput && slugInput) {
+        nameInput.addEventListener('input', () => {
+            if (!slugInput.dataset.touched && !document.getElementById('inputProductId').value) {
+                slugInput.value = safeProductSlug(nameInput.value);
+            }
+        });
+        slugInput.addEventListener('input', () => {
+            slugInput.dataset.touched = 'true';
+            slugInput.value = safeProductSlug(slugInput.value);
+        });
+    }
+}
+
+function safeProductSlug(value) {
+    return String(value || '')
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-+|-+$/g, '')
+        .slice(0, 48);
+}
+
+function linesToArray(value) {
+    return String(value || '')
+        .split(/\r?\n/)
+        .map(item => item.trim())
+        .filter(Boolean);
+}
+
+function arrayToLines(value) {
+    return Array.isArray(value) ? value.join('\n') : '';
+}
+
+function parsePriceText(value) {
+    const normalized = String(value || '').replace(/[^\d,.-]/g, '').replace('.', '').replace(',', '.');
+    const parsed = Number(normalized);
+    return Number.isFinite(parsed) ? parsed : 0;
+}
+
+function buildProductShowcase(features) {
+    const list = Array.isArray(features) ? features : [];
+    return [
+        { icon: 'fa-solid fa-tag', title: 'Visual VIP', text: list[0] || 'Tag exclusiva no servidor.' },
+        { icon: 'fa-solid fa-box-open', title: 'Kit principal', text: list[1] || 'Kit mensal para evoluir.' },
+        { icon: 'fa-solid fa-calendar-week', title: 'Kit semanal', text: list[2] || 'Recompensas a cada 7 dias.' }
+    ];
+}
+
+async function loadProductsList() {
+    const tableBody = document.getElementById('tableProductsBody');
+    if (!tableBody) return;
+
+    tableBody.innerHTML = `
+        <tr>
+            <td colspan="5" class="table-loading-row">
+                <div class="spinner"></div> Carregando produtos...
+            </td>
+        </tr>
+    `;
+
+    try {
+        const { data, error } = await supabaseClient
+            .from('site_products')
+            .select('*')
+            .order('sort_order', { ascending: true })
+            .order('price', { ascending: true });
+
+        if (error) throw error;
+
+        allProductsList = data || [];
+        renderProductsTable(allProductsList);
+    } catch (err) {
+        console.error("[Products] Erro ao carregar:", err);
+        tableBody.innerHTML = `
+            <tr>
+                <td colspan="5" class="table-empty-row announcements-setup-warning">
+                    <i class="fa-solid fa-database"></i>
+                    <strong>Configuração pendente no Supabase</strong>
+                    <span>Execute o arquivo <code>site_products.sql</code> no SQL Editor. Depois disso você poderá editar e remover os VIPs pelo painel.</span>
+                </td>
+            </tr>
+        `;
+        showToast("Execute o SQL de produtos/VIPs no Supabase.", "error");
+    }
+}
+
+function renderProductsTable(items) {
+    const tableBody = document.getElementById('tableProductsBody');
+    if (!tableBody) return;
+
+    if (!items || items.length === 0) {
+        tableBody.innerHTML = `
+            <tr>
+                <td colspan="5" class="table-empty-row">
+                    Nenhum produto cadastrado.
+                </td>
+            </tr>
+        `;
+        return;
+    }
+
+    tableBody.innerHTML = '';
+    items.forEach(item => {
+        const statusLabel = item.is_published ? 'Publicado' : 'Rascunho';
+        const statusClass = item.is_published ? 'badge-published' : 'badge-draft';
+        const featured = item.is_featured ? ' • Destaque' : '';
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td>
+                <strong>${escapeHTML(item.name)}</strong>
+                <small class="table-subtext">${escapeHTML(item.subtitle || item.slug || '')}</small>
+            </td>
+            <td>${escapeHTML(item.price_text || '')}</td>
+            <td><span class="type-badge">${escapeHTML(item.tier || 'VIP')}${featured}</span></td>
+            <td><span class="status-badge ${statusClass}">${statusLabel}</span></td>
+            <td class="text-right">
+                <button class="btn-action btn-edit" onclick="editProduct(${Number(item.id)})" title="Editar">
+                    <i class="fa-solid fa-pen"></i>
+                </button>
+                <button class="btn-action btn-demote" onclick="deleteProduct(${Number(item.id)})" title="Excluir">
+                    <i class="fa-solid fa-trash"></i>
+                </button>
+            </td>
+        `;
+        tableBody.appendChild(row);
+    });
+}
+
+function filterProductsTable(query) {
+    const search = String(query || '').trim().toLowerCase();
+    if (!search) {
+        renderProductsTable(allProductsList);
+        return;
+    }
+
+    const filtered = allProductsList.filter(item => {
+        return [
+            item.name,
+            item.slug,
+            item.price_text,
+            item.tier,
+            item.subtitle,
+            item.is_published ? 'publicado' : 'rascunho'
+        ].some(value => String(value || '').toLowerCase().includes(search));
+    });
+
+    renderProductsTable(filtered);
+}
+
+async function handleProductSubmit(event) {
+    event.preventDefault();
+
+    const id = document.getElementById('inputProductId').value;
+    const name = document.getElementById('inputProductName').value.trim();
+    const slug = safeProductSlug(document.getElementById('inputProductSlug').value || name);
+    const priceText = document.getElementById('inputProductPriceText').value.trim();
+    const features = linesToArray(document.getElementById('inputProductFeatures').value);
+    const btnSubmit = document.getElementById('btnProductSubmit');
+
+    if (!name || !slug || !priceText || features.length === 0) {
+        showToast("Preencha nome, slug, preço e benefícios.", "error");
+        return;
+    }
+
+    const payload = {
+        type: 'vip',
+        name,
+        slug,
+        price_text: priceText,
+        price: parsePriceText(priceText),
+        duration_text: document.getElementById('inputProductDuration').value.trim() || '30 dias',
+        tier: document.getElementById('inputProductTier').value.trim() || 'VIP',
+        theme: document.getElementById('inputProductTheme').value || slug,
+        image_url: document.getElementById('inputProductImage').value.trim() || null,
+        subtitle: document.getElementById('inputProductSubtitle').value.trim(),
+        features,
+        description: linesToArray(document.getElementById('inputProductDescription').value),
+        initial_kit: linesToArray(document.getElementById('inputProductInitialKit').value),
+        weekly_kit: linesToArray(document.getElementById('inputProductWeeklyKit').value),
+        showcase: buildProductShowcase(features),
+        sort_order: Number(document.getElementById('inputProductOrder').value || 0),
+        ribbon: document.getElementById('inputProductRibbon').value.trim(),
+        is_featured: document.getElementById('inputProductFeatured').checked,
+        is_published: document.getElementById('inputProductPublished').checked,
+        updated_at: new Date().toISOString()
+    };
+
+    const originalHtml = btnSubmit.innerHTML;
+    btnSubmit.disabled = true;
+    btnSubmit.innerHTML = `<span class="table-loading-row"><div class="spinner" style="margin:0; width:14px; height:14px;"></div> Salvando...</span>`;
+
+    try {
+        if (id) {
+            const { error } = await supabaseClient
+                .from('site_products')
+                .update(payload)
+                .eq('id', id);
+            if (error) throw error;
+            showToast("Produto atualizado com sucesso.", "success");
+        } else {
+            const { error } = await supabaseClient
+                .from('site_products')
+                .insert({
+                    ...payload,
+                    created_by: currentUser?.id || null
+                });
+            if (error) throw error;
+            showToast("Produto adicionado com sucesso.", "success");
+        }
+
+        resetProductForm();
+        loadProductsList();
+    } catch (err) {
+        console.error("[Products] Erro ao salvar:", err);
+        showToast("Erro ao salvar produto. Confira se o slug já existe.", "error");
+    } finally {
+        btnSubmit.disabled = false;
+        btnSubmit.innerHTML = originalHtml;
+    }
+}
+
+function editProduct(id) {
+    const item = allProductsList.find(entry => Number(entry.id) === Number(id));
+    if (!item) return;
+
+    document.getElementById('inputProductId').value = item.id;
+    document.getElementById('inputProductName').value = item.name || '';
+    document.getElementById('inputProductSlug').value = item.slug || '';
+    document.getElementById('inputProductSlug').dataset.touched = 'true';
+    document.getElementById('inputProductPriceText').value = item.price_text || '';
+    document.getElementById('inputProductDuration').value = item.duration_text || '30 dias';
+    document.getElementById('inputProductTier').value = item.tier || '';
+    document.getElementById('inputProductTheme').value = item.theme || 'ametista';
+    document.getElementById('inputProductImage').value = item.image_url || '';
+    document.getElementById('inputProductSubtitle').value = item.subtitle || '';
+    document.getElementById('inputProductFeatures').value = arrayToLines(item.features);
+    document.getElementById('inputProductDescription').value = arrayToLines(item.description);
+    document.getElementById('inputProductInitialKit').value = arrayToLines(item.initial_kit);
+    document.getElementById('inputProductWeeklyKit').value = arrayToLines(item.weekly_kit);
+    document.getElementById('inputProductOrder').value = Number(item.sort_order) || 0;
+    document.getElementById('inputProductRibbon').value = item.ribbon || '';
+    document.getElementById('inputProductFeatured').checked = Boolean(item.is_featured);
+    document.getElementById('inputProductPublished').checked = item.is_published !== false;
+
+    document.getElementById('productFormTitle').innerHTML = '<i class="fa-solid fa-pen"></i> Editar Produto';
+    document.getElementById('productFormDesc').textContent = 'Altere as informações do VIP e salve para atualizar a loja.';
+    document.getElementById('btnProductSubmit').innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Atualizar';
+    document.getElementById('btnProductCancelEdit').classList.remove('hidden');
+    document.getElementById('formProduct').scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+function resetProductForm() {
+    const form = document.getElementById('formProduct');
+    if (form) form.reset();
+
+    document.getElementById('inputProductId').value = '';
+    document.getElementById('inputProductSlug').dataset.touched = '';
+    document.getElementById('inputProductDuration').value = '30 dias';
+    document.getElementById('inputProductOrder').value = '0';
+    document.getElementById('inputProductTheme').value = 'topazio';
+    document.getElementById('inputProductPublished').checked = true;
+    document.getElementById('inputProductFeatured').checked = false;
+    document.getElementById('productFormTitle').innerHTML = '<i class="fa-solid fa-plus"></i> Adicionar Produto';
+    document.getElementById('productFormDesc').textContent = 'Use um produto por plano VIP. Cada linha nos campos longos vira um item da lista no site.';
+    document.getElementById('btnProductSubmit').innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Salvar';
+    document.getElementById('btnProductCancelEdit').classList.add('hidden');
+}
+
+async function deleteProduct(id) {
+    const item = allProductsList.find(entry => Number(entry.id) === Number(id));
+    const label = item?.name || 'este produto';
+    if (!confirm(`Tem certeza que deseja excluir ${label}?`)) return;
+
+    try {
+        const { error } = await supabaseClient
+            .from('site_products')
+            .delete()
+            .eq('id', id);
+
+        if (error) throw error;
+
+        showToast("Produto removido.", "success");
+        loadProductsList();
+    } catch (err) {
+        console.error("[Products] Erro ao excluir:", err);
+        showToast("Erro ao excluir produto.", "error");
+    }
+}
+
+window.editProduct = editProduct;
+window.deleteProduct = deleteProduct;
+
+// ---------------------------------------------------------------------
+// 7. SISTEMA DE TOAST NOTIFICATION PREMIUM
 // ---------------------------------------------------------------------
 function showToast(message, type = "info") {
     const toast = document.getElementById('adminToast');
