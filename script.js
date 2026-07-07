@@ -130,7 +130,8 @@ function setupNavigation() {
     const navDropdowns = document.querySelectorAll('.nav-dropdown');
 
     function showSiteTab(targetId, updateHash = true) {
-        const normalizedId = targetId && document.getElementById(targetId) ? targetId : 'home';
+        const cleanTargetId = String(targetId || '').split('?')[0];
+        const normalizedId = cleanTargetId && document.getElementById(cleanTargetId) ? cleanTargetId : 'home';
         const isHomeGroup = homeSectionIds.includes(normalizedId);
         const activeNavId = isHomeGroup ? 'home' : normalizedId;
 
@@ -149,7 +150,7 @@ function setupNavigation() {
         });
 
         if (updateHash) {
-            history.replaceState(null, '', `#${normalizedId}`);
+            history.replaceState(null, '', `#${targetId || normalizedId}`);
         }
 
         const scrollTarget = document.getElementById(normalizedId);
@@ -223,7 +224,8 @@ function setupNavigation() {
             const targetId = this.getAttribute('href');
             if (targetId === '#') return;
 
-            const targetElement = document.querySelector(targetId);
+            const cleanTargetId = targetId.split('?')[0];
+            const targetElement = document.querySelector(cleanTargetId);
             if (targetElement && targetElement.matches('.container > section[id]')) {
                 e.preventDefault();
                 showSiteTab(targetId.slice(1));
@@ -1228,14 +1230,27 @@ function setupHomeRankCarousel() {
         if (title) title.textContent = `Top ${tracker.name}`;
         if (subtitle) subtitle.textContent = 'Alternando automaticamente entre rankings com jogadores.';
 
-        podium.innerHTML = slide.entries.map((entry, index) => {
+        const orderedEntries = [
+            slide.entries.find(entry => Number(entry.position) === 2) || slide.entries[1],
+            slide.entries.find(entry => Number(entry.position) === 1) || slide.entries[0],
+            slide.entries.find(entry => Number(entry.position) === 3) || slide.entries[2]
+        ].filter(Boolean);
+
+        podium.innerHTML = orderedEntries.map((entry, index) => {
             const username = safeMinecraftUsername(entry.playerName);
+            const position = Number(entry.position) || (index === 1 ? 1 : index === 0 ? 2 : 3);
+            const podiumClass = position === 1 ? 'first' : position === 2 ? 'second' : 'third';
             return `
-                <article class="home-rank-card">
-                    <span class="home-rank-position">#${entry.position || index + 1}</span>
-                    <img src="https://mc-heads.net/avatar/${encodeURIComponent(username)}/64" alt="${escapeHTML(username)}">
-                    <strong>${escapeHTML(username)}</strong>
-                    <span>${escapeHTML(getRankScore(entry))}</span>
+                <article class="podium-item home-podium-item ${podiumClass}">
+                    <div class="avatar-wrapper">
+                        ${position === 1 ? '<span class="avatar-crown">👑</span>' : ''}
+                        <img src="https://mc-heads.net/avatar/${encodeURIComponent(username)}/80" alt="${escapeHTML(username)}" width="80" height="80">
+                    </div>
+                    <div class="podium-step">
+                        <span class="podium-step-number">${position}</span>
+                        <span class="podium-player-name">${escapeHTML(username)}</span>
+                        <span class="podium-player-score">${escapeHTML(getRankScore(entry))}</span>
+                    </div>
                 </article>
             `;
         }).join('');
@@ -1295,7 +1310,6 @@ function setupRankings() {
         cacador: { name: 'Caçador', icon: '🏹' }
     };
 
-    const API_URL = '/api/ranks';
     let ranksData = null;
     let activeTracker = 'minerador';
     let activePeriod = 'weekly';
@@ -1438,7 +1452,7 @@ function setupRankings() {
             // Tenta obter da API em tempo real
             const controller = new AbortController();
             const timeoutId = setTimeout(() => controller.abort(), 3000);
-            const response = await fetch(API_URL, { cache: 'no-store', signal: controller.signal });
+            const response = await fetch(RANKS_API_URL, { cache: 'no-store', signal: controller.signal });
             clearTimeout(timeoutId);
 
             if (!response.ok) throw new Error('API offline');
@@ -1478,8 +1492,24 @@ function setupRankings() {
         });
     });
 
+    function applyPeriodFromHash() {
+        const hash = window.location.hash || '';
+        if (!hash.startsWith('#rankings-jogadores') || !hash.includes('period=')) return;
+        const params = new URLSearchParams(hash.split('?')[1] || '');
+        const requestedPeriod = params.get('period');
+        const requestedBtn = document.querySelector(`.period-btn[data-target-period="${requestedPeriod}"]`);
+        if (!requestedBtn) return;
+        periodBtns.forEach(btn => btn.classList.remove('active'));
+        requestedBtn.classList.add('active');
+        activePeriod = requestedPeriod;
+        renderActiveRank();
+    }
+
+    window.addEventListener('hashchange', applyPeriodFromHash);
+
     // Carregamento Inicial
     fetchRanks();
+    applyPeriodFromHash();
 }
 
 /* ==========================================

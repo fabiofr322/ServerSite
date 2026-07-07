@@ -2774,58 +2774,29 @@ section.site-tab-active {
 }
 
 .home-rank-podium {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 0.8rem;
-    min-height: 190px;
-}
-
-.home-rank-card {
     display: flex;
-    flex-direction: column;
-    align-items: center;
     justify-content: center;
-    gap: 0.55rem;
-    min-height: 180px;
+    align-items: flex-end;
+    gap: 1rem;
+    min-height: 245px;
+    margin-bottom: 1rem;
+}
+
+.home-podium-item {
+    width: 150px;
+}
+
+.home-podium-item .podium-step {
     border-radius: 12px;
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    background: rgba(255, 255, 255, 0.035);
-    text-align: center;
-    position: relative;
-    overflow: hidden;
 }
 
-.home-rank-card:first-child {
-    border-color: rgba(255, 170, 0, 0.35);
-    background: rgba(255, 170, 0, 0.06);
+.home-podium-item.first .podium-step {
+    min-height: 108px;
 }
 
-.home-rank-card img {
-    width: 58px;
-    height: 58px;
-    border-radius: 12px;
-    image-rendering: pixelated;
-}
-
-.home-rank-card strong {
-    color: #fff;
-    max-width: 100%;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.home-rank-card span:last-child {
-    color: var(--primary);
-    font-weight: 900;
-}
-
-.home-rank-position {
-    position: absolute;
-    top: 0.75rem;
-    left: 0.75rem;
-    color: rgba(255, 255, 255, 0.28);
-    font-family: var(--font-gaming);
-    font-size: 0.7rem;
+.home-podium-item.second .podium-step,
+.home-podium-item.third .podium-step {
+    min-height: 98px;
 }
 
 .home-rank-link {
