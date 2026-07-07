@@ -4994,7 +4994,15 @@ footer a:hover {
 /* Responsividade do modal de configurações */
 @media (max-width: 768px) {
     .home-rank-podium {
-        grid-template-columns: 1fr;
+        flex-direction: column;
+        align-items: center;
+        min-height: auto;
+        gap: 2rem;
+    }
+
+    .home-podium-item {
+        width: 100%;
+        max-width: 220px;
     }
 
     .home-clan-row {
