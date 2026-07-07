@@ -1567,6 +1567,10 @@ function setupTopClans() {
         return Number(value || 0).toLocaleString('pt-BR');
     }
 
+    function shortClanTag(tag) {
+        return String(tag || 'CLN').trim().slice(0, 6).toUpperCase() || 'CLN';
+    }
+
     function normalizeRankings(data) {
         if (data.rankings && typeof data.rankings === 'object') {
             return data.rankings;
@@ -1615,7 +1619,7 @@ function setupTopClans() {
         grid.innerHTML = topClans.map(clan => {
             const position = Number(clan.position) || 0;
             const name = String(clan.name || 'Clan sem nome').trim() || 'Clan sem nome';
-            const tag = String(clan.tag || name.slice(0, 3)).trim() || 'CLN';
+            const tag = String(clan.tag || name.slice(0, 6)).trim() || 'CLN';
             const leader = String(clan.leader || 'Nao informado').trim() || 'Nao informado';
             const level = Number(clan.level) || 0;
             const points = Number(clan.points) || 0;
@@ -1625,12 +1629,20 @@ function setupTopClans() {
             const mainValue = meta.field === 'kdr'
                 ? kdr.toFixed(2)
                 : formatNumber(clan[meta.field] || 0);
+            const extraStats = [
+                { value: formatNumber(points), label: 'Pontos' },
+                { value: formatNumber(level), label: 'Nivel' },
+                { value: formatNumber(members), label: 'Membros' },
+                activeRanking === 'kdr'
+                    ? { value: formatNumber(kills), label: 'Kills' }
+                    : { value: kdr.toFixed(2), label: 'KDR' }
+            ];
             const podiumClass = position === 1 ? 'is-first' : position === 2 ? 'is-second' : position === 3 ? 'is-third' : '';
 
             return `
                 <article class="clan-card ${podiumClass}">
                     <div class="clan-rank">#${position || '-'}</div>
-                    <div class="clan-emblem">${escapeHTML(tag.slice(0, 3).toUpperCase())}</div>
+                    <div class="clan-emblem">${escapeHTML(shortClanTag(tag))}</div>
                     <div class="clan-main">
                         <span class="clan-tag">[${escapeHTML(tag)}]</span>
                         <h4>${escapeHTML(name)}</h4>
@@ -1638,10 +1650,7 @@ function setupTopClans() {
                     </div>
                     <div class="clan-stats">
                         <span><strong>${mainValue}</strong><small>${escapeHTML(meta.label)}</small></span>
-                        <span><strong>${formatNumber(points)}</strong><small>Pontos</small></span>
-                        <span><strong>${formatNumber(members)}</strong><small>Membros</small></span>
-                        <span><strong>${formatNumber(kills)}</strong><small>Kills</small></span>
-                        <span><strong>${kdr.toFixed(2)}</strong><small>KDR</small></span>
+                        ${extraStats.map(stat => `<span><strong>${escapeHTML(stat.value)}</strong><small>${escapeHTML(stat.label)}</small></span>`).join('')}
                     </div>
                 </article>
             `;

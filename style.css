@@ -2950,35 +2950,47 @@ section.site-tab-active {
 .clan-emblem {
     display: grid;
     place-items: center;
-    width: 58px;
+    width: 74px;
     height: 58px;
     border-radius: 10px;
     border: 1px solid rgba(255, 20, 147, 0.28);
     background: radial-gradient(circle at top, rgba(255, 20, 147, 0.28), rgba(139, 0, 255, 0.08));
     color: #fff;
     font-weight: 900;
-    letter-spacing: 1px;
+    letter-spacing: 0.5px;
+    font-size: 0.74rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .clan-main {
     min-width: 0;
-    padding-right: 2.2rem;
+    padding-right: 2.6rem;
 }
 
 .clan-tag {
+    display: block;
+    max-width: 100%;
     color: var(--primary);
     font-size: 0.72rem;
     font-weight: 900;
     text-transform: uppercase;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .clan-main h4 {
     color: #fff;
     margin: 0.2rem 0 0.25rem;
     font-size: 1rem;
-    white-space: nowrap;
+    white-space: normal;
     overflow: hidden;
-    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    line-height: 1.2;
+    min-height: 2.4em;
 }
 
 .clan-main p {
