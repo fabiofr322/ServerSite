@@ -1630,13 +1630,12 @@ function setupTopClans() {
                 ? kdr.toFixed(2)
                 : formatNumber(clan[meta.field] || 0);
             const extraStats = [
-                { value: formatNumber(points), label: 'Pontos' },
-                { value: formatNumber(level), label: 'Nivel' },
-                { value: formatNumber(members), label: 'Membros' },
-                activeRanking === 'kdr'
-                    ? { value: formatNumber(kills), label: 'Kills' }
-                    : { value: kdr.toFixed(2), label: 'KDR' }
-            ];
+                { key: 'level', value: formatNumber(level), label: 'Nivel' },
+                { key: 'members', value: formatNumber(members), label: 'Membros' },
+                { key: 'points', value: formatNumber(points), label: 'Pontos' },
+                { key: 'kills', value: formatNumber(kills), label: 'Kills' },
+                { key: 'kdr', value: kdr.toFixed(2), label: 'KDR' }
+            ].filter(stat => stat.key !== meta.field).slice(0, 4);
             const podiumClass = position === 1 ? 'is-first' : position === 2 ? 'is-second' : position === 3 ? 'is-third' : '';
 
             return `
