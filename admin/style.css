@@ -153,6 +153,39 @@ body {
     box-shadow: 0 0 10px rgba(255, 170, 0, 0.15);
 }
 
+.btn-header-site {
+    min-height: 36px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    border: 1px solid rgba(255, 20, 147, 0.36);
+    border-radius: 999px;
+    background: rgba(255, 20, 147, 0.1);
+    color: #fff;
+    padding: 0 14px;
+    font-size: 0.78rem;
+    font-weight: 900;
+    text-decoration: none;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    transition: all 0.25s ease;
+}
+
+.btn-header-site i {
+    color: var(--primary);
+}
+
+.btn-header-site:hover {
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    border-color: transparent;
+    transform: translateY(-1px);
+    box-shadow: 0 10px 24px rgba(255, 20, 147, 0.22);
+}
+
+.btn-header-site:hover i {
+    color: #fff;
+}
+
 .btn-logout {
     background: rgba(255, 56, 56, 0.15);
     border: 1px solid rgba(255, 56, 56, 0.3);
@@ -971,6 +1004,16 @@ body {
 
     .user-email {
         display: none; /* Oculta e-mail em telas muito pequenas */
+    }
+
+    .btn-header-site span {
+        display: none;
+    }
+
+    .btn-header-site {
+        width: 36px;
+        padding: 0;
+        justify-content: center;
     }
 }
 

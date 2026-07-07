@@ -457,7 +457,8 @@ function getMinecraftItemIcon(item) {
         [/balde.*[aá]gua|agua/, 'Water_Bucket']
     ];
     const match = iconMap.find(([pattern]) => pattern.test(text));
-    return match ? `https://minecraft.wiki/images/Invicon_${match[1]}.png` : 'https://minecraft.wiki/images/Invicon_Chest.png';
+    const texture = (match ? match[1] : 'Chest').replace(/([a-z])([A-Z])/g, '$1_$2').toLowerCase();
+    return `https://mcasset.cloud/1.21.11/assets/minecraft/textures/item/${texture}.png`;
 }
 
 function formatVipKitItem(item) {
