@@ -458,7 +458,7 @@ function getMinecraftItemIcon(item) {
     ];
     const match = iconMap.find(([pattern]) => pattern.test(text));
     const texture = (match ? match[1] : 'Chest').replace(/([a-z])([A-Z])/g, '$1_$2').toLowerCase();
-    return `Images/minecraft-items/${texture}.png`;
+    return `/Images/minecraft-items/${texture}.png`;
 }
 
 function formatVipKitItem(item) {
@@ -487,7 +487,7 @@ function renderVipDetailedList(items = [], icon = 'fa-solid fa-cube') {
         return `
         <li class="vip-kit-item-row">
             <span class="vip-kit-item-index">${String(index + 1).padStart(2, '0')}</span>
-            <img class="mc-item-icon" src="${escapeHTML(getMinecraftItemIcon(item))}" alt="" loading="lazy" onerror="this.onerror=null;this.src='Images/minecraft-items/chest.png';">
+            <img class="mc-item-icon" src="${escapeHTML(getMinecraftItemIcon(item))}" alt="" loading="lazy" onerror="this.onerror=null;this.src='/Images/minecraft-items/chest.png';">
             <span class="vip-kit-item-text">
                 <strong>${escapeHTML(formatted.name)}</strong>
                 ${formatted.details ? `<small>${escapeHTML(formatted.details)}</small>` : ''}
@@ -535,7 +535,7 @@ function renderVipKitSummary(product) {
                     const formatted = formatVipKitItem(item);
                     return `
                         <li>
-                            <img class="mc-item-icon small" src="${escapeHTML(getMinecraftItemIcon(item))}" alt="" loading="lazy" onerror="this.onerror=null;this.src='Images/minecraft-items/chest.png';">
+                            <img class="mc-item-icon small" src="${escapeHTML(getMinecraftItemIcon(item))}" alt="" loading="lazy" onerror="this.onerror=null;this.src='/Images/minecraft-items/chest.png';">
                             <span>
                                 <b>${escapeHTML(formatted.name)}</b>
                                 ${formatted.details ? `<small>${escapeHTML(formatted.details)}</small>` : ''}
