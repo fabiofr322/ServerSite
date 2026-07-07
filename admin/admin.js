@@ -1950,6 +1950,32 @@ function arrayToLines(value) {
     return Array.isArray(value) ? value.join('\n') : '';
 }
 
+function classifyProductKitItem(item) {
+    const text = String(item || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+    if (/espada|picareta|machado|\bpa\b|enxada|ferramenta|afiacao|eficiencia|saque/.test(text)) return 'tools';
+    if (/set|capacete|peitoral|calca|bota|armadura/.test(text)) return 'armor';
+    return 'items';
+}
+
+function getProductInitialKitFromForm() {
+    return [
+        ...linesToArray(document.getElementById('inputProductArmorKit').value),
+        ...linesToArray(document.getElementById('inputProductToolsKit').value),
+        ...linesToArray(document.getElementById('inputProductItemsKit').value)
+    ];
+}
+
+function fillProductKitFields(initialKit = []) {
+    const groups = { armor: [], tools: [], items: [] };
+    (Array.isArray(initialKit) ? initialKit : []).forEach(item => {
+        groups[classifyProductKitItem(item)].push(item);
+    });
+
+    document.getElementById('inputProductArmorKit').value = arrayToLines(groups.armor);
+    document.getElementById('inputProductToolsKit').value = arrayToLines(groups.tools);
+    document.getElementById('inputProductItemsKit').value = arrayToLines(groups.items);
+}
+
 function parsePriceText(value) {
     const normalized = String(value || '').replace(/[^\d,.-]/g, '').replace('.', '').replace(',', '.');
     const parsed = Number(normalized);
@@ -2091,10 +2117,12 @@ async function handleProductSubmit(event) {
         tier: document.getElementById('inputProductTier').value.trim() || 'VIP',
         theme: document.getElementById('inputProductTheme').value || slug,
         image_url: document.getElementById('inputProductImage').value.trim() || null,
+        kit_image_url: document.getElementById('inputProductKitImage').value.trim() || null,
+        kit_images: linesToArray(document.getElementById('inputProductKitImages').value),
         subtitle: document.getElementById('inputProductSubtitle').value.trim(),
         features,
         description: linesToArray(document.getElementById('inputProductDescription').value),
-        initial_kit: linesToArray(document.getElementById('inputProductInitialKit').value),
+        initial_kit: getProductInitialKitFromForm(),
         weekly_kit: linesToArray(document.getElementById('inputProductWeeklyKit').value),
         showcase: buildProductShowcase(features),
         sort_order: Number(document.getElementById('inputProductOrder').value || 0),
@@ -2151,10 +2179,12 @@ function editProduct(id) {
     document.getElementById('inputProductTier').value = item.tier || '';
     document.getElementById('inputProductTheme').value = item.theme || 'ametista';
     document.getElementById('inputProductImage').value = item.image_url || '';
+    document.getElementById('inputProductKitImage').value = item.kit_image_url || '';
+    document.getElementById('inputProductKitImages').value = arrayToLines(item.kit_images);
     document.getElementById('inputProductSubtitle').value = item.subtitle || '';
     document.getElementById('inputProductFeatures').value = arrayToLines(item.features);
     document.getElementById('inputProductDescription').value = arrayToLines(item.description);
-    document.getElementById('inputProductInitialKit').value = arrayToLines(item.initial_kit);
+    fillProductKitFields(item.initial_kit);
     document.getElementById('inputProductWeeklyKit').value = arrayToLines(item.weekly_kit);
     document.getElementById('inputProductOrder').value = Number(item.sort_order) || 0;
     document.getElementById('inputProductRibbon').value = item.ribbon || '';

@@ -166,7 +166,7 @@ const DEFAULT_VIP_PRODUCTS = [
             { icon: 'fa-solid fa-calendar-week', title: 'Kit semanal', text: 'Macas, totens e cenouras a cada 7 dias.' }
         ],
         features: ['/feed', '/workbench', 'Slot reservado', 'Set diamante', 'Kit semanal'],
-        initialKit: ['Set Diamante com Protecao III e Inquebravel III.', 'Espada e ferramentas de Diamante.', '2 Totens da Imortalidade.', '16 Macas Douradas.', '1 Shulker Box e bolo especial.'],
+        initialKit: ['Set completo de Diamante com Protecao III e Inquebravel III.', 'Espada de Diamante com Afiacao IV e Saque II.', 'Ferramentas de Diamante para iniciar a temporada.', '2 Totens da Imortalidade.', '16 Macas Douradas.', '1 Shulker Box e bolo especial.'],
         weeklyKit: ['2 Totens da Imortalidade.', '16 Macas Douradas.', '128 Cenouras Douradas.']
     },
     {
@@ -194,11 +194,12 @@ const DEFAULT_VIP_PRODUCTS = [
     {
         id: 'cerejeira',
         title: 'VIP Cerejeira',
-        tier: 'RECOMENDADO',
+        tier: 'VIP+',
         price: 'R$ 29,90',
         numericPrice: 29.90,
         duration: '30 dias',
         image: 'https://mc-heads.net/body/KellCerejinha/220',
+        kitImage: 'Images/vips/vip-cerejeira-kit.png',
         theme: 'cerejeira',
         recommended: true,
         ribbon: 'Recomendado',
@@ -210,7 +211,7 @@ const DEFAULT_VIP_PRODUCTS = [
             { icon: 'fa-solid fa-calendar-week', title: 'Kit semanal', text: 'Mais totens e suprimentos para explorar.' }
         ],
         features: ['/condense', '/hat', '/ec', '/near', '+5 homes'],
-        initialKit: ['Set Netherite com Protecao IV e Inquebravel III.', 'Espada Netherite com Afiacao V e Saque III.', '4 Totens da Imortalidade.', '32 Macas Douradas e 64 Cenouras Douradas.', '1 Shulker Box.'],
+        initialKit: ['Set completo de Netherite com Protecao IV e Inquebravel III.', 'Espada de Netherite com Afiacao V e Saque III.', '4 Totens da Imortalidade.', '32 Macas Douradas e 64 Cenouras Douradas.', '1 Shulker Box.'],
         weeklyKit: ['5 Totens da Imortalidade.', '32 Macas Douradas.', '128 Cenouras Douradas.']
     },
     {
@@ -232,7 +233,7 @@ const DEFAULT_VIP_PRODUCTS = [
             { icon: 'fa-solid fa-calendar-week', title: 'Kit semanal', text: 'O maior kit recorrente entre os VIPs.' }
         ],
         features: ['/fix', '/pweather', '/recipe', '+15 homes', 'Kit Netherite completo'],
-        initialKit: ['Set Netherite Full com Protecao IV, Inquebravel III e Remendo.', 'Espada e ferramentas Netherite com encantamentos altos.', '8 Totens da Imortalidade.', '64 Macas e 192 Cenouras Douradas.', 'Diamantes, ferros, perolas, ender chests, shulker e bolo.'],
+        initialKit: ['Set completo de Netherite com Protecao IV, Inquebravel III e Remendo.', 'Espada de Netherite com Afiacao V, Saque III, Aspecto Flamejante II e Remendo.', 'Ferramentas Netherite com Eficiencia V, Inquebravel III e Remendo.', '8 Totens da Imortalidade.', '64 Macas e 192 Cenouras Douradas.', 'Diamantes, ferros, perolas, ender chests, shulker e bolo.'],
         weeklyKit: ['7 Totens da Imortalidade.', '48 Macas Douradas.', '128 Cenouras Douradas.', 'Recursos extras semanais.']
     },
     {
@@ -421,6 +422,131 @@ function renderVipList(items = []) {
     return items.map(item => `<li><i class="fa-solid fa-check"></i>${escapeHTML(item)}</li>`).join('');
 }
 
+function getMinecraftItemIcon(item) {
+    const text = String(item || '').toLowerCase();
+    const iconMap = [
+        [/set.*netherite|armadura.*netherite/, 'Netherite_Chestplate'],
+        [/set.*diamante|armadura.*diamante/, 'Diamond_Chestplate'],
+        [/set.*ferro|armadura.*ferro/, 'Iron_Chestplate'],
+        [/capacete.*netherite/, 'Netherite_Helmet'],
+        [/peitoral.*netherite/, 'Netherite_Chestplate'],
+        [/cal[cç]a.*netherite/, 'Netherite_Leggings'],
+        [/bota.*netherite/, 'Netherite_Boots'],
+        [/espada.*netherite/, 'Netherite_Sword'],
+        [/espada.*diamante/, 'Diamond_Sword'],
+        [/espada.*ferro/, 'Iron_Sword'],
+        [/picareta.*netherite/, 'Netherite_Pickaxe'],
+        [/picareta.*diamante/, 'Diamond_Pickaxe'],
+        [/picareta.*ferro/, 'Iron_Pickaxe'],
+        [/machado.*netherite/, 'Netherite_Axe'],
+        [/machado.*diamante/, 'Diamond_Axe'],
+        [/\bp[aá]\b.*netherite|pa.*netherite/, 'Netherite_Shovel'],
+        [/enxada.*netherite/, 'Netherite_Hoe'],
+        [/ferramentas.*netherite/, 'Netherite_Pickaxe'],
+        [/ferramentas.*diamante/, 'Diamond_Pickaxe'],
+        [/totem|totens/, 'Totem_of_Undying'],
+        [/ma[cç]a.*dourada/, 'Golden_Apple'],
+        [/cenoura.*dourada/, 'Golden_Carrot'],
+        [/shulker/, 'Shulker_Box'],
+        [/bolo/, 'Cake'],
+        [/diamante/, 'Diamond'],
+        [/ferro|ferros/, 'Iron_Ingot'],
+        [/p[eé]rola|perola/, 'Ender_Pearl'],
+        [/ender chest|enderchest|ba[uú] do fim/, 'Ender_Chest'],
+        [/escudo/, 'Shield'],
+        [/balde.*[aá]gua|agua/, 'Water_Bucket']
+    ];
+    const match = iconMap.find(([pattern]) => pattern.test(text));
+    return match ? `https://minecraft.wiki/images/Invicon_${match[1]}.png` : 'https://minecraft.wiki/images/Invicon_Chest.png';
+}
+
+function formatVipKitItem(item) {
+    const value = String(item || '').trim();
+    const parts = value.split(/\s+com\s+/i);
+    if (parts.length > 1) {
+        return {
+            name: parts[0].replace(/\.$/, ''),
+            details: `com ${parts.slice(1).join(' com ').replace(/\.$/, '')}`
+        };
+    }
+    const sentenceParts = value.split(/\.\s*/).filter(Boolean);
+    return {
+        name: sentenceParts[0] || value,
+        details: sentenceParts.slice(1).join('. ')
+    };
+}
+
+function renderVipDetailedList(items = [], icon = 'fa-solid fa-cube') {
+    if (!Array.isArray(items) || items.length === 0) {
+        return '<li class="vip-kit-empty"><i class="fa-solid fa-circle-info"></i>Detalhes do kit serao adicionados em breve.</li>';
+    }
+
+    return items.map((item, index) => {
+        const formatted = formatVipKitItem(item);
+        return `
+        <li class="vip-kit-item-row">
+            <span class="vip-kit-item-index">${String(index + 1).padStart(2, '0')}</span>
+            <img class="mc-item-icon" src="${escapeHTML(getMinecraftItemIcon(item))}" alt="" loading="lazy">
+            <span class="vip-kit-item-text">
+                <strong>${escapeHTML(formatted.name)}</strong>
+                ${formatted.details ? `<small>${escapeHTML(formatted.details)}</small>` : ''}
+            </span>
+        </li>
+    `;
+    }).join('');
+}
+
+function classifyVipKitItem(item) {
+    const text = String(item || '').toLowerCase();
+    if (/espada|picareta|machado|p[aá]|enxada|ferramenta|afiacao|eficiencia|saque/.test(text)) return 'tools';
+    if (/set|capacete|peitoral|cal[cç]a|bota|armadura/.test(text)) return 'armor';
+    return 'items';
+}
+
+function buildVipKitSummary(product) {
+    const initialItems = Array.isArray(product.initialKit) ? product.initialKit : [];
+    const weeklyItems = Array.isArray(product.weeklyKit) ? product.weeklyKit : [];
+    const groups = {
+        armor: [],
+        tools: [],
+        items: [],
+        weekly: weeklyItems
+    };
+
+    initialItems.forEach(item => {
+        groups[classifyVipKitItem(item)].push(item);
+    });
+
+    return [
+        { icon: 'fa-solid fa-shield-halved', title: 'Armadura', items: groups.armor },
+        { icon: 'fa-solid fa-screwdriver-wrench', title: 'Armas e ferramentas', items: groups.tools },
+        { icon: 'fa-solid fa-cubes-stacked', title: 'Itens e recursos', items: groups.items },
+        { icon: 'fa-solid fa-calendar-week', title: 'Kit semanal', items: groups.weekly }
+    ];
+}
+
+function renderVipKitSummary(product) {
+    return buildVipKitSummary(product).map(group => `
+        <div class="vip-kit-summary-card">
+            <strong><i class="${group.icon}"></i>${escapeHTML(group.title)}</strong>
+            <ul>
+                ${(group.items.length ? group.items : ['Sem itens cadastrados nesta categoria.']).map(item => {
+                    const formatted = formatVipKitItem(item);
+                    return `
+                        <li>
+                            <img class="mc-item-icon small" src="${escapeHTML(getMinecraftItemIcon(item))}" alt="" loading="lazy">
+                            <span>
+                                <b>${escapeHTML(formatted.name)}</b>
+                                ${formatted.details ? `<small>${escapeHTML(formatted.details)}</small>` : ''}
+                            </span>
+                        </li>
+                    `;
+                }).join('')}
+            </ul>
+        </div>
+    `).join('');
+}
+
 function renderVipShowcase(items = []) {
     return items.map(item => `
         <div class="vip-showcase-card">
@@ -432,6 +558,9 @@ function renderVipShowcase(items = []) {
 }
 
 let activeVipProducts = [...DEFAULT_VIP_PRODUCTS];
+const DISCORD_TICKET_CHANNEL_URL = 'https://discord.com/channels/1321181584052719680/1457148382580838401';
+let activeVipPackageId = '';
+let vipCart = [];
 
 function normalizeVipProduct(product) {
     return {
@@ -441,6 +570,7 @@ function normalizeVipProduct(product) {
         price: product.price_text || product.price,
         numericPrice: Number(product.numericPrice ?? product.price ?? 0),
         duration: product.duration || product.duration_text || '30 dias',
+        tier: product.is_featured && String(product.tier || '').toUpperCase() === 'RECOMENDADO' ? 'VIP+' : (product.tier || 'VIP'),
         features: Array.isArray(product.features) ? product.features : [],
         description: Array.isArray(product.description) ? product.description : [],
         initialKit: Array.isArray(product.initial_kit) ? product.initial_kit : (product.initialKit || []),
@@ -449,7 +579,9 @@ function normalizeVipProduct(product) {
         recommended: Boolean(product.is_featured ?? product.recommended),
         ribbon: product.ribbon || (product.is_featured ? 'Recomendado' : ''),
         theme: product.theme || product.slug || product.id || 'ametista',
-        image: product.image_url || product.image || 'icon/Fr32_Icon.png'
+        image: product.image_url || product.image || 'icon/Fr32_Icon.png',
+        kitImage: product.kit_image_url || product.kitImage || '',
+        kitImages: Array.isArray(product.kit_images) ? product.kit_images : (product.kitImages || [])
     };
 }
 
@@ -489,24 +621,15 @@ function renderVipProducts(products = getVipProducts()) {
                 <ul class="vip-feature-list">
                     ${product.features.slice(0, 5).map(feature => `<li><i class="fa-solid fa-check"></i> ${escapeHTML(feature)}</li>`).join('')}
                 </ul>
-                <details class="vip-kit-details">
-                    <summary>Ver kits incluidos</summary>
-                    <div class="vip-kit-columns">
-                        <div>
-                            <strong>Kit principal</strong>
-                            <span>${escapeHTML((product.initialKit || []).slice(0, 4).join(', '))}</span>
-                        </div>
-                        <div>
-                            <strong>Kit semanal</strong>
-                            <span>${escapeHTML((product.weeklyKit || []).slice(0, 4).join(', '))}</span>
-                        </div>
-                    </div>
-                </details>
+                <div class="vip-kit-preview" aria-label="Resumo dos kits inclusos">
+                    <strong><i class="fa-solid fa-box-open"></i> Kits inclusos no VIP</strong>
+                    <span>Clique em <b>Ver kits</b> para ver todos os itens do kit principal e semanal.</span>
+                </div>
                 <div class="vip-actions">
-                    <button type="button" class="vip-info-btn vip-more-btn" title="Saber mais" onclick="openVipPackage('${escapeHTML(product.id)}')"><i class="fa-solid fa-circle-info"></i> Saber mais</button>
-                    <a href="https://discord.gg/MNWtkEzM3B" target="_blank" class="btn btn-primary vip-buy-btn">
+                    <button type="button" class="vip-info-btn vip-more-btn" title="Ver kits e detalhes" onclick="openVipPackage('${escapeHTML(product.id)}')"><i class="fa-solid fa-box-open"></i> Ver kits</button>
+                    <button type="button" class="btn btn-primary vip-buy-btn" onclick="buyVipNow('${escapeHTML(product.id)}')">
                         <i class="fa-solid fa-basket-shopping"></i> Comprar agora
-                    </a>
+                    </button>
                 </div>
             </div>
         </article>
@@ -554,6 +677,7 @@ function openVipPackage(packageId) {
     const data = getVipPackage(packageId);
     const modal = document.getElementById('vipPackageModal');
     if (!data || !modal) return;
+    activeVipPackageId = packageId;
 
     const media = document.getElementById('vipPackageMedia');
     const title = document.getElementById('vipPackageTitle');
@@ -563,6 +687,9 @@ function openVipPackage(packageId) {
     const initialKit = document.getElementById('vipPackageInitialKit');
     const weeklyKit = document.getElementById('vipPackageWeeklyKit');
     const showcase = document.getElementById('vipPackageShowcase');
+    const kitImage = document.getElementById('vipPackageKitImage');
+    const kitGallery = document.getElementById('vipPackageKitGallery');
+    const topKitSummary = document.getElementById('vipPackageTopKitSummary');
 
     if (media) {
         media.className = `vip-package-media theme-${data.theme}`;
@@ -575,9 +702,34 @@ function openVipPackage(packageId) {
     if (subtitle) subtitle.textContent = data.subtitle;
     if (price) price.textContent = data.price;
     if (description) description.innerHTML = renderVipList(data.description);
-    if (initialKit) initialKit.innerHTML = renderVipList(data.initialKit);
-    if (weeklyKit) weeklyKit.innerHTML = renderVipList(data.weeklyKit);
+    if (initialKit) initialKit.innerHTML = renderVipDetailedList(data.initialKit, 'fa-solid fa-box-open');
+    if (weeklyKit) weeklyKit.innerHTML = renderVipDetailedList(data.weeklyKit, 'fa-solid fa-calendar-week');
     if (showcase) showcase.innerHTML = renderVipShowcase(data.showcase);
+    if (topKitSummary) topKitSummary.innerHTML = renderVipKitSummary(data);
+    if (kitImage) {
+        kitImage.classList.toggle('hidden', !data.kitImage);
+        kitImage.innerHTML = data.kitImage ? `
+            <div>
+                <span>Preview do kit</span>
+                <strong>${escapeHTML(data.title)}</strong>
+            </div>
+            <img src="${escapeHTML(data.kitImage)}" alt="Itens inclusos no ${escapeHTML(data.title)}">
+        ` : '';
+    }
+    if (kitGallery) {
+        const images = [data.kitImage, ...(Array.isArray(data.kitImages) ? data.kitImages : [])].filter(Boolean);
+        kitGallery.classList.toggle('hidden', images.length === 0);
+        kitGallery.innerHTML = images.length ? `
+            <h3>Fotos dos kits</h3>
+            <div class="vip-kit-gallery-grid">
+                ${images.map((src, index) => `
+                    <figure>
+                        <img src="${escapeHTML(src)}" alt="Foto ${index + 1} dos kits do ${escapeHTML(data.title)}" loading="lazy">
+                    </figure>
+                `).join('')}
+            </div>
+        ` : '';
+    }
 
     modal.classList.add('show');
     modal.setAttribute('aria-hidden', 'false');
@@ -592,11 +744,178 @@ function closeVipPackage() {
     document.body.style.overflow = 'auto';
 }
 
-function addVipToCartMock() {
-    window.showNotification('Produto separado. Finalize pelo Discord oficial.', 'fa-solid fa-cart-shopping');
+function parseVipPrice(value) {
+    const normalized = String(value || '').replace(/[^\d,.-]/g, '').replace('.', '').replace(',', '.');
+    const parsed = Number(normalized);
+    return Number.isFinite(parsed) ? parsed : 0;
+}
+
+function formatCurrencyBR(value) {
+    return `R$ ${Number(value || 0).toFixed(2).replace('.', ',')}`;
+}
+
+function loadVipCart() {
+    try {
+        const saved = JSON.parse(localStorage.getItem('fr32_vip_cart') || '[]');
+        vipCart = Array.isArray(saved) ? saved.filter(Boolean) : [];
+    } catch {
+        vipCart = [];
+    }
+}
+
+function saveVipCart() {
+    localStorage.setItem('fr32_vip_cart', JSON.stringify(vipCart));
+    updateVipCartUI();
+}
+
+function getVipCartProducts() {
+    return vipCart
+        .map(id => getVipPackage(id))
+        .filter(Boolean)
+        .map(normalizeVipProduct);
+}
+
+function buildVipPurchaseMessage(products) {
+    const items = products.map((product, index) => `${index + 1}. ${product.title} - ${product.price} (${product.duration})`);
+    const total = products.reduce((sum, product) => sum + parseVipPrice(product.price), 0);
+    return [
+        'Olá! Quero comprar VIP no FR32SURVIVAL.',
+        '',
+        'Produtos:',
+        ...items,
+        '',
+        `Total estimado: ${formatCurrencyBR(total)}`,
+        '',
+        'Meu nick no Minecraft:',
+        'Forma de pagamento: Pix',
+        '',
+        'Pode me ajudar a finalizar pelo ticket?'
+    ].join('\n');
+}
+
+async function copyTextToClipboard(text) {
+    try {
+        if (navigator.clipboard && window.isSecureContext) {
+            await navigator.clipboard.writeText(text);
+            return true;
+        }
+    } catch {}
+
+    const textarea = document.createElement('textarea');
+    textarea.value = text;
+    textarea.setAttribute('readonly', '');
+    textarea.style.position = 'fixed';
+    textarea.style.left = '-9999px';
+    document.body.appendChild(textarea);
+    textarea.select();
+    const copied = document.execCommand('copy');
+    textarea.remove();
+    return copied;
+}
+
+async function openDiscordPurchase(products) {
+    if (!products.length) {
+        window.showNotification('Seu carrinho esta vazio.', 'fa-solid fa-cart-shopping');
+        return;
+    }
+
+    const message = buildVipPurchaseMessage(products);
+    const copied = await copyTextToClipboard(message);
+    window.showNotification(
+        copied ? 'Mensagem copiada. Cole no ticket do Discord para finalizar.' : 'Abra o ticket e envie a mensagem do pedido.',
+        'fa-brands fa-discord',
+        6500
+    );
+    window.open(DISCORD_TICKET_CHANNEL_URL, '_blank', 'noopener');
+}
+
+function buyVipNow(packageId = activeVipPackageId) {
+    const product = getVipPackage(packageId);
+    if (!product) return;
+    openDiscordPurchase([normalizeVipProduct(product)]);
+}
+
+function addVipToCart(packageId = activeVipPackageId) {
+    const product = getVipPackage(packageId);
+    if (!product) return;
+    if (!vipCart.includes(packageId)) {
+        vipCart.push(packageId);
+        saveVipCart();
+    }
+    window.showNotification(`${normalizeVipProduct(product).title} adicionado ao carrinho.`, 'fa-solid fa-cart-plus');
+}
+
+function removeVipFromCart(packageId) {
+    vipCart = vipCart.filter(id => id !== packageId);
+    saveVipCart();
+    renderVipCart();
+}
+
+function clearVipCart() {
+    vipCart = [];
+    saveVipCart();
+    renderVipCart();
+}
+
+function renderVipCart() {
+    const body = document.getElementById('vipCartItems');
+    const totalEl = document.getElementById('vipCartTotal');
+    if (!body || !totalEl) return;
+
+    const products = getVipCartProducts();
+    if (!products.length) {
+        body.innerHTML = '<div class="vip-cart-empty">Nenhum VIP no carrinho ainda.</div>';
+        totalEl.textContent = 'R$ 0,00';
+        return;
+    }
+
+    const total = products.reduce((sum, product) => sum + parseVipPrice(product.price), 0);
+    totalEl.textContent = formatCurrencyBR(total);
+    body.innerHTML = products.map(product => `
+        <div class="vip-cart-item">
+            <img src="${escapeHTML(product.image)}" alt="${escapeHTML(product.title)}">
+            <div>
+                <strong>${escapeHTML(product.title)}</strong>
+                <span>${escapeHTML(product.duration)} • ${escapeHTML(product.price)}</span>
+            </div>
+            <button type="button" onclick="removeVipFromCart('${escapeHTML(product.id)}')" title="Remover">
+                <i class="fa-solid fa-trash"></i>
+            </button>
+        </div>
+    `).join('');
+}
+
+function updateVipCartUI() {
+    const count = vipCart.length;
+    const countEl = document.getElementById('vipCartCount');
+    const floating = document.getElementById('vipCartFloatingBtn');
+    if (countEl) countEl.textContent = String(count);
+    if (floating) floating.classList.toggle('has-items', count > 0);
+}
+
+function openVipCart() {
+    renderVipCart();
+    const modal = document.getElementById('vipCartModal');
+    if (!modal) return;
+    modal.classList.add('show');
+    modal.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeVipCart() {
+    const modal = document.getElementById('vipCartModal');
+    if (!modal) return;
+    modal.classList.remove('show');
+    modal.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = 'auto';
+}
+
+function checkoutVipCart() {
+    openDiscordPurchase(getVipCartProducts());
 }
 
 function setupVipStore() {
+    loadVipCart();
     renderVipProducts();
     bindVipProductCards();
     loadVipProductsFromSupabase();
@@ -608,13 +927,24 @@ function setupVipStore() {
             if (event.target === modal) closeVipPackage();
         });
     }
+    const cartModal = document.getElementById('vipCartModal');
+    if (cartModal && !cartModal.dataset.closeBound) {
+        cartModal.dataset.closeBound = 'true';
+        cartModal.addEventListener('click', (event) => {
+            if (event.target === cartModal) closeVipCart();
+        });
+    }
 
     if (!document.body.dataset.vipEscapeBound) {
         document.body.dataset.vipEscapeBound = 'true';
         document.addEventListener('keydown', (event) => {
-            if (event.key === 'Escape') closeVipPackage();
+            if (event.key === 'Escape') {
+                closeVipPackage();
+                closeVipCart();
+            }
         });
     }
+    updateVipCartUI();
 }
 
 async function setupMinecraftStatus() {
@@ -4161,7 +4491,13 @@ window.handleLogout = handleLogout;
 window.handleCommentSubmit = handleCommentSubmit;
 window.openVipPackage = openVipPackage;
 window.closeVipPackage = closeVipPackage;
-window.addVipToCartMock = addVipToCartMock;
+window.buyVipNow = buyVipNow;
+window.addVipToCart = addVipToCart;
+window.openVipCart = openVipCart;
+window.closeVipCart = closeVipCart;
+window.removeVipFromCart = removeVipFromCart;
+window.clearVipCart = clearVipCart;
+window.checkoutVipCart = checkoutVipCart;
 window.showNotification = function(message, iconClass = 'fa-solid fa-check', duration = 3000) {
     const toast = document.getElementById('toast');
     if (!toast) return;

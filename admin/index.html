@@ -651,10 +651,26 @@
                                 </div>
 
                                 <div class="form-group">
-                                    <label for="inputProductImage">Imagem / Skin</label>
+                                    <label for="inputProductImage">Imagem principal / Skin ou foto</label>
                                     <div class="input-wrapper">
                                         <i class="fa-solid fa-image input-icon"></i>
-                                        <input type="url" id="inputProductImage" placeholder="https://mc-heads.net/body/Nick/220">
+                                        <input type="text" id="inputProductImage" placeholder="https://mc-heads.net/body/Nick/220 ou Images/vips/foto.png">
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="inputProductKitImage">Imagem do kit (opcional)</label>
+                                    <div class="input-wrapper">
+                                        <i class="fa-solid fa-box-open input-icon"></i>
+                                        <input type="text" id="inputProductKitImage" placeholder="Images/vips/vip-cerejeira-kit.png ou URL">
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="inputProductKitImages">Fotos extras dos kits</label>
+                                    <div class="input-wrapper">
+                                        <i class="fa-solid fa-images input-icon" style="top: 20px;"></i>
+                                        <textarea id="inputProductKitImages" placeholder="Uma imagem por linha. Ex: Images/vips/cerejeira-semanal.png"></textarea>
                                     </div>
                                 </div>
 
@@ -682,12 +698,26 @@
                                     </div>
                                 </div>
 
-                                <div class="form-row">
+                                <div class="admin-kit-editor">
                                     <div class="form-group">
-                                        <label for="inputProductInitialKit">Kit principal</label>
+                                        <label for="inputProductArmorKit">Armadura do kit</label>
                                         <div class="input-wrapper">
-                                            <i class="fa-solid fa-box-open input-icon" style="top: 20px;"></i>
-                                            <textarea id="inputProductInitialKit" placeholder="Um item por linha"></textarea>
+                                            <i class="fa-solid fa-shield-halved input-icon" style="top: 20px;"></i>
+                                            <textarea id="inputProductArmorKit" placeholder="Ex: Set completo de Netherite com Protecao IV e Inquebravel III"></textarea>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="inputProductToolsKit">Armas e ferramentas</label>
+                                        <div class="input-wrapper">
+                                            <i class="fa-solid fa-screwdriver-wrench input-icon" style="top: 20px;"></i>
+                                            <textarea id="inputProductToolsKit" placeholder="Ex: Espada de Netherite com Afiacao V e Saque III"></textarea>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="inputProductItemsKit">Itens e recursos</label>
+                                        <div class="input-wrapper">
+                                            <i class="fa-solid fa-cubes-stacked input-icon" style="top: 20px;"></i>
+                                            <textarea id="inputProductItemsKit" placeholder="Ex: 4 Totens da Imortalidade"></textarea>
                                         </div>
                                     </div>
                                     <div class="form-group">
@@ -742,6 +772,8 @@
                             <div class="guide-content">
                                 <p><i class="fa-solid fa-check"></i> O Cerejeira pode ficar marcado como <strong>Destacar produto</strong>.</p>
                                 <p><i class="fa-solid fa-check"></i> Use a ordem para manter os planos do mais barato ao mais caro.</p>
+                                <p><i class="fa-solid fa-check"></i> Separe o kit em armadura, armas/ferramentas e itens para o site montar os cards corretamente.</p>
+                                <p><i class="fa-solid fa-check"></i> Os icones aparecem automaticamente pelo nome do item, como Totem, Espada, Shulker ou Maca Dourada.</p>
                                 <p><i class="fa-solid fa-check"></i> Desmarque <strong>Publicado</strong> para esconder um VIP sem apagar.</p>
                             </div>
                         </div>
