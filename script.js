@@ -599,42 +599,105 @@ function getVipPackage(packageId) {
     return getVipProducts().find(product => product.id === packageId) || VIP_PACKAGES[packageId];
 }
 
+function getVipFeatureIcon(feature) {
+    const t = String(feature || '').toLowerCase();
+    if (/\/feed|fome|comida|alimento/.test(t))       return 'fa-solid fa-utensils';
+    if (/\/workbench|\/craft|bancada/.test(t))        return 'fa-solid fa-hammer';
+    if (/slot.*reservado|lotado|entrar/.test(t))      return 'fa-solid fa-door-open';
+    if (/\/condense|compactar|lingote/.test(t))       return 'fa-solid fa-cubes';
+    if (/\/hat|cabeca|bloco/.test(t))                return 'fa-solid fa-hat-cowboy';
+    if (/\/ec|\benderchest\b|\/enderchest/.test(t))  return 'fa-solid fa-box';
+    if (/\/near|raio|perto/.test(t))                  return 'fa-solid fa-location-dot';
+    if (/homes?|home/.test(t))                        return 'fa-solid fa-house-chimney';
+    if (/\/fix|\/repair|reparo|reparar/.test(t))     return 'fa-solid fa-screwdriver-wrench';
+    if (/\/pweather|clima|weather/.test(t))           return 'fa-solid fa-cloud-sun';
+    if (/\/recipe|receita/.test(t))                   return 'fa-solid fa-scroll';
+    if (/tag|chat|colorido|\&/.test(t))              return 'fa-solid fa-tag';
+    if (/auto.*armor|kit.*armor|armadura/.test(t))   return 'fa-solid fa-shield-halved';
+    if (/kit.*mensal|kit.*principal|mensal/.test(t)) return 'fa-solid fa-box-open';
+    if (/kit.*semanal|semanal/.test(t))              return 'fa-solid fa-calendar-week';
+    if (/set.*diamante|diamante/.test(t))            return 'fa-solid fa-gem';
+    if (/set.*netherite|netherite/.test(t))          return 'fa-solid fa-meteor';
+    if (/set.*ferro|ferro/.test(t))                  return 'fa-solid fa-shield';
+    if (/totem/.test(t))                              return 'fa-solid fa-star-of-life';
+    if (/ma[cç]a/.test(t))                           return 'fa-solid fa-apple-whole';
+    if (/\/back|teleport|tpa/.test(t))               return 'fa-solid fa-arrow-right-to-bracket';
+    if (/economia|moeda|dinheiro/.test(t))           return 'fa-solid fa-coins';
+    if (/perola|ender/.test(t))                      return 'fa-solid fa-circle-dot';
+    return 'fa-solid fa-circle-check';
+}
+
+function getVipTierAccent(theme) {
+    const accents = {
+        topazio:   { color: '#ffd24a', glow: 'rgba(255,210,74,0.32)' },
+        ametista:  { color: '#c97bff', glow: 'rgba(181,95,255,0.32)' },
+        jade:      { color: '#30e696', glow: 'rgba(48,230,150,0.32)' },
+        cerejeira: { color: '#ff5cb5', glow: 'rgba(255,92,181,0.32)' },
+        lendario:  { color: '#ffd45e', glow: 'rgba(255,212,94,0.32)' },
+        onix:      { color: '#a0a0c0', glow: 'rgba(145,145,170,0.32)' },
+    };
+    return accents[theme] || { color: '#ff1493', glow: 'rgba(255,20,147,0.32)' };
+}
+
 function renderVipProducts(products = getVipProducts()) {
     const grid = document.getElementById('vipProductsGrid');
     if (!grid) return;
 
-    grid.innerHTML = products.map(product => `
+    grid.innerHTML = products.map(product => {
+        const accent = getVipTierAccent(product.theme);
+        const featuresHtml = product.features.slice(0, 5).map(feature => `
+            <li>
+                <i class="${getVipFeatureIcon(feature)}" style="color:${accent.color}"></i>
+                <span>${escapeHTML(feature)}</span>
+            </li>`).join('');
+
+        const kitCountInitial = Array.isArray(product.initialKit) ? product.initialKit.length : 0;
+        const kitCountWeekly = Array.isArray(product.weeklyKit) ? product.weeklyKit.length : 0;
+        const kitLabel = kitCountInitial > 0
+            ? `${kitCountInitial} ite${kitCountInitial > 1 ? 'ns' : 'm'} no kit inicial`
+            : 'Kit incluido';
+
+        return `
         <article class="vip-product-card vip-${escapeHTML(product.theme)} ${product.recommended ? 'recommended' : ''}" data-vip-id="${escapeHTML(product.id)}" tabindex="0" role="button" aria-label="Ver detalhes do ${escapeHTML(product.title)}">
             ${product.ribbon ? `<div class="vip-ribbon">${escapeHTML(product.ribbon)}</div>` : ''}
             <div class="vip-visual">
-                <span class="vip-tier-tag">${escapeHTML(product.tier || 'VIP')}</span>
-                <img src="${escapeHTML(product.image)}" alt="Visual ${escapeHTML(product.title)}">
+                <span class="vip-tier-tag" style="color:${accent.color};text-shadow:0 0 16px ${accent.glow}">${escapeHTML(product.tier || 'VIP')}</span>
+                <img src="${escapeHTML(product.image)}" alt="Visual ${escapeHTML(product.title)}" loading="lazy">
             </div>
             <div class="vip-product-body">
                 <div class="vip-title-row">
                     <div>
-                        <span class="vip-duration">${escapeHTML(product.duration)}</span>
+                        <span class="vip-duration"><i class="fa-regular fa-clock"></i> ${escapeHTML(product.duration)}</span>
                         <h3>${escapeHTML(product.title)}</h3>
                     </div>
-                    <span class="vip-price">${escapeHTML(product.price)}</span>
+                    <div class="vip-price-col">
+                        <span class="vip-price" style="color:${accent.color};text-shadow:0 0 18px ${accent.glow}">${escapeHTML(product.price)}</span>
+                        <span class="vip-price-label">no Pix</span>
+                    </div>
                 </div>
                 <p>${escapeHTML(product.subtitle || '')}</p>
                 <ul class="vip-feature-list">
-                    ${product.features.slice(0, 5).map(feature => `<li><i class="fa-solid fa-check"></i> ${escapeHTML(feature)}</li>`).join('')}
+                    ${featuresHtml}
                 </ul>
                 <div class="vip-kit-preview" aria-label="Resumo dos kits inclusos">
-                    <strong><i class="fa-solid fa-box-open"></i> Kits inclusos no VIP</strong>
-                    <span>Clique em <b>Ver kits</b> para ver todos os itens do kit principal e semanal.</span>
+                    <div class="vip-kit-preview-row">
+                        <span class="vip-kit-pill"><i class="fa-solid fa-box-open"></i> ${escapeHTML(kitLabel)}</span>
+                        ${kitCountWeekly > 0 ? `<span class="vip-kit-pill vip-kit-pill-weekly"><i class="fa-solid fa-calendar-week"></i> Kit semanal</span>` : ''}
+                    </div>
+                    <span class="vip-kit-hint">Clique em <b>Ver kits</b> para detalhar os itens inclusos.</span>
                 </div>
                 <div class="vip-actions">
-                    <button type="button" class="vip-info-btn vip-more-btn" title="Ver kits e detalhes" onclick="openVipPackage('${escapeHTML(product.id)}')"><i class="fa-solid fa-box-open"></i> Ver kits</button>
-                    <button type="button" class="btn btn-primary vip-buy-btn" onclick="buyVipNow('${escapeHTML(product.id)}')">
-                        <i class="fa-solid fa-basket-shopping"></i> Comprar agora
+                    <button type="button" class="vip-info-btn vip-more-btn" title="Ver kits e detalhes" onclick="openVipPackage('${escapeHTML(product.id)}')">
+                        <i class="fa-solid fa-magnifying-glass"></i> Ver kits
+                    </button>
+                    <button type="button" class="btn btn-primary vip-buy-btn" onclick="buyVipNow('${escapeHTML(product.id)}')" style="--btn-glow:${accent.glow}">
+                        <i class="fa-brands fa-discord"></i> Comprar
                     </button>
                 </div>
             </div>
         </article>
-    `).join('');
+    `;
+    }).join('');
 }
 
 function bindVipProductCards() {
