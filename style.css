@@ -2031,7 +2031,7 @@ section.site-tab-active {
 .vip-kit-summary-card li {
     display: grid;
     grid-template-columns: 28px minmax(0, 1fr);
-    align-items: center;
+    align-items: flex-start;
     gap: 0.45rem;
     color: var(--text-muted);
     font-size: 0.74rem;
@@ -2076,6 +2076,7 @@ section.site-tab-active {
 .mc-item-icon.small {
     width: 26px;
     height: 26px;
+    margin-top: 2px;
 }
 
 .vip-package-actions {
@@ -2323,7 +2324,7 @@ section.site-tab-active {
 
 .vip-kit-summary-grid {
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
     gap: 0.85rem;
 }
 
