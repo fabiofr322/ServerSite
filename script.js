@@ -490,7 +490,6 @@ function renderVipDetailedList(items = [], icon = 'fa-solid fa-cube') {
         return `
         <li class="vip-kit-item-row">
             <span class="vip-kit-item-index">${String(index + 1).padStart(2, '0')}</span>
-            <img class="mc-item-icon" src="${escapeHTML(getMinecraftItemIcon(item))}" alt="" loading="lazy" onerror="this.onerror=null;this.src='https://assets.mcasset.cloud/1.21.1/assets/minecraft/textures/block/chest_front.png';">
             <span class="vip-kit-item-text">
                 <strong>${escapeHTML(formatted.name)}</strong>
                 ${formatted.details ? `<small>${escapeHTML(formatted.details)}</small>` : ''}
@@ -534,7 +533,6 @@ function renderKitItemList(items) {
         const formatted = formatVipKitItem(item);
         return `
             <li>
-                <img class="mc-item-icon small" src="${escapeHTML(getMinecraftItemIcon(item))}" alt="" loading="lazy" onerror="this.onerror=null;this.src='https://assets.mcasset.cloud/1.21.1/assets/minecraft/textures/block/chest_front.png';">
                 <span>
                     <b>${escapeHTML(formatted.name)}</b>
                     ${formatted.details ? `<small>${escapeHTML(formatted.details)}</small>` : ''}

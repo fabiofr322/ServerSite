@@ -2029,10 +2029,9 @@ section.site-tab-active {
 }
 
 .vip-kit-summary-card li {
-    display: grid;
-    grid-template-columns: 28px minmax(0, 1fr);
+    display: flex;
     align-items: flex-start;
-    gap: 0.45rem;
+    gap: 0.4rem;
     color: var(--text-muted);
     font-size: 0.74rem;
     line-height: 1.35;
@@ -2041,11 +2040,6 @@ section.site-tab-active {
 .vip-kit-summary-card li::before {
     content: '•';
     color: var(--primary);
-    margin-right: 0.35rem;
-}
-
-.vip-kit-summary-card li::before {
-    content: none;
 }
 
 .vip-kit-summary-card li b,
@@ -2529,8 +2523,8 @@ section.site-tab-active {
 #vipPackageInitialKit li,
 #vipPackageWeeklyKit li {
     display: grid;
-    grid-template-columns: 34px 40px minmax(0, 1fr);
-    align-items: center;
+    grid-template-columns: 34px minmax(0, 1fr);
+    align-items: flex-start;
     gap: 0.65rem;
     border: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: 8px;
