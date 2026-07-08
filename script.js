@@ -422,44 +422,47 @@ function renderVipList(items = []) {
     return items.map(item => `<li><i class="fa-solid fa-check"></i>${escapeHTML(item)}</li>`).join('');
 }
 
+const MC_ASSET_BASE = 'https://assets.mcasset.cloud/1.21.1/assets/minecraft/textures/item/';
+
 function getMinecraftItemIcon(item) {
     const text = String(item || '').toLowerCase();
     const iconMap = [
-        [/set.*netherite|armadura.*netherite/, 'Netherite_Chestplate'],
-        [/set.*diamante|armadura.*diamante/, 'Diamond_Chestplate'],
-        [/set.*ferro|armadura.*ferro/, 'Iron_Chestplate'],
-        [/capacete.*netherite/, 'Netherite_Helmet'],
-        [/peitoral.*netherite/, 'Netherite_Chestplate'],
-        [/cal[cç]a.*netherite/, 'Netherite_Leggings'],
-        [/bota.*netherite/, 'Netherite_Boots'],
-        [/espada.*netherite/, 'Netherite_Sword'],
-        [/espada.*diamante/, 'Diamond_Sword'],
-        [/espada.*ferro/, 'Iron_Sword'],
-        [/picareta.*netherite/, 'Netherite_Pickaxe'],
-        [/picareta.*diamante/, 'Diamond_Pickaxe'],
-        [/picareta.*ferro/, 'Iron_Pickaxe'],
-        [/machado.*netherite/, 'Netherite_Axe'],
-        [/machado.*diamante/, 'Diamond_Axe'],
-        [/\bp[aá]\b.*netherite|pa.*netherite/, 'Netherite_Shovel'],
-        [/enxada.*netherite/, 'Netherite_Hoe'],
-        [/ferramentas.*netherite/, 'Netherite_Pickaxe'],
-        [/ferramentas.*diamante/, 'Diamond_Pickaxe'],
-        [/totem|totens/, 'Totem_of_Undying'],
-        [/ma[cç]a.*dourada/, 'Golden_Apple'],
-        [/cenoura.*dourada/, 'Golden_Carrot'],
-        [/shulker/, 'Shulker_Box'],
-        [/bolo/, 'Cake'],
-        [/diamante/, 'Diamond'],
-        [/ferro|ferros/, 'Iron_Ingot'],
-        [/p[eé]rola|perola/, 'Ender_Pearl'],
-        [/ender chest|enderchest|ba[uú] do fim/, 'Ender_Chest'],
-        [/escudo/, 'Shield'],
-        [/balde.*[aá]gua|agua/, 'Water_Bucket']
+        [/set.*netherite|armadura.*netherite/,    'netherite_chestplate'],
+        [/set.*diamante|armadura.*diamante/,       'diamond_chestplate'],
+        [/set.*ferro|armadura.*ferro/,             'iron_chestplate'],
+        [/capacete.*netherite/,                    'netherite_helmet'],
+        [/peitoral.*netherite/,                    'netherite_chestplate'],
+        [/cal[cç]a.*netherite/,                    'netherite_leggings'],
+        [/bota.*netherite/,                        'netherite_boots'],
+        [/espada.*netherite/,                      'netherite_sword'],
+        [/espada.*diamante/,                       'diamond_sword'],
+        [/espada.*ferro/,                          'iron_sword'],
+        [/picareta.*netherite/,                    'netherite_pickaxe'],
+        [/picareta.*diamante/,                     'diamond_pickaxe'],
+        [/picareta.*ferro/,                        'iron_pickaxe'],
+        [/machado.*netherite/,                     'netherite_axe'],
+        [/machado.*diamante/,                      'diamond_axe'],
+        [/\bp[aá]\b.*netherite|pa.*netherite/,     'netherite_shovel'],
+        [/enxada.*netherite/,                      'netherite_hoe'],
+        [/ferramentas.*netherite/,                 'netherite_pickaxe'],
+        [/ferramentas.*diamante/,                  'diamond_pickaxe'],
+        [/totem|totens/,                           'totem_of_undying'],
+        [/ma[cç]a.*dourada/,                       'golden_apple'],
+        [/cenoura.*dourada/,                       'golden_carrot'],
+        [/shulker/,                                'shulker_box'],
+        [/bolo/,                                   'cake'],
+        [/diamante/,                               'diamond'],
+        [/ferro|ferros/,                           'iron_ingot'],
+        [/p[eé]rola|perola/,                       'ender_pearl'],
+        [/ender chest|enderchest|ba[uú] do fim/,   'ender_chest'],
+        [/escudo/,                                 'shield'],
+        [/balde.*[aá]gua|agua/,                    'water_bucket'],
     ];
     const match = iconMap.find(([pattern]) => pattern.test(text));
-    const texture = (match ? match[1] : 'Chest').replace(/([a-z])([A-Z])/g, '$1_$2').toLowerCase();
-    return `/Images/minecraft-items/${texture}.png`;
+    const texture = match ? match[1] : 'chest';
+    return `${MC_ASSET_BASE}${texture}.png`;
 }
+
 
 function formatVipKitItem(item) {
     const value = String(item || '').trim();
@@ -487,7 +490,7 @@ function renderVipDetailedList(items = [], icon = 'fa-solid fa-cube') {
         return `
         <li class="vip-kit-item-row">
             <span class="vip-kit-item-index">${String(index + 1).padStart(2, '0')}</span>
-            <img class="mc-item-icon" src="${escapeHTML(getMinecraftItemIcon(item))}" alt="" loading="lazy" onerror="this.onerror=null;this.src='/Images/minecraft-items/chest.png';">
+            <img class="mc-item-icon" src="${escapeHTML(getMinecraftItemIcon(item))}" alt="" loading="lazy" onerror="this.onerror=null;this.src='https://assets.mcasset.cloud/1.21.1/assets/minecraft/textures/block/chest_front.png';">
             <span class="vip-kit-item-text">
                 <strong>${escapeHTML(formatted.name)}</strong>
                 ${formatted.details ? `<small>${escapeHTML(formatted.details)}</small>` : ''}
@@ -535,7 +538,7 @@ function renderVipKitSummary(product) {
                     const formatted = formatVipKitItem(item);
                     return `
                         <li>
-                            <img class="mc-item-icon small" src="${escapeHTML(getMinecraftItemIcon(item))}" alt="" loading="lazy" onerror="this.onerror=null;this.src='/Images/minecraft-items/chest.png';">
+                            <img class="mc-item-icon small" src="${escapeHTML(getMinecraftItemIcon(item))}" alt="" loading="lazy" onerror="this.onerror=null;this.src='https://assets.mcasset.cloud/1.21.1/assets/minecraft/textures/block/chest_front.png';">
                             <span>
                                 <b>${escapeHTML(formatted.name)}</b>
                                 ${formatted.details ? `<small>${escapeHTML(formatted.details)}</small>` : ''}
