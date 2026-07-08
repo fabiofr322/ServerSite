@@ -654,11 +654,7 @@ function renderVipProducts(products = getVipProducts()) {
                 <span>${escapeHTML(feature)}</span>
             </li>`).join('');
 
-        const kitCountInitial = Array.isArray(product.initialKit) ? product.initialKit.length : 0;
         const kitCountWeekly = Array.isArray(product.weeklyKit) ? product.weeklyKit.length : 0;
-        const kitLabel = kitCountInitial > 0
-            ? `${kitCountInitial} ite${kitCountInitial > 1 ? 'ns' : 'm'} no kit inicial`
-            : 'Kit incluido';
 
         return `
         <article class="vip-product-card vip-${escapeHTML(product.theme)} ${product.recommended ? 'recommended' : ''}" data-vip-id="${escapeHTML(product.id)}" tabindex="0" role="button" aria-label="Ver detalhes do ${escapeHTML(product.title)}">
@@ -684,7 +680,6 @@ function renderVipProducts(products = getVipProducts()) {
                 </ul>
                 <div class="vip-kit-preview" aria-label="Resumo dos kits inclusos">
                     <div class="vip-kit-preview-row">
-                        <span class="vip-kit-pill"><i class="fa-solid fa-box-open"></i> ${escapeHTML(kitLabel)}</span>
                         ${kitCountWeekly > 0 ? `<span class="vip-kit-pill vip-kit-pill-weekly"><i class="fa-solid fa-calendar-week"></i> Kit semanal</span>` : ''}
                     </div>
                     <span class="vip-kit-hint">Clique em <b>Ver kits</b> para detalhar os itens inclusos.</span>
