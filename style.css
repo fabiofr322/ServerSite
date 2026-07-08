@@ -2273,6 +2273,100 @@ section.site-tab-active {
     border-top: 1px solid rgba(255, 255, 255, 0.08);
 }
 
+/* ---- Kit section layout (modal "ver kits") ---- */
+.vip-kit-section {
+    padding: 0 1.2rem 1.2rem;
+}
+
+.vip-kit-section + .vip-kit-section {
+    padding-top: 0;
+}
+
+.vip-kit-section-header {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    margin-bottom: 0.8rem;
+    padding: 0.6rem 0.85rem;
+    border-radius: 8px;
+    background: linear-gradient(90deg, rgba(255, 20, 147, 0.12), rgba(255, 20, 147, 0.04));
+    border-left: 3px solid rgba(255, 20, 147, 0.7);
+}
+
+.vip-kit-section-header i {
+    color: var(--primary);
+    font-size: 0.9rem;
+}
+
+.vip-kit-section-header span {
+    color: #fff;
+    font-size: 0.9rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.vip-kit-section-header small {
+    color: var(--text-muted);
+    font-size: 0.72rem;
+    margin-left: 0.3rem;
+}
+
+.vip-kit-section-weekly {
+    background: linear-gradient(90deg, rgba(100, 200, 255, 0.1), rgba(100, 200, 255, 0.03));
+    border-left-color: rgba(100, 200, 255, 0.65);
+}
+
+.vip-kit-section-weekly i {
+    color: #64c8ff;
+}
+
+.vip-kit-summary-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.85rem;
+}
+
+.vip-kit-summary-grid-single {
+    grid-template-columns: 1fr;
+}
+
+.vip-kit-summary-weekly strong {
+    gap: 0.5rem;
+    display: flex;
+    align-items: center;
+    color: #64c8ff !important;
+}
+
+.vip-kit-summary-weekly strong i {
+    color: #64c8ff;
+}
+
+.vip-kit-weekly-badge {
+    display: inline-flex;
+    align-items: center;
+    border-radius: 999px;
+    padding: 0.18rem 0.55rem;
+    font-size: 0.65rem;
+    font-weight: 900;
+    border: 1px solid rgba(100, 200, 255, 0.4);
+    background: rgba(100, 200, 255, 0.12);
+    color: #64c8ff !important;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-left: 0.2rem;
+}
+
+.vip-kit-empty-card {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--text-muted);
+    font-size: 0.8rem;
+    padding: 1rem;
+}
+
+
 .vip-package-kit-image {
     display: grid;
     grid-template-columns: minmax(160px, 0.35fr) minmax(0, 0.65fr);

@@ -510,45 +510,78 @@ function classifyVipKitItem(item) {
 function buildVipKitSummary(product) {
     const initialItems = Array.isArray(product.initialKit) ? product.initialKit : [];
     const weeklyItems = Array.isArray(product.weeklyKit) ? product.weeklyKit : [];
-    const groups = {
-        armor: [],
-        tools: [],
-        items: [],
-        weekly: weeklyItems
-    };
+    const groups = { armor: [], tools: [], items: [] };
 
     initialItems.forEach(item => {
         groups[classifyVipKitItem(item)].push(item);
     });
 
-    return [
+    // Build Kit Único sub-groups
+    const uniqueGroups = [
         { icon: 'fa-solid fa-shield-halved', title: 'Armadura', items: groups.armor },
         { icon: 'fa-solid fa-screwdriver-wrench', title: 'Armas e ferramentas', items: groups.tools },
         { icon: 'fa-solid fa-cubes-stacked', title: 'Itens e recursos', items: groups.items },
-        { icon: 'fa-solid fa-calendar-week', title: 'Kit semanal', items: groups.weekly }
-    ];
+    ].filter(g => g.items.length > 0);
+
+    return { uniqueGroups, weeklyItems };
+}
+
+function renderKitItemList(items) {
+    if (!items || items.length === 0) {
+        return '<li class="vip-kit-empty"><i class="fa-solid fa-circle-info"></i> Sem itens cadastrados.</li>';
+    }
+    return items.map(item => {
+        const formatted = formatVipKitItem(item);
+        return `
+            <li>
+                <img class="mc-item-icon small" src="${escapeHTML(getMinecraftItemIcon(item))}" alt="" loading="lazy" onerror="this.onerror=null;this.src='https://assets.mcasset.cloud/1.21.1/assets/minecraft/textures/block/chest_front.png';">
+                <span>
+                    <b>${escapeHTML(formatted.name)}</b>
+                    ${formatted.details ? `<small>${escapeHTML(formatted.details)}</small>` : ''}
+                </span>
+            </li>
+        `;
+    }).join('');
 }
 
 function renderVipKitSummary(product) {
-    return buildVipKitSummary(product).map(group => `
-        <div class="vip-kit-summary-card">
-            <strong><i class="${group.icon}"></i>${escapeHTML(group.title)}</strong>
-            <ul>
-                ${(group.items.length ? group.items : ['Sem itens cadastrados nesta categoria.']).map(item => {
-                    const formatted = formatVipKitItem(item);
-                    return `
-                        <li>
-                            <img class="mc-item-icon small" src="${escapeHTML(getMinecraftItemIcon(item))}" alt="" loading="lazy" onerror="this.onerror=null;this.src='https://assets.mcasset.cloud/1.21.1/assets/minecraft/textures/block/chest_front.png';">
-                            <span>
-                                <b>${escapeHTML(formatted.name)}</b>
-                                ${formatted.details ? `<small>${escapeHTML(formatted.details)}</small>` : ''}
-                            </span>
-                        </li>
-                    `;
-                }).join('')}
-            </ul>
+    const { uniqueGroups, weeklyItems } = buildVipKitSummary(product);
+
+    const uniqueSection = uniqueGroups.length > 0
+        ? uniqueGroups.map(group => `
+            <div class="vip-kit-summary-card">
+                <strong><i class="${group.icon}"></i>${escapeHTML(group.title)}</strong>
+                <ul>${renderKitItemList(group.items)}</ul>
+            </div>`).join('')
+        : `<div class="vip-kit-summary-card vip-kit-empty-card">
+                <i class="fa-solid fa-box-open"></i>
+                <span>Detalhes do kit serao adicionados em breve.</span>
+           </div>`;
+
+    const weeklySection = `
+        <div class="vip-kit-summary-card vip-kit-summary-weekly">
+            <strong><i class="fa-solid fa-calendar-week"></i>Kit semanal <span class="vip-kit-weekly-badge">a cada 7 dias</span></strong>
+            <ul>${renderKitItemList(weeklyItems)}</ul>
+        </div>`;
+
+    return `
+        <div class="vip-kit-section">
+            <div class="vip-kit-section-header">
+                <i class="fa-solid fa-box-open"></i>
+                <span>Kit Único</span>
+                <small>recebido ao ativar o VIP</small>
+            </div>
+            <div class="vip-kit-summary-grid">${uniqueSection}</div>
         </div>
-    `).join('');
+        <div class="vip-kit-section">
+            <div class="vip-kit-section-header vip-kit-section-weekly">
+                <i class="fa-solid fa-calendar-week"></i>
+                <span>Kit Semanal</span>
+                <small>renovado toda semana</small>
+            </div>
+            <div class="vip-kit-summary-grid vip-kit-summary-grid-single">${weeklySection}</div>
+        </div>
+    `;
 }
 
 function renderVipShowcase(items = []) {
@@ -680,6 +713,7 @@ function renderVipProducts(products = getVipProducts()) {
                 </ul>
                 <div class="vip-kit-preview" aria-label="Resumo dos kits inclusos">
                     <div class="vip-kit-preview-row">
+                        <span class="vip-kit-pill"><i class="fa-solid fa-box-open"></i> Kit único</span>
                         ${kitCountWeekly > 0 ? `<span class="vip-kit-pill vip-kit-pill-weekly"><i class="fa-solid fa-calendar-week"></i> Kit semanal</span>` : ''}
                     </div>
                     <span class="vip-kit-hint">Clique em <b>Ver kits</b> para detalhar os itens inclusos.</span>
