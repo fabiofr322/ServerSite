@@ -3336,7 +3336,18 @@ function showAuthError(formId, message) {
 // Obter mensagem de erro legível de qualquer objeto de erro do Supabase
 function getErrorMessage(err) {
     if (!err) return 'Erro desconhecido.';
-    const msg = err.message || err.error_description || err.msg || String(err);
+    const rawMessage = err.message || err.error_description || err.msg || err.error;
+    let msg = rawMessage;
+    if (typeof msg !== 'string') {
+        try {
+            msg = JSON.stringify(msg || err);
+        } catch (_) {
+            msg = String(msg || err);
+        }
+    }
+    if (!msg || msg === '{}' || msg === '[object Object]') {
+        msg = 'Não foi possível criar a conta. Verifique a configuração de cadastro no Supabase.';
+    }
     return translateAuthError(msg);
 }
 
@@ -3453,6 +3464,16 @@ async function handleRegister(event) {
     }, 12000);
 
     try {
+        const { data: existingProfiles, error: profileCheckError } = await supabaseClient
+            .from('profiles')
+            .select('id')
+            .ilike('minecraft_username', minecraft)
+            .limit(1);
+
+        if (!profileCheckError && existingProfiles?.length) {
+            throw new Error('Minecraft username already registered');
+        }
+
         const { error } = await supabaseClient.auth.signUp({
             email,
             password,
@@ -3477,7 +3498,10 @@ async function handleRegister(event) {
             switchAuthTab('login');
         }, 500);
     } catch (err) {
-        window.showNotification(translateAuthError(err.message), "fa-solid fa-circle-xmark");
+        const msg = getErrorMessage(err);
+        console.error('Falha ao criar conta:', err);
+        showAuthError('registerForm', msg);
+        window.showNotification(msg, "fa-solid fa-circle-xmark");
     } finally {
         clearTimeout(safetyTimer);
         const btn = document.getElementById('btnRegisterSubmit');
@@ -4523,6 +4547,7 @@ function formatRelativeTime(date) {
 
 // Tradução de mensagens comuns de erro do Supabase Auth para português
 function translateAuthError(message) {
+    message = typeof message === 'string' ? message : String(message || '');
     if (message.includes("Invalid login credentials")) {
         return "E-mail ou senha incorretos.";
     }
@@ -4534,6 +4559,18 @@ function translateAuthError(message) {
     }
     if (message.includes("Signup requires a valid email")) {
         return "Informe um e-mail válido.";
+    }
+    if (message.includes("Minecraft username already registered")) {
+        return "Este nome do Minecraft já está cadastrado.";
+    }
+    if (message.includes("Database error saving new user")) {
+        return "O Supabase não conseguiu criar o perfil. Execute o SQL de reparo do cadastro.";
+    }
+    if (message.includes("Signups not allowed") || message.includes("Signup is disabled")) {
+        return "A criação de novas contas está desativada no Supabase.";
+    }
+    if (message.includes("Email rate limit exceeded")) {
+        return "Muitas tentativas de cadastro. Aguarde alguns minutos e tente novamente.";
     }
     return message;
 }
