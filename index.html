@@ -34,7 +34,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <!-- Estilos Externos -->
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css?v=player-hub-20260709">
 
     <!-- Supabase SDK (carregado antes do script.js para garantir disponibilidade) -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" crossorigin="anonymous"></script>
@@ -65,6 +65,7 @@
                         <a href="#rankings-clans" class="nav-link" target="_self">Clans</a>
                     </div>
                 </li>
+                <li><a href="#perfil-jogador" class="nav-link" target="_self">Jogadores</a></li>
                 <li><a href="#galeria" class="nav-link" target="_self">Galeria</a></li>
                 <li><a href="#loja" class="nav-link" target="_self">Loja</a></li>
             </ul>
@@ -86,6 +87,7 @@
         <li><a href="#home" class="nav-link" target="_self">Início</a></li>
         <li><a href="#rankings-jogadores" class="nav-link" target="_self">Rankings de Jogadores</a></li>
         <li><a href="#rankings-clans" class="nav-link" target="_self">Rankings de Clans</a></li>
+        <li><a href="#perfil-jogador" class="nav-link" target="_self">Perfil do Jogador</a></li>
         <li><a href="#galeria" class="nav-link" target="_self">Galeria</a></li>
         <li><a href="#loja" class="nav-link" target="_self">Loja</a></li>
     </ul>
@@ -946,6 +948,93 @@
             </div>
         </section>
 
+        <!-- Secao Perfil do Jogador -->
+        <section id="perfil-jogador" class="player-hub-section">
+            <div class="player-hub-hero">
+                <span class="player-hub-eyebrow"><i class="fa-solid fa-id-card"></i> Player Hub</span>
+                <h2 class="section-title">Perfil do Jogador</h2>
+                <p class="section-subtitle">Pesquise jogadores do FR32SURVIVAL e acompanhe estatisticas publicas, historico e verificacao de conta.</p>
+
+                <div class="player-search-panel">
+                    <div class="player-search-box">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                        <input type="search" id="playerSearchInput" autocomplete="off" placeholder="Pesquisar nick do jogador...">
+                        <button type="button" id="playerSearchButton">Buscar</button>
+                    </div>
+                    <div class="player-search-suggestions hidden" id="playerSearchSuggestions"></div>
+                </div>
+            </div>
+
+            <div class="player-hub-status hidden" id="playerHubStatus"></div>
+
+            <div class="player-profile-shell" id="playerProfileShell">
+                <aside class="player-profile-card">
+                    <div class="player-banner" id="playerBanner"></div>
+                    <img class="player-body" id="playerBodyImage" src="https://mc-heads.net/body/fabiofr32/220" alt="Skin do jogador" loading="lazy">
+                    <div class="player-avatar-wrap">
+                        <img class="player-avatar" id="playerAvatarImage" src="https://mc-heads.net/avatar/fabiofr32/96" alt="Cabeca do jogador" loading="lazy">
+                    </div>
+                    <div class="player-main-info">
+                        <div class="player-name-row">
+                            <h3 id="playerNick">Pesquise um jogador</h3>
+                            <span class="player-verified-badge hidden" id="playerVerifiedBadge" title="Este jogador comprovou ser o verdadeiro proprietario desta conta no servidor.">
+                                <i class="fa-solid fa-circle-check"></i>
+                            </span>
+                        </div>
+                        <p id="playerBio">Digite um nick acima para abrir o perfil publico.</p>
+                    </div>
+                    <button type="button" class="btn btn-primary player-verify-btn" id="playerVerifyButton">
+                        <i class="fa-solid fa-shield-halved"></i> Verificar Conta
+                    </button>
+                </aside>
+
+                <div class="player-dashboard">
+                    <div class="player-basic-grid">
+                        <article class="player-info-card">
+                            <i class="fa-solid fa-fingerprint"></i>
+                            <span>UUID</span>
+                            <strong id="playerUuid">--</strong>
+                        </article>
+                        <article class="player-info-card">
+                            <i class="fa-solid fa-calendar-plus"></i>
+                            <span>Primeira entrada</span>
+                            <strong id="playerFirstJoin">--</strong>
+                        </article>
+                        <article class="player-info-card">
+                            <i class="fa-solid fa-right-to-bracket"></i>
+                            <span>Ultimo login</span>
+                            <strong id="playerLastLogin">--</strong>
+                        </article>
+                        <article class="player-info-card">
+                            <i class="fa-solid fa-signal"></i>
+                            <span>Status</span>
+                            <strong id="playerStatus">--</strong>
+                        </article>
+                    </div>
+
+                    <div class="player-stats-grid" id="playerStatsGrid">
+                        <div class="player-skeleton"></div>
+                        <div class="player-skeleton"></div>
+                        <div class="player-skeleton"></div>
+                        <div class="player-skeleton"></div>
+                    </div>
+
+                    <div class="player-history-card">
+                        <div class="player-card-header">
+                            <div>
+                                <span>Historico</span>
+                                <h3>Atividades recentes</h3>
+                            </div>
+                            <i class="fa-solid fa-clock-rotate-left"></i>
+                        </div>
+                        <div class="player-history-list" id="playerHistoryList">
+                            <p class="player-empty-text">As atividades aparecerao aqui quando o servidor comecar a sincronizar os dados.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
         <!-- Seção de Loja / Compras -->
         <section id="loja" class="shop-section">
             <h2 class="section-title">Loja FR32SURVIVAL</h2>
@@ -1238,7 +1327,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" crossorigin="anonymous"></script>
 
     <!-- Scripts Externos -->
-    <script src="script.js?v=auth-fix-20260708"></script>
+    <script src="script.js?v=player-hub-20260709"></script>
 </body>
 
 </html>

@@ -938,6 +938,7 @@ section.site-tab-active {
 .join-section,
 .rules-section,
 .news-events-section,
+.player-hub-section,
 .shop-section {
     max-width: 1100px;
     margin: 0 auto;
@@ -950,6 +951,7 @@ section.site-tab-active {
 #estatisticas.site-tab-active,
 #rankings-jogadores.site-tab-active,
 #rankings-clans.site-tab-active,
+#perfil-jogador.site-tab-active,
 #eventos.site-tab-active,
 #mural.site-tab-active {
     min-height: auto;
@@ -5709,6 +5711,415 @@ footer a:hover {
     }
 }
 
+/* ==========================================
+   PLAYER HUB / PERFIL DO JOGADOR
+   ========================================== */
+.player-hub-section {
+    width: 100%;
+}
 
+.player-hub-hero {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
 
+.player-hub-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    color: var(--primary);
+    font-size: 0.75rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin-bottom: 0.8rem;
+}
 
+.player-search-panel {
+    width: min(760px, 100%);
+    position: relative;
+    margin-top: 1.4rem;
+    z-index: 20;
+}
+
+.player-search-box {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 0.9rem;
+    background: rgba(8, 2, 18, 0.76);
+    border: 1px solid rgba(255, 20, 147, 0.28);
+    border-radius: 18px;
+    padding: 0.7rem 0.8rem 0.7rem 1rem;
+    box-shadow: 0 18px 45px rgba(0, 0, 0, 0.35), 0 0 30px rgba(255, 20, 147, 0.08);
+    backdrop-filter: blur(18px);
+}
+
+.player-search-box i {
+    color: var(--primary);
+}
+
+.player-search-box input {
+    width: 100%;
+    border: 0;
+    outline: none;
+    background: transparent;
+    color: #fff;
+    font: 800 1rem var(--font-main);
+    min-width: 0;
+}
+
+.player-search-box input::placeholder {
+    color: rgba(255, 255, 255, 0.46);
+}
+
+.player-search-box button {
+    border: 0;
+    border-radius: 12px;
+    padding: 0.75rem 1.1rem;
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    color: #fff;
+    font: 900 0.8rem var(--font-main);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    cursor: pointer;
+    box-shadow: 0 10px 26px rgba(255, 20, 147, 0.28);
+}
+
+.player-search-suggestions {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: calc(100% + 0.6rem);
+    background: rgba(8, 2, 18, 0.96);
+    border: 1px solid rgba(255, 255, 255, 0.09);
+    border-radius: 16px;
+    padding: 0.45rem;
+    box-shadow: 0 24px 55px rgba(0, 0, 0, 0.45);
+    backdrop-filter: blur(18px);
+}
+
+.player-suggestion {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 38px minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 0.75rem;
+    border: 0;
+    border-radius: 12px;
+    padding: 0.65rem;
+    color: #fff;
+    background: transparent;
+    text-align: left;
+    cursor: pointer;
+}
+
+.player-suggestion:hover {
+    background: rgba(255, 20, 147, 0.12);
+}
+
+.player-suggestion img {
+    width: 38px;
+    height: 38px;
+    border-radius: 9px;
+    image-rendering: pixelated;
+}
+
+.player-suggestion strong,
+.player-suggestion span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.player-suggestion strong {
+    font-size: 0.95rem;
+}
+
+.player-suggestion span {
+    color: var(--text-muted);
+    font-size: 0.78rem;
+}
+
+.player-hub-status {
+    width: min(980px, 100%);
+    margin: 0 auto 1rem;
+    border: 1px solid rgba(255, 20, 147, 0.26);
+    border-radius: 14px;
+    padding: 0.9rem 1rem;
+    color: #fff;
+    background: rgba(255, 20, 147, 0.08);
+    font-weight: 800;
+}
+
+.player-hub-status.error {
+    border-color: rgba(255, 68, 68, 0.35);
+    background: rgba(255, 68, 68, 0.1);
+}
+
+.player-profile-shell {
+    width: 100%;
+    display: grid;
+    grid-template-columns: minmax(260px, 330px) minmax(0, 1fr);
+    gap: 1.2rem;
+    align-items: start;
+}
+
+.player-profile-card,
+.player-info-card,
+.player-history-card,
+.player-stat-card {
+    background: rgba(8, 2, 18, 0.58);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.34), inset 0 0 22px rgba(255, 20, 147, 0.035);
+    backdrop-filter: blur(18px);
+}
+
+.player-profile-card {
+    position: sticky;
+    top: 105px;
+    overflow: hidden;
+    border-radius: 24px;
+    padding-bottom: 1.1rem;
+}
+
+.player-banner {
+    height: 130px;
+    background:
+        radial-gradient(circle at 25% 25%, rgba(255, 20, 147, 0.35), transparent 32%),
+        linear-gradient(135deg, rgba(255, 20, 147, 0.28), rgba(139, 0, 255, 0.32)),
+        rgba(255, 255, 255, 0.03);
+}
+
+.player-body {
+    display: block;
+    width: 190px;
+    height: 230px;
+    object-fit: contain;
+    image-rendering: pixelated;
+    margin: -92px auto 0;
+    filter: drop-shadow(0 22px 25px rgba(0, 0, 0, 0.45));
+}
+
+.player-avatar-wrap {
+    display: flex;
+    justify-content: center;
+    margin-top: -12px;
+}
+
+.player-avatar {
+    width: 78px;
+    height: 78px;
+    border-radius: 18px;
+    image-rendering: pixelated;
+    border: 2px solid rgba(255, 20, 147, 0.55);
+    background: rgba(0, 0, 0, 0.38);
+}
+
+.player-main-info {
+    padding: 0.8rem 1.2rem 0;
+    text-align: center;
+}
+
+.player-name-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    min-width: 0;
+}
+
+.player-name-row h3 {
+    margin: 0;
+    color: #fff;
+    font-size: 1.35rem;
+    line-height: 1.1;
+    overflow-wrap: anywhere;
+}
+
+.player-main-info p {
+    color: var(--text-muted);
+    line-height: 1.45;
+    margin: 0.55rem 0 0;
+}
+
+.player-verified-badge {
+    color: #45ff90;
+    filter: drop-shadow(0 0 10px rgba(69, 255, 144, 0.42));
+}
+
+.player-verify-btn {
+    width: calc(100% - 2.4rem);
+    margin: 1rem 1.2rem 0;
+}
+
+.player-dashboard {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    min-width: 0;
+}
+
+.player-basic-grid,
+.player-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0.8rem;
+}
+
+.player-info-card,
+.player-stat-card {
+    border-radius: 18px;
+    padding: 1rem;
+    min-width: 0;
+}
+
+.player-info-card i,
+.player-stat-card i {
+    color: var(--primary);
+    font-size: 1.1rem;
+    margin-bottom: 0.6rem;
+}
+
+.player-info-card span,
+.player-stat-card span {
+    display: block;
+    color: var(--text-muted);
+    font-size: 0.75rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.7px;
+    margin-bottom: 0.25rem;
+}
+
+.player-info-card strong,
+.player-stat-card strong {
+    display: block;
+    color: #fff;
+    font-size: 1.05rem;
+    line-height: 1.2;
+    overflow-wrap: anywhere;
+}
+
+.player-history-card {
+    border-radius: 22px;
+    padding: 1.1rem;
+}
+
+.player-card-header {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    align-items: center;
+    padding-bottom: 0.9rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    margin-bottom: 0.9rem;
+}
+
+.player-card-header span {
+    color: var(--primary);
+    font-size: 0.72rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+}
+
+.player-card-header h3 {
+    margin: 0.2rem 0 0;
+    color: #fff;
+}
+
+.player-card-header i {
+    color: var(--primary);
+    font-size: 1.25rem;
+}
+
+.player-history-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.player-history-item {
+    display: grid;
+    grid-template-columns: 38px minmax(0, 1fr) auto;
+    gap: 0.75rem;
+    align-items: center;
+    padding: 0.75rem;
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.035);
+}
+
+.player-history-item i {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    border-radius: 12px;
+    color: #fff;
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+}
+
+.player-history-item strong {
+    display: block;
+    color: #fff;
+    overflow-wrap: anywhere;
+}
+
+.player-history-item span,
+.player-history-item time,
+.player-empty-text {
+    color: var(--text-muted);
+    font-size: 0.88rem;
+}
+
+.player-skeleton {
+    min-height: 116px;
+    border-radius: 18px;
+    background: linear-gradient(90deg, rgba(255, 255, 255, 0.04), rgba(255, 20, 147, 0.09), rgba(255, 255, 255, 0.04));
+    background-size: 220% 100%;
+    animation: playerSkeleton 1.4s ease infinite;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+@keyframes playerSkeleton {
+    0% { background-position: 120% 0; }
+    100% { background-position: -120% 0; }
+}
+
+@media (max-width: 768px) {
+    .player-profile-shell {
+        grid-template-columns: 1fr;
+    }
+
+    .player-profile-card {
+        position: relative;
+        top: auto;
+    }
+
+    .player-basic-grid,
+    .player-stats-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .player-search-box {
+        grid-template-columns: auto minmax(0, 1fr);
+    }
+
+    .player-search-box button {
+        grid-column: 1 / -1;
+        width: 100%;
+    }
+
+    .player-history-item {
+        grid-template-columns: 38px minmax(0, 1fr);
+    }
+
+    .player-history-item time {
+        grid-column: 2;
+    }
+}

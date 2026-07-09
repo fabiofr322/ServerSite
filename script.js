@@ -11,6 +11,7 @@ document.addEventListener('DOMContentLoaded', () => {
     setupHomeRankCarousel();
     setupRankings();
     setupTopClans();
+    setupPlayerHub();
     setupDiscordStats();
     setupNewsEvents();
     setupClicker();
@@ -2375,6 +2376,293 @@ function setupTopClans() {
         });
     });
     fetchClans();
+}
+
+/* ==========================================
+   LOGICA: PLAYER HUB / PERFIL DO JOGADOR
+   ========================================== */
+function setupPlayerHub() {
+    const input = document.getElementById('playerSearchInput');
+    const button = document.getElementById('playerSearchButton');
+    const suggestions = document.getElementById('playerSearchSuggestions');
+    const statusBox = document.getElementById('playerHubStatus');
+    const statsGrid = document.getElementById('playerStatsGrid');
+    const historyList = document.getElementById('playerHistoryList');
+
+    if (!input || !button || !suggestions || !statsGrid || !historyList) return;
+
+    const numberFmt = new Intl.NumberFormat('pt-BR');
+    let searchTimer = null;
+    let lastSuggestions = [];
+
+    const statDefinitions = [
+        { key: 'playtime_hours', label: 'Horas jogadas', icon: 'fa-solid fa-clock', fallback: '0h', format: value => `${numberFmt.format(Number(value || 0))}h` },
+        { key: 'deaths', label: 'Mortes', icon: 'fa-solid fa-skull', fallback: '0' },
+        { key: 'kills', label: 'Abates', icon: 'fa-solid fa-sword', fallback: '0' },
+        { key: 'blocks_broken', label: 'Blocos quebrados', icon: 'fa-solid fa-hammer', fallback: '0' },
+        { key: 'blocks_placed', label: 'Blocos colocados', icon: 'fa-solid fa-cubes', fallback: '0' },
+        { key: 'distance_walked', label: 'Distancia percorrida', icon: 'fa-solid fa-route', fallback: '0 km', format: value => `${numberFmt.format(Number(value || 0))} km` },
+        { key: 'mobs_killed', label: 'Mobs derrotados', icon: 'fa-solid fa-dragon', fallback: '0' },
+        { key: 'money', label: 'Dinheiro', icon: 'fa-solid fa-coins', fallback: '$0', format: value => `$${numberFmt.format(Number(value || 0))}` },
+        { key: 'rank', label: 'Rank', icon: 'fa-solid fa-ranking-star', fallback: '--' },
+        { key: 'clan', label: 'Cla', icon: 'fa-solid fa-people-group', fallback: '--' },
+        { key: 'role', label: 'Cargo', icon: 'fa-solid fa-user-shield', fallback: '--' },
+        { key: 'homes', label: 'Casas', icon: 'fa-solid fa-house', fallback: '0' },
+        { key: 'claims', label: 'Claims', icon: 'fa-solid fa-map-location-dot', fallback: '0' },
+        { key: 'achievements', label: 'Conquistas', icon: 'fa-solid fa-medal', fallback: '0' },
+        { key: 'events_won', label: 'Eventos vencidos', icon: 'fa-solid fa-trophy', fallback: '0' }
+    ];
+
+    function waitForSupabaseReady() {
+        return new Promise(resolve => {
+            if (supabaseClient) {
+                resolve(true);
+                return;
+            }
+
+            let attempts = 0;
+            const interval = setInterval(() => {
+                attempts++;
+                if (supabaseClient) {
+                    clearInterval(interval);
+                    resolve(true);
+                } else if (attempts >= 50) {
+                    clearInterval(interval);
+                    resolve(false);
+                }
+            }, 100);
+        });
+    }
+
+    function setStatus(message = '', type = 'info') {
+        if (!statusBox) return;
+        statusBox.textContent = message;
+        statusBox.classList.toggle('hidden', !message);
+        statusBox.classList.toggle('error', type === 'error');
+    }
+
+    function showStatsSkeleton() {
+        statsGrid.innerHTML = '<div class="player-skeleton"></div><div class="player-skeleton"></div><div class="player-skeleton"></div><div class="player-skeleton"></div>';
+    }
+
+    function formatStatValue(definition, stats = {}) {
+        const raw = stats[definition.key];
+        if (raw === null || raw === undefined || raw === '') return definition.fallback;
+        if (typeof definition.format === 'function') return definition.format(raw);
+        if (typeof raw === 'number') return numberFmt.format(raw);
+        return String(raw);
+    }
+
+    function renderStats(stats = {}) {
+        statsGrid.innerHTML = statDefinitions.map(definition => `
+            <article class="player-stat-card">
+                <i class="${definition.icon}"></i>
+                <span>${escapeHTML(definition.label)}</span>
+                <strong>${escapeHTML(formatStatValue(definition, stats))}</strong>
+            </article>
+        `).join('');
+    }
+
+    function renderHistory(items = []) {
+        if (!items || items.length === 0) {
+            historyList.innerHTML = '<p class="player-empty-text">Nenhuma atividade registrada para este jogador ainda.</p>';
+            return;
+        }
+
+        historyList.innerHTML = items.slice(0, 8).map(item => `
+            <article class="player-history-item">
+                <i class="${escapeHTML(item.icon || 'fa-solid fa-circle-info')}"></i>
+                <div>
+                    <strong>${escapeHTML(item.title || 'Atividade registrada')}</strong>
+                    <span>${escapeHTML(item.description || '')}</span>
+                </div>
+                <time>${escapeHTML(item.created_at ? formatRelativeTime(item.created_at) : '--')}</time>
+            </article>
+        `).join('');
+    }
+
+    function normalizeProfile(profile = {}, stats = {}, activity = []) {
+        const nick = profile.minecraft_username || profile.nick || profile.username || '';
+        return {
+            id: profile.id,
+            nick,
+            uuid: profile.minecraft_uuid || profile.uuid || '--',
+            bio: profile.bio || 'Perfil publico do jogador no FR32SURVIVAL.',
+            banner: profile.banner_url || '',
+            firstJoin: profile.first_join_at || profile.created_at || null,
+            lastLogin: profile.last_login_at || null,
+            online: Boolean(profile.is_online),
+            verified: Boolean(profile.is_verified),
+            stats: stats || {},
+            activity: activity || []
+        };
+    }
+
+    function renderProfile(profileData) {
+        const profile = normalizeProfile(profileData.profile, profileData.stats, profileData.activity);
+        const safeNick = safeMinecraftUsername(profile.nick || 'Steve');
+        const avatar = document.getElementById('playerAvatarImage');
+        const body = document.getElementById('playerBodyImage');
+        const banner = document.getElementById('playerBanner');
+        const verified = document.getElementById('playerVerifiedBadge');
+
+        document.getElementById('playerNick').textContent = profile.nick || 'Jogador';
+        document.getElementById('playerBio').textContent = profile.bio;
+        document.getElementById('playerUuid').textContent = profile.uuid || '--';
+        document.getElementById('playerFirstJoin').textContent = profile.firstJoin ? new Date(profile.firstJoin).toLocaleDateString('pt-BR') : '--';
+        document.getElementById('playerLastLogin').textContent = profile.lastLogin ? formatRelativeTime(profile.lastLogin) : '--';
+        document.getElementById('playerStatus').textContent = profile.online ? 'Online' : 'Offline';
+
+        if (avatar) avatar.src = `https://mc-heads.net/avatar/${encodeURIComponent(safeNick)}/96`;
+        if (body) body.src = `https://mc-heads.net/body/${encodeURIComponent(safeNick)}/220`;
+        if (banner) {
+            banner.style.backgroundImage = profile.banner
+                ? `linear-gradient(135deg, rgba(8, 2, 18, 0.2), rgba(8, 2, 18, 0.62)), url("${profile.banner}")`
+                : '';
+        }
+        if (verified) verified.classList.toggle('hidden', !profile.verified);
+
+        renderStats(profile.stats);
+        renderHistory(profile.activity);
+    }
+
+    function renderSuggestions(items = []) {
+        lastSuggestions = items;
+        if (!items.length) {
+            suggestions.classList.add('hidden');
+            suggestions.innerHTML = '';
+            return;
+        }
+
+        suggestions.innerHTML = items.map(item => {
+            const nick = item.minecraft_username || item.nick || item.username || '';
+            const safeNick = safeMinecraftUsername(nick || 'Steve');
+            return `
+                <button type="button" class="player-suggestion" data-player-nick="${escapeHTML(nick)}">
+                    <img src="https://mc-heads.net/avatar/${encodeURIComponent(safeNick)}/48" alt="Avatar ${escapeHTML(nick)}">
+                    <strong>${escapeHTML(nick)}</strong>
+                    <span>${item.is_verified ? 'Verificado' : 'Perfil publico'}</span>
+                </button>
+            `;
+        }).join('');
+        suggestions.classList.remove('hidden');
+    }
+
+    async function searchPlayers(query) {
+        const cleanQuery = String(query || '').trim();
+        if (cleanQuery.length < 2) {
+            renderSuggestions([]);
+            return [];
+        }
+
+        const ready = await waitForSupabaseReady();
+        if (!ready) return [];
+
+        const { data, error } = await supabaseClient
+            .from('player_profiles')
+            .select('id, minecraft_username, minecraft_uuid, is_verified, is_online')
+            .ilike('minecraft_username', `${cleanQuery}%`)
+            .order('minecraft_username', { ascending: true })
+            .limit(6);
+
+        if (error) {
+            console.warn('[Player Hub] Falha ao buscar sugestoes:', error);
+            setStatus('Execute o arquivo player_hub_schema.sql no Supabase para ativar a busca de jogadores.', 'error');
+            return [];
+        }
+
+        renderSuggestions(data || []);
+        return data || [];
+    }
+
+    async function openPlayerProfile(query) {
+        const cleanQuery = String(query || '').trim();
+        if (!cleanQuery) {
+            setStatus('Digite o nick de um jogador para pesquisar.', 'error');
+            return;
+        }
+
+        setStatus('Buscando perfil do jogador...');
+        showStatsSkeleton();
+        renderSuggestions([]);
+
+        const ready = await waitForSupabaseReady();
+        if (!ready) {
+            setStatus('Supabase ainda nao carregou. Tente novamente em alguns segundos.', 'error');
+            renderStats({});
+            return;
+        }
+
+        try {
+            let { data: profile, error } = await supabaseClient
+                .from('player_profiles')
+                .select('*')
+                .ilike('minecraft_username', cleanQuery)
+                .maybeSingle();
+
+            if (error) throw error;
+
+            if (!profile) {
+                setStatus('Jogador nao encontrado. Quando o plugin sincronizar os dados, ele aparecera aqui.', 'error');
+                renderStats({});
+                renderHistory([]);
+                return;
+            }
+
+            const [{ data: stats, error: statsError }, { data: activity, error: activityError }] = await Promise.all([
+                supabaseClient.from('player_stats').select('*').eq('player_id', profile.id).maybeSingle(),
+                supabaseClient.from('player_activity').select('*').eq('player_id', profile.id).order('created_at', { ascending: false }).limit(8)
+            ]);
+
+            if (statsError) console.warn('[Player Hub] Estatisticas indisponiveis:', statsError);
+            if (activityError) console.warn('[Player Hub] Historico indisponivel:', activityError);
+
+            renderProfile({ profile, stats: stats || {}, activity: activity || [] });
+            setStatus('');
+        } catch (error) {
+            console.warn('[Player Hub] Falha ao carregar perfil:', error);
+            setStatus('Nao foi possivel carregar o perfil. Confira se o SQL do Player Hub foi executado no Supabase.', 'error');
+            renderStats({});
+        }
+    }
+
+    input.addEventListener('input', () => {
+        clearTimeout(searchTimer);
+        searchTimer = setTimeout(() => searchPlayers(input.value), 220);
+    });
+
+    input.addEventListener('keydown', event => {
+        if (event.key === 'Enter') {
+            event.preventDefault();
+            openPlayerProfile(input.value);
+        }
+    });
+
+    button.addEventListener('click', () => openPlayerProfile(input.value));
+
+    suggestions.addEventListener('click', event => {
+        const item = event.target.closest('.player-suggestion');
+        if (!item) return;
+        const nick = item.dataset.playerNick;
+        input.value = nick;
+        renderSuggestions([]);
+        openPlayerProfile(nick);
+    });
+
+    document.addEventListener('click', event => {
+        if (!suggestions.contains(event.target) && event.target !== input) {
+            suggestions.classList.add('hidden');
+        }
+    });
+
+    const verifyButton = document.getElementById('playerVerifyButton');
+    if (verifyButton) {
+        verifyButton.addEventListener('click', () => {
+            setStatus('O sistema de verificacao por comando /verificar sera ligado na proxima fase, junto com a API e o plugin.', 'info');
+        });
+    }
+
+    renderStats({});
 }
 
 async function setupDiscordStats() {

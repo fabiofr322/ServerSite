@@ -19,10 +19,11 @@ begin
       errcode = 'check_violation';
   end if;
 
-  insert into public.profiles (id, minecraft_username)
-  values (new.id, requested_username)
+  insert into public.profiles (id, minecraft_username, email)
+  values (new.id, requested_username, new.email)
   on conflict (id) do update
-    set minecraft_username = excluded.minecraft_username;
+    set minecraft_username = excluded.minecraft_username,
+        email = excluded.email;
 
   if lower(coalesce(new.email, '')) = 'fabioribeiro.p13@gmail.com' then
     insert into public.user_permissions (user_id, role, email)
