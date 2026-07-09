@@ -1,2 +1,4 @@
 /api/ranks  /.netlify/functions/ranks  200
 /api/clans  /.netlify/functions/clans  200
+/api/player-search  /.netlify/functions/player-search  200
+/api/player-profile  /.netlify/functions/player-profile  200

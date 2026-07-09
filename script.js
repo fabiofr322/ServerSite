@@ -1827,6 +1827,8 @@ function bindGalleryInteractions() {
    ========================================== */
 const RANKS_API_URL = '/api/ranks';
 const CLANS_API_URL = '/api/clans';
+const PLAYER_SEARCH_API_URL = '/api/player-search';
+const PLAYER_PROFILE_API_URL = '/api/player-profile';
 const HOME_TRACKER_META = {
     minerador: { name: 'Minerador', icon: '⛏️' },
     assassino: { name: 'Assassino', icon: '⚔️' },
@@ -2548,13 +2550,25 @@ function setupPlayerHub() {
         suggestions.classList.remove('hidden');
     }
 
-    async function searchPlayers(query) {
-        const cleanQuery = String(query || '').trim();
-        if (cleanQuery.length < 2) {
-            renderSuggestions([]);
-            return [];
+    async function fetchPlayerApi(url) {
+        if (window.location.protocol === 'file:') {
+            throw new Error('Local file mode');
         }
 
+        const response = await fetch(url, {
+            cache: 'no-store',
+            headers: { accept: 'application/json' }
+        });
+        const data = await response.json().catch(() => ({}));
+
+        if (!response.ok) {
+            throw new Error(data.error || 'Player API unavailable');
+        }
+
+        return data;
+    }
+
+    async function searchPlayersViaSupabase(cleanQuery) {
         const ready = await waitForSupabaseReady();
         if (!ready) return [];
 
@@ -2565,14 +2579,61 @@ function setupPlayerHub() {
             .order('minecraft_username', { ascending: true })
             .limit(6);
 
-        if (error) {
-            console.warn('[Player Hub] Falha ao buscar sugestoes:', error);
-            setStatus('Execute o arquivo player_hub_schema.sql no Supabase para ativar a busca de jogadores.', 'error');
+        if (error) throw error;
+        return data || [];
+    }
+
+    async function loadPlayerProfileViaSupabase(cleanQuery) {
+        const ready = await waitForSupabaseReady();
+        if (!ready) {
+            throw new Error('Supabase ainda nao carregou. Tente novamente em alguns segundos.');
+        }
+
+        const { data: profiles, error } = await supabaseClient
+            .from('player_profiles')
+            .select('*')
+            .ilike('minecraft_username', cleanQuery)
+            .limit(1);
+
+        if (error) throw error;
+
+        const profile = Array.isArray(profiles) ? profiles[0] : null;
+        if (!profile) return null;
+
+        const [{ data: stats, error: statsError }, { data: activity, error: activityError }] = await Promise.all([
+            supabaseClient.from('player_stats').select('*').eq('player_id', profile.id).maybeSingle(),
+            supabaseClient.from('player_activity').select('*').eq('player_id', profile.id).order('created_at', { ascending: false }).limit(8)
+        ]);
+
+        if (statsError) console.warn('[Player Hub] Estatisticas indisponiveis:', statsError);
+        if (activityError) console.warn('[Player Hub] Historico indisponivel:', activityError);
+
+        return { profile, stats: stats || {}, activity: activity || [] };
+    }
+
+    async function searchPlayers(query) {
+        const cleanQuery = String(query || '').trim();
+        if (cleanQuery.length < 2) {
+            renderSuggestions([]);
             return [];
         }
 
-        renderSuggestions(data || []);
-        return data || [];
+        try {
+            const data = await fetchPlayerApi(`${PLAYER_SEARCH_API_URL}?q=${encodeURIComponent(cleanQuery)}`);
+            const players = data.players || [];
+            renderSuggestions(players);
+            return players;
+        } catch (apiError) {
+            try {
+                const players = await searchPlayersViaSupabase(cleanQuery);
+                renderSuggestions(players);
+                return players;
+            } catch (error) {
+                console.warn('[Player Hub] Falha ao buscar sugestoes:', error || apiError);
+                setStatus('Nao foi possivel buscar jogadores agora. Confira a API ou o SQL do Player Hub.', 'error');
+            }
+            return [];
+        }
     }
 
     async function openPlayerProfile(query) {
@@ -2586,39 +2647,22 @@ function setupPlayerHub() {
         showStatsSkeleton();
         renderSuggestions([]);
 
-        const ready = await waitForSupabaseReady();
-        if (!ready) {
-            setStatus('Supabase ainda nao carregou. Tente novamente em alguns segundos.', 'error');
-            renderStats({});
-            return;
-        }
-
         try {
-            let { data: profiles, error } = await supabaseClient
-                .from('player_profiles')
-                .select('*')
-                .ilike('minecraft_username', cleanQuery)
-                .limit(1);
+            let profileData;
+            try {
+                profileData = await fetchPlayerApi(`${PLAYER_PROFILE_API_URL}?nick=${encodeURIComponent(cleanQuery)}`);
+            } catch (apiError) {
+                profileData = await loadPlayerProfileViaSupabase(cleanQuery);
+            }
 
-            if (error) throw error;
-
-            const profile = Array.isArray(profiles) ? profiles[0] : null;
-            if (!profile) {
+            if (!profileData?.profile) {
                 setStatus('Jogador nao encontrado. Quando o plugin sincronizar os dados, ele aparecera aqui.', 'error');
                 renderStats({});
                 renderHistory([]);
                 return;
             }
 
-            const [{ data: stats, error: statsError }, { data: activity, error: activityError }] = await Promise.all([
-                supabaseClient.from('player_stats').select('*').eq('player_id', profile.id).maybeSingle(),
-                supabaseClient.from('player_activity').select('*').eq('player_id', profile.id).order('created_at', { ascending: false }).limit(8)
-            ]);
-
-            if (statsError) console.warn('[Player Hub] Estatisticas indisponiveis:', statsError);
-            if (activityError) console.warn('[Player Hub] Historico indisponivel:', activityError);
-
-            renderProfile({ profile, stats: stats || {}, activity: activity || [] });
+            renderProfile(profileData);
             setStatus('');
         } catch (error) {
             console.warn('[Player Hub] Falha ao carregar perfil:', error);
