@@ -2594,14 +2594,15 @@ function setupPlayerHub() {
         }
 
         try {
-            let { data: profile, error } = await supabaseClient
+            let { data: profiles, error } = await supabaseClient
                 .from('player_profiles')
                 .select('*')
                 .ilike('minecraft_username', cleanQuery)
-                .maybeSingle();
+                .limit(1);
 
             if (error) throw error;
 
+            const profile = Array.isArray(profiles) ? profiles[0] : null;
             if (!profile) {
                 setStatus('Jogador nao encontrado. Quando o plugin sincronizar os dados, ele aparecera aqui.', 'error');
                 renderStats({});
@@ -2621,7 +2622,8 @@ function setupPlayerHub() {
             setStatus('');
         } catch (error) {
             console.warn('[Player Hub] Falha ao carregar perfil:', error);
-            setStatus('Nao foi possivel carregar o perfil. Confira se o SQL do Player Hub foi executado no Supabase.', 'error');
+            const detail = error?.message ? ` Detalhe: ${error.message}` : '';
+            setStatus(`Nao foi possivel carregar o perfil.${detail}`, 'error');
             renderStats({});
         }
     }
@@ -4813,6 +4815,9 @@ function safeImageUrl(path) {
 
 // Helper: Formatar data relativa amigável
 function formatRelativeTime(date) {
+    date = date instanceof Date ? date : new Date(date);
+    if (Number.isNaN(date.getTime())) return '--';
+
     const now = new Date();
     const diffMs = now - date;
     const diffSec = Math.floor(diffMs / 1000);
