@@ -112,7 +112,7 @@ insert into public.site_products (
   'https://mc-heads.net/body/Alex/220', null, '[]'::jsonb,
   'Mais recursos, mais conforto e kits mais fortes para evoluir.',
   jsonb_build_array('Tag VIP Jade', 'Chat colorido', 'Auto-Armor', 'Kit mensal reforcado', 'Kit semanal Jade'),
-  jsonb_build_array('Beneficios gerais de VIP.', 'Kits com mais totens e alimentos.', 'Recursos adicionais para economia e progresso.', 'Kit semanal reforcado.'),
+  jsonb_build_array('Beneficios gerais de VIP.', 'Kits com mais totens e alimentos.', 'Recursos adicionais para progresso no survival.', 'Kit semanal reforcado.'),
   jsonb_build_array('Set Netherite com Protecao III, Inquebravel III, Remendo e trim.', 'Espada Netherite com Afiacao V, Aspecto Flamejante II, Saque III e Remendo.', 'Machado, picareta e pa de Netherite com Eficiencia V e Remendo.', '5 Totens da Imortalidade.', '40 Macas Douradas, 128 Cenouras Douradas, 64 Diamantes, 32 Ferros, 32 Perolas, 16 Ender Chests, escudo, 2 Shulkers e bolo.'),
   jsonb_build_array('4 Totens da Imortalidade.', '32 Macas Douradas.', '128 Cenouras Douradas.', '32 Diamantes.'),
   jsonb_build_array(
@@ -157,7 +157,7 @@ insert into public.site_products (
   'https://mc-heads.net/body/Herobrine/220', null, '[]'::jsonb,
   'O plano mais completo para quem quer apoiar no nivel maximo.',
   jsonb_build_array('Tag Onix', 'Chat colorido', 'Auto-Armor', 'Kit mensal premium', 'Kit semanal premium'),
-  jsonb_build_array('Beneficios VIP de alto nivel.', 'Kits mais completos do servidor.', 'Mais recursos para economia e combate.', 'Kit semanal premium.'),
+  jsonb_build_array('Beneficios VIP de alto nivel.', 'Kits mais completos do servidor.', 'Mais recursos para exploracao e combate.', 'Kit semanal premium.'),
   jsonb_build_array('Set Netherite com Protecao IV, Inquebravel III, Remendo, Respiracao III, Queda Suave IV e trim.', 'Espada Netherite com Afiacao V, Aspecto Flamejante II, Saque III, Remendo e Inquebravel III.', 'Machado, picareta, pa e enxada de Netherite com Eficiencia V, Remendo e Inquebravel III.', '7 Totens da Imortalidade.', '56 Macas Douradas, 128 Cenouras Douradas, 64 Diamantes, 64 Ferros, 40 Perolas, 24 Ender Chests, escudo, 2 Shulkers, bolo, Totem na offhand e balde de agua.'),
   jsonb_build_array('6 Totens da Imortalidade.', '40 Macas Douradas.', '128 Cenouras Douradas.', '48 Diamantes.'),
   jsonb_build_array(

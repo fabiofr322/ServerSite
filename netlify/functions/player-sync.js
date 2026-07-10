@@ -113,7 +113,6 @@ async function upsertStats(playerId, stats) {
         blocks_placed: safeInteger(stats.blocks_placed),
         distance_walked: safeNumber(stats.distance_walked),
         mobs_killed: safeInteger(stats.mobs_killed),
-        money: safeNumber(stats.money),
         rank: cleanOptionalText(stats.rank),
         clan: cleanOptionalText(stats.clan),
         role: cleanOptionalText(stats.role),

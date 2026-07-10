@@ -50,7 +50,7 @@ Este arquivo acompanha o que ja foi feito e o que ainda falta implementar no Pla
 - [x] Sincronizar tempo jogado.
 - [x] Sincronizar kills, mortes, blocos quebrados e blocos colocados.
 - [x] Sincronizar distancia percorrida e mobs derrotados.
-- [ ] Sincronizar dinheiro, rank, clan, cargo, homes, claims e conquistas.
+- [ ] Sincronizar rank, clan, cargo, homes, claims e conquistas.
 - [x] Criar comando `/verificar <codigo>`.
 - [x] Criar comando alternativo `/confirmar <codigo>`.
 - [x] Fazer o plugin confirmar o codigo na API do site.

@@ -182,7 +182,7 @@ const DEFAULT_VIP_PRODUCTS = [
         recommended: false,
         ribbon: '',
         subtitle: 'Mais recursos, mais conforto e kits mais fortes para evoluir.',
-        description: ['Beneficios gerais de VIP.', 'Kits com mais totens e alimentos.', 'Recursos adicionais para economia e progresso.', 'Kit semanal reforcado.'],
+        description: ['Beneficios gerais de VIP.', 'Kits com mais totens e alimentos.', 'Recursos adicionais para progresso no survival.', 'Kit semanal reforcado.'],
         showcase: [
             { icon: 'fa-solid fa-leaf', title: 'Progressao', text: 'Plano equilibrado para evoluir.' },
             { icon: 'fa-solid fa-shield-heart', title: 'Sobrevivencia', text: 'Totens e alimentos em boa quantidade.' },
@@ -249,7 +249,7 @@ const DEFAULT_VIP_PRODUCTS = [
         recommended: false,
         ribbon: 'Elite',
         subtitle: 'O plano mais completo para quem quer apoiar no nivel maximo.',
-        description: ['Beneficios VIP de alto nivel.', 'Kits mais completos do servidor.', 'Mais recursos para economia e combate.', 'Kit semanal premium.'],
+        description: ['Beneficios VIP de alto nivel.', 'Kits mais completos do servidor.', 'Mais recursos para exploracao e combate.', 'Kit semanal premium.'],
         showcase: [
             { icon: 'fa-solid fa-meteor', title: 'Elite', text: 'Plano mais forte da loja.' },
             { icon: 'fa-solid fa-shield-halved', title: 'Kits premium', text: 'Itens de alto valor para a temporada.' },
@@ -657,7 +657,7 @@ function getVipFeatureIcon(feature) {
     if (/totem/.test(t))                              return 'fa-solid fa-star-of-life';
     if (/ma[cç]a/.test(t))                           return 'fa-solid fa-apple-whole';
     if (/\/back|teleport|tpa/.test(t))               return 'fa-solid fa-arrow-right-to-bracket';
-    if (/economia|moeda|dinheiro/.test(t))           return 'fa-solid fa-coins';
+    if (/recurso|suprimento|diamante/.test(t))       return 'fa-solid fa-gem';
     if (/perola|ender/.test(t))                      return 'fa-solid fa-circle-dot';
     return 'fa-solid fa-circle-check';
 }
@@ -2407,7 +2407,6 @@ function setupPlayerHub() {
         { key: 'blocks_placed', label: 'Blocos colocados', icon: 'fa-solid fa-cubes', fallback: '0' },
         { key: 'distance_walked', label: 'Distancia percorrida', icon: 'fa-solid fa-route', fallback: '0 km', format: value => `${numberFmt.format(Number(value || 0))} km` },
         { key: 'mobs_killed', label: 'Mobs derrotados', icon: 'fa-solid fa-dragon', fallback: '0' },
-        { key: 'money', label: 'Dinheiro', icon: 'fa-solid fa-coins', fallback: '$0', format: value => `$${numberFmt.format(Number(value || 0))}` },
         { key: 'rank', label: 'Rank', icon: 'fa-solid fa-ranking-star', fallback: '--' },
         { key: 'clan', label: 'Cla', icon: 'fa-solid fa-people-group', fallback: '--' },
         { key: 'role', label: 'Cargo', icon: 'fa-solid fa-user-shield', fallback: '--' },
