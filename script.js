@@ -1078,7 +1078,7 @@ async function setupMinecraftStatus() {
     try {
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 5000);
-        const response = await fetch('https://api.mcsrvstat.us/3/enx-cirion-92.enx.host:10026', {
+        const response = await fetch('https://api.mcsrvstat.us/3/jogar.fr32survival.com', {
             cache: 'no-store',
             signal: controller.signal
         });
