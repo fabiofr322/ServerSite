@@ -72,7 +72,7 @@
             <div class="nav-actions">
                 <button class="btn-nav-ip" onclick="copyIP()">
                     <span class="offline-dot"></span>
-                    <span class="nav-ip-text">IP: fr32survival.com</span>
+                    <span class="nav-ip-text">IP: jogar.fr32survival.com</span>
                     <i class="fa-regular fa-copy"></i>
                 </button>
                 <button class="mobile-menu-btn" id="mobileMenuBtn">
@@ -218,7 +218,7 @@
                     <span id="serverVersion">Versão 1.21.1+</span>
                 </div>
                 <button class="server-ip-copy" type="button" onclick="copyIP()">
-                    <span class="widget-ip" id="ipText">fr32survival.com</span>
+                    <span class="widget-ip" id="ipText">jogar.fr32survival.com</span>
                     <i class="fa-regular fa-copy widget-icon"></i>
                 </button>
                 <div class="widget-hint">Clique para copiar o IP do servidor</div>
@@ -252,33 +252,54 @@
         <!-- Seção Como Entrar -->
         <section id="como-entrar" class="join-section">
             <h2 class="section-title">Como Entrar</h2>
-            <p class="section-subtitle">Entre no servidor em poucos passos pelo Minecraft Java.</p>
+            <p class="section-subtitle">Entre no servidor pelo Minecraft Java ou Bedrock (Celular, Tablet e Consoles).</p>
 
             <div class="join-grid">
                 <div class="join-step">
                     <span class="join-step-number">1</span>
                     <i class="fa-solid fa-cube"></i>
-                    <h3>Abra o Minecraft Java</h3>
-                    <p>Use a versão 1.21.1 ou superior. ViaVersion mantém a entrada flexível para versões compatíveis.</p>
+                    <h3>Abra o seu Minecraft</h3>
+                    <p>Use Java (versão 1.21.1+) ou Bedrock (última versão). O suporte crossplay permite jogar juntos!</p>
                 </div>
                 <div class="join-step">
                     <span class="join-step-number">2</span>
                     <i class="fa-solid fa-server"></i>
-                    <h3>Vá em Multiplayer</h3>
-                    <p>Adicione um novo servidor na sua lista para deixar o FR32SURVIVAL sempre à mão.</p>
+                    <h3>Adicione o Servidor</h3>
+                    <p>Vá em Multiplayer (Java) ou Servidores (Bedrock) e clique em Adicionar Servidor.</p>
                 </div>
                 <div class="join-step">
                     <span class="join-step-number">3</span>
                     <i class="fa-regular fa-copy"></i>
-                    <h3>Copie o IP</h3>
-                    <p>Use o endereço abaixo e entre para acompanhar temporadas, rankings e eventos.</p>
+                    <h3>Copie os dados de conexão</h3>
+                    <p>Use os botões abaixo para copiar o IP e a porta de acordo com a sua versão.</p>
                 </div>
             </div>
 
-            <button class="join-ip-card" type="button" onclick="copyIP()">
-                <span>fr32survival.com</span>
-                <i class="fa-regular fa-copy"></i>
-            </button>
+            <!-- Dados de Conexão Java e Bedrock -->
+            <div class="join-cards-container">
+                <div class="join-card-item">
+                    <h4>Minecraft Java</h4>
+                    <button class="join-ip-card" type="button" onclick="copyIP('jogar.fr32survival.com')">
+                        <span>jogar.fr32survival.com</span>
+                        <i class="fa-regular fa-copy"></i>
+                    </button>
+                </div>
+                <div class="join-card-item">
+                    <h4>Minecraft Bedrock</h4>
+                    <div class="join-bedrock-buttons">
+                        <button class="join-ip-card" type="button" onclick="copyIP('jogar.fr32survival.com')">
+                            <span class="label">IP: </span>
+                            <span>jogar.fr32survival.com</span>
+                            <i class="fa-regular fa-copy"></i>
+                        </button>
+                        <button class="join-ip-card" type="button" onclick="copyPort('10062')">
+                            <span class="label">Porta: </span>
+                            <span>10062</span>
+                            <i class="fa-regular fa-copy"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
 
             <div class="server-benefits-grid">
                 <div class="server-benefit">

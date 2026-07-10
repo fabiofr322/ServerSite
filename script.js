@@ -383,35 +383,51 @@ function setupNavigation() {
 }
 
 // Lógica Global de Cópia de IP
-window.copyIP = function () {
+window.copyIP = function (customIp) {
     // Endereço oficial do servidor de Minecraft
-    const ip = 'fr32survival.com';
+    const ip = customIp || 'jogar.fr32survival.com';
+    const msg = 'IP copiado para a área de transferência!';
 
     // Método moderno de área de transferência
     if (navigator.clipboard && window.isSecureContext) {
-        navigator.clipboard.writeText(ip).then(showToast).catch(fallbackCopyIP);
+        navigator.clipboard.writeText(ip).then(() => showToast(msg)).catch(() => fallbackCopyIP(ip, msg));
     } else {
-        fallbackCopyIP(ip);
+        fallbackCopyIP(ip, msg);
     }
 };
 
-function fallbackCopyIP(ip) {
+window.copyPort = function (port) {
+    const portValue = port || '10062';
+    const msg = 'Porta copiada com sucesso!';
+
+    if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(portValue).then(() => showToast(msg)).catch(() => fallbackCopyIP(portValue, msg));
+    } else {
+        fallbackCopyIP(portValue, msg);
+    }
+};
+
+function fallbackCopyIP(text, message) {
     const tempInput = document.createElement("input");
-    tempInput.value = ip;
+    tempInput.value = text;
     document.body.appendChild(tempInput);
     tempInput.select();
     try {
         document.execCommand("copy");
-        showToast();
+        showToast(message);
     } catch (err) {
-        console.error("Erro ao copiar IP: ", err);
+        console.error("Erro ao copiar: ", err);
     }
     document.body.removeChild(tempInput);
 }
 
-function showToast() {
+function showToast(message) {
     const toast = document.getElementById('toast');
     if (toast) {
+        const textSpan = toast.querySelector('span');
+        if (textSpan) {
+            textSpan.textContent = message || 'IP copiado para a área de transferência!';
+        }
         toast.classList.add('show');
         setTimeout(() => {
             toast.classList.remove('show');

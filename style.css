@@ -1067,6 +1067,69 @@ section.site-tab-active {
     transform: translateY(-2px);
 }
 
+.join-cards-container {
+    display: flex;
+    justify-content: center;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+    margin: 2rem auto 0;
+    width: 100%;
+    max-width: 900px;
+}
+
+.join-card-item {
+    flex: 1;
+    min-width: 280px;
+    max-width: 430px;
+    background: rgba(13, 0, 26, 0.35);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+
+.join-card-item h4 {
+    font-family: var(--font-main);
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: #fff;
+    margin-bottom: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    text-align: center;
+}
+
+.join-bedrock-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+    width: 100%;
+}
+
+.join-bedrock-buttons .join-ip-card {
+    margin: 0;
+    width: 100%;
+}
+
+.join-card-item .join-ip-card {
+    margin: 0;
+    width: 100%;
+}
+
+.join-ip-card span.label {
+    color: var(--text-muted);
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    font-family: var(--font-main);
+    font-weight: 600;
+    margin-right: 4px;
+}
+
 .server-benefits-grid {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
