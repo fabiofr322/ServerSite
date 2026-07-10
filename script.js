@@ -2496,16 +2496,24 @@ function setupPlayerHub() {
         return {
             id: profile.id,
             nick,
-            uuid: profile.minecraft_uuid || profile.uuid || '--',
             bio: profile.bio || 'Perfil publico do jogador no FR32SURVIVAL.',
             banner: profile.banner_url || '',
             firstJoin: profile.first_join_at || profile.created_at || null,
             lastLogin: profile.last_login_at || null,
             online: Boolean(profile.is_online),
             verified: Boolean(profile.is_verified),
+            playtimeSeconds: profile.total_playtime_seconds || 0,
             stats: stats || {},
             activity: activity || []
         };
+    }
+
+    function formatPlaytime(seconds) {
+        if (!seconds || seconds <= 0) return '--';
+        const h = Math.floor(seconds / 3600);
+        const m = Math.floor((seconds % 3600) / 60);
+        if (h > 0) return `${h}h ${m}m`;
+        return `${m}m`;
     }
 
     function renderProfile(profileData) {
@@ -2519,10 +2527,10 @@ function setupPlayerHub() {
 
         document.getElementById('playerNick').textContent = profile.nick || 'Jogador';
         document.getElementById('playerBio').textContent = profile.bio;
-        document.getElementById('playerUuid').textContent = profile.uuid || '--';
         document.getElementById('playerFirstJoin').textContent = profile.firstJoin ? new Date(profile.firstJoin).toLocaleDateString('pt-BR') : '--';
         document.getElementById('playerLastLogin').textContent = profile.lastLogin ? formatRelativeTime(profile.lastLogin) : '--';
         document.getElementById('playerStatus').textContent = profile.online ? 'Online' : 'Offline';
+        document.getElementById('playerPlaytime').textContent = formatPlaytime(profile.playtimeSeconds);
 
         if (avatar) avatar.src = `https://mc-heads.net/avatar/${encodeURIComponent(safeNick)}/96`;
         if (body) body.src = `https://mc-heads.net/body/${encodeURIComponent(safeNick)}/220`;
