@@ -6036,6 +6036,24 @@ footer a:hover {
     margin: 1.1rem 1.3rem 0;
 }
 
+.player-verified-status {
+    width: calc(100% - 2.6rem);
+    margin: 1.1rem 1.3rem 0;
+    padding: 0.75rem 1rem;
+    border-radius: 14px;
+    background: rgba(69, 255, 144, 0.1);
+    border: 1px solid rgba(69, 255, 144, 0.3);
+    color: #45ff90;
+    font: 900 0.8rem var(--font-main);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    box-shadow: 0 0 15px rgba(69, 255, 144, 0.08);
+}
+
 /* Dashboard */
 .player-dashboard {
     display: flex;

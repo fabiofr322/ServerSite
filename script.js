@@ -2541,6 +2541,11 @@ function setupPlayerHub() {
         }
         if (verified) verified.classList.toggle('hidden', !profile.verified);
 
+        const verifyBtn = document.getElementById('playerVerifyButton');
+        const verifiedStatus = document.getElementById('playerVerifiedStatus');
+        if (verifyBtn) verifyBtn.classList.toggle('hidden', profile.verified);
+        if (verifiedStatus) verifiedStatus.classList.toggle('hidden', !profile.verified);
+
         renderStats(profile.stats);
         renderHistory(profile.activity);
     }
