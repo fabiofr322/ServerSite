@@ -1112,6 +1112,12 @@ function setupCountdown() {
     function revealServerStatus() {
         if (statusRevealed) return;
         statusRevealed = true;
+        
+        const countdownContainer = document.querySelector('.countdown-container');
+        if (countdownContainer) {
+            countdownContainer.classList.add('hidden');
+        }
+        
         if (serverStatusCard) serverStatusCard.classList.remove('hidden');
         setupMinecraftStatus();
     }
