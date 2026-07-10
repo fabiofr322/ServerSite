@@ -36,6 +36,7 @@ Este arquivo acompanha o que ja foi feito e o que ainda falta implementar no Pla
 - [x] Fazer o frontend usar as APIs com fallback local via Supabase.
 - [x] Criar endpoint `/api/player-verification/start`.
 - [x] Criar endpoint `/api/player-verification/confirm`.
+- [x] Criar endpoint `/api/player-sync`.
 - [x] Validar codigo com expiracao curta.
 - [x] Impedir reutilizacao de codigos.
 - [ ] Limitar tentativas para reduzir forca bruta.
@@ -43,11 +44,12 @@ Este arquivo acompanha o que ja foi feito e o que ainda falta implementar no Pla
 ## Fase 4 - Plugin Minecraft
 
 - [x] Definir se sera no FrSiteBridge ou plugin separado.
-- [ ] Sincronizar nick e UUID.
-- [ ] Sincronizar primeira entrada e ultimo login.
-- [ ] Sincronizar status online/offline.
-- [ ] Sincronizar tempo jogado.
-- [ ] Sincronizar kills, mortes, blocos quebrados e blocos colocados.
+- [x] Sincronizar nick e UUID.
+- [x] Sincronizar primeira entrada e ultimo login.
+- [x] Sincronizar status online/offline.
+- [x] Sincronizar tempo jogado.
+- [x] Sincronizar kills, mortes, blocos quebrados e blocos colocados.
+- [x] Sincronizar distancia percorrida e mobs derrotados.
 - [ ] Sincronizar dinheiro, rank, clan, cargo, homes, claims e conquistas.
 - [x] Criar comando `/verificar <codigo>`.
 - [x] Criar comando alternativo `/confirmar <codigo>`.

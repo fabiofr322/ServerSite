@@ -4,3 +4,4 @@
 /api/player-profile  /.netlify/functions/player-profile  200
 /api/player-verification/start  /.netlify/functions/player-verification-start  200
 /api/player-verification/confirm  /.netlify/functions/player-verification-confirm  200
+/api/player-sync  /.netlify/functions/player-sync  200
