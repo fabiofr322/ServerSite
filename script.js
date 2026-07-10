@@ -1829,6 +1829,7 @@ const RANKS_API_URL = '/api/ranks';
 const CLANS_API_URL = '/api/clans';
 const PLAYER_SEARCH_API_URL = '/api/player-search';
 const PLAYER_PROFILE_API_URL = '/api/player-profile';
+const PLAYER_VERIFICATION_START_API_URL = '/api/player-verification/start';
 const HOME_TRACKER_META = {
     minerador: { name: 'Minerador', icon: '⛏️' },
     assassino: { name: 'Assassino', icon: '⚔️' },
@@ -2396,6 +2397,7 @@ function setupPlayerHub() {
     const numberFmt = new Intl.NumberFormat('pt-BR');
     let searchTimer = null;
     let lastSuggestions = [];
+    let activePlayerProfile = null;
 
     const statDefinitions = [
         { key: 'playtime_hours', label: 'Horas jogadas', icon: 'fa-solid fa-clock', fallback: '0h', format: value => `${numberFmt.format(Number(value || 0))}h` },
@@ -2440,6 +2442,13 @@ function setupPlayerHub() {
         if (!statusBox) return;
         statusBox.textContent = message;
         statusBox.classList.toggle('hidden', !message);
+        statusBox.classList.toggle('error', type === 'error');
+    }
+
+    function setStatusHtml(html = '', type = 'info') {
+        if (!statusBox) return;
+        statusBox.innerHTML = html;
+        statusBox.classList.toggle('hidden', !html);
         statusBox.classList.toggle('error', type === 'error');
     }
 
@@ -2502,6 +2511,7 @@ function setupPlayerHub() {
 
     function renderProfile(profileData) {
         const profile = normalizeProfile(profileData.profile, profileData.stats, profileData.activity);
+        activePlayerProfile = profile;
         const safeNick = safeMinecraftUsername(profile.nick || 'Steve');
         const avatar = document.getElementById('playerAvatarImage');
         const body = document.getElementById('playerBodyImage');
@@ -2563,6 +2573,30 @@ function setupPlayerHub() {
 
         if (!response.ok) {
             throw new Error(data.error || 'Player API unavailable');
+        }
+
+        return data;
+    }
+
+    async function postPlayerApi(url, body, token = '') {
+        if (window.location.protocol === 'file:') {
+            throw new Error('Para gerar codigo de verificacao, teste pelo site publicado no Netlify.');
+        }
+
+        const response = await fetch(url, {
+            method: 'POST',
+            cache: 'no-store',
+            headers: {
+                accept: 'application/json',
+                'content-type': 'application/json',
+                ...(token ? { authorization: `Bearer ${token}` } : {})
+            },
+            body: JSON.stringify(body)
+        });
+        const data = await response.json().catch(() => ({}));
+
+        if (!response.ok) {
+            throw new Error(data.error || 'Player verification API unavailable');
         }
 
         return data;
@@ -2656,6 +2690,7 @@ function setupPlayerHub() {
             }
 
             if (!profileData?.profile) {
+                activePlayerProfile = null;
                 setStatus('Jogador nao encontrado. Quando o plugin sincronizar os dados, ele aparecera aqui.', 'error');
                 renderStats({});
                 renderHistory([]);
@@ -2703,8 +2738,43 @@ function setupPlayerHub() {
 
     const verifyButton = document.getElementById('playerVerifyButton');
     if (verifyButton) {
-        verifyButton.addEventListener('click', () => {
-            setStatus('O sistema de verificacao por comando /verificar sera ligado na proxima fase, junto com a API e o plugin.', 'info');
+        verifyButton.addEventListener('click', async () => {
+            if (!activePlayerProfile?.id) {
+                setStatus('Pesquise e abra um perfil antes de iniciar a verificacao.', 'error');
+                return;
+            }
+
+            if (!supabaseClient || !currentUser) {
+                setStatus('Faca login no site antes de verificar uma conta.', 'error');
+                openAuthModal();
+                return;
+            }
+
+            verifyButton.disabled = true;
+            setStatus('Gerando codigo de verificacao...');
+
+            try {
+                const { data: { session } } = await supabaseClient.auth.getSession();
+                const token = session?.access_token;
+                if (!token) throw new Error('Sessao expirada. Faca login novamente.');
+
+                const verification = await postPlayerApi(PLAYER_VERIFICATION_START_API_URL, {
+                    player_id: activePlayerProfile.id
+                }, token);
+
+                setStatusHtml(`
+                    <div class="player-verification-box">
+                        <strong>Codigo gerado para ${escapeHTML(verification.minecraft_username || activePlayerProfile.nick)}</strong>
+                        <span>Entre no servidor Minecraft e execute:</span>
+                        <code>${escapeHTML(verification.command || `/verificar ${verification.code}`)}</code>
+                        <small>Este codigo expira em ${Math.ceil((verification.expires_in_seconds || 600) / 60)} minutos e so pode ser usado uma vez.</small>
+                    </div>
+                `);
+            } catch (error) {
+                setStatus(error.message || 'Nao foi possivel gerar o codigo de verificacao.', 'error');
+            } finally {
+                verifyButton.disabled = false;
+            }
         });
     }
 

@@ -120,6 +120,9 @@ create index if not exists player_verifications_player_active_idx
   on public.player_verifications (player_id, expires_at)
   where used_at is null;
 
+create index if not exists player_verifications_code_hash_idx
+  on public.player_verifications (code_hash);
+
 alter table public.player_verifications enable row level security;
 
 drop policy if exists "Usuario ve suas proprias verificacoes" on public.player_verifications;

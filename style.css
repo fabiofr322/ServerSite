@@ -5860,6 +5860,34 @@ footer a:hover {
     background: rgba(255, 68, 68, 0.1);
 }
 
+.player-verification-box {
+    display: grid;
+    gap: 0.45rem;
+}
+
+.player-verification-box strong {
+    color: #fff;
+}
+
+.player-verification-box span,
+.player-verification-box small {
+    color: var(--text-muted);
+}
+
+.player-verification-box code {
+    display: block;
+    width: fit-content;
+    max-width: 100%;
+    padding: 0.75rem 0.9rem;
+    border-radius: 12px;
+    color: #fff;
+    background: rgba(0, 0, 0, 0.38);
+    border: 1px solid rgba(255, 20, 147, 0.35);
+    font: 900 0.95rem var(--font-main);
+    letter-spacing: 0.6px;
+    overflow-wrap: anywhere;
+}
+
 .player-profile-shell {
     width: 100%;
     display: grid;

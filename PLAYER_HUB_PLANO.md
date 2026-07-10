@@ -34,24 +34,24 @@ Este arquivo acompanha o que ja foi feito e o que ainda falta implementar no Pla
 - [x] Criar endpoint `/api/player-profile`.
 - [x] Registrar redirects das APIs no Netlify.
 - [x] Fazer o frontend usar as APIs com fallback local via Supabase.
-- [ ] Criar endpoint `/api/player-verification/start`.
-- [ ] Criar endpoint `/api/player-verification/confirm`.
-- [ ] Validar codigo com expiracao curta.
-- [ ] Impedir reutilizacao de codigos.
+- [x] Criar endpoint `/api/player-verification/start`.
+- [x] Criar endpoint `/api/player-verification/confirm`.
+- [x] Validar codigo com expiracao curta.
+- [x] Impedir reutilizacao de codigos.
 - [ ] Limitar tentativas para reduzir forca bruta.
 
 ## Fase 4 - Plugin Minecraft
 
-- [ ] Definir se sera no FrSiteBridge ou plugin separado.
+- [x] Definir se sera no FrSiteBridge ou plugin separado.
 - [ ] Sincronizar nick e UUID.
 - [ ] Sincronizar primeira entrada e ultimo login.
 - [ ] Sincronizar status online/offline.
 - [ ] Sincronizar tempo jogado.
 - [ ] Sincronizar kills, mortes, blocos quebrados e blocos colocados.
 - [ ] Sincronizar dinheiro, rank, clan, cargo, homes, claims e conquistas.
-- [ ] Criar comando `/verificar <codigo>`.
-- [ ] Criar comando alternativo `/confirmar <codigo>`.
-- [ ] Fazer o plugin confirmar o codigo na API do site.
+- [x] Criar comando `/verificar <codigo>`.
+- [x] Criar comando alternativo `/confirmar <codigo>`.
+- [x] Fazer o plugin confirmar o codigo na API do site.
 
 ## Fase 5 - Perfil verificado
 
@@ -73,4 +73,3 @@ Este arquivo acompanha o que ja foi feito e o que ainda falta implementar no Pla
 - [ ] Estatisticas avancadas.
 - [ ] Integracao com Discord.
 - [ ] Atualizacoes em tempo real com o servidor.
-
