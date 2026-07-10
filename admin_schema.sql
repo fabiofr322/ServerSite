@@ -176,7 +176,7 @@ create table if not exists public.veterans (
   title text, -- Ex: "Líder Lendário", "Magnata da 1ª Temp"
   description text, -- Descrição do feito do jogador
   created_at timestamp with time zone default timezone('utc'::text, now()) not null,
-  constraint veterans_minecraft_username_format check (minecraft_username ~ '^[A-Za-z0-9_]{3,16}$')
+  constraint veterans_minecraft_username_format check (minecraft_username ~ '^[A-Za-z0-9_\.]{3,17}$')
 );
 
 -- Ativar RLS

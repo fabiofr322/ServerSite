@@ -34,7 +34,7 @@ exports.handler = async function handler(event) {
     const username = String(player.minecraft_username || '').trim();
     const uuid = String(player.minecraft_uuid || '').trim();
 
-    if (!/^[A-Za-z0-9_]{3,16}$/.test(username)) {
+    if (!/^[A-Za-z0-9_\.]{3,17}$/.test(username)) {
         return jsonResponse(400, { error: 'Invalid Minecraft username.' });
     }
     if (!uuid) {

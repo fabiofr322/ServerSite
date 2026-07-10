@@ -35,7 +35,7 @@ exports.handler = async function handler(event) {
     if (!/^FR32-[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{4}$/.test(code)) {
         return jsonResponse(400, { error: 'Invalid verification code.' });
     }
-    if (!/^[A-Za-z0-9_]{3,16}$/.test(minecraftUsername)) {
+    if (!/^[A-Za-z0-9_\.]{3,17}$/.test(minecraftUsername)) {
         return jsonResponse(400, { error: 'Invalid Minecraft username.' });
     }
 

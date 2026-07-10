@@ -21,8 +21,8 @@ create table if not exists public.player_profiles (
   verified_by_user_id uuid references auth.users(id) on delete set null,
   created_at timestamp with time zone not null default timezone('utc'::text, now()),
   updated_at timestamp with time zone not null default timezone('utc'::text, now()),
-  constraint player_profiles_username_length check (char_length(trim(minecraft_username)) between 3 and 16),
-  constraint player_profiles_username_format check (minecraft_username ~ '^[A-Za-z0-9_]{3,16}$')
+  constraint player_profiles_username_length check (char_length(trim(minecraft_username)) between 3 and 17),
+  constraint player_profiles_username_format check (minecraft_username ~ '^[A-Za-z0-9_\.]{3,17}$')
 );
 
 create unique index if not exists player_profiles_username_lower_idx

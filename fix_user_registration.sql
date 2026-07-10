@@ -13,7 +13,7 @@ begin
   requested_username := trim(new.raw_user_meta_data->>'minecraft_username');
 
   if requested_username is null
-     or requested_username !~ '^[A-Za-z0-9_]{3,16}$' then
+     or requested_username !~ '^[A-Za-z0-9_\.]{3,17}$' then
     raise exception using
       message = 'invalid_minecraft_username',
       errcode = 'check_violation';

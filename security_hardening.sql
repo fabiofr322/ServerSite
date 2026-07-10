@@ -17,14 +17,14 @@ alter table public.profiles
   drop constraint if exists profiles_minecraft_username_format;
 alter table public.profiles
   add constraint profiles_minecraft_username_format
-  check (minecraft_username ~ '^[A-Za-z0-9_]{3,16}$')
+  check (minecraft_username ~ '^[A-Za-z0-9_\.]{3,17}$')
   not valid;
 
 alter table public.veterans
   drop constraint if exists veterans_minecraft_username_format;
 alter table public.veterans
   add constraint veterans_minecraft_username_format
-  check (minecraft_username ~ '^[A-Za-z0-9_]{3,16}$')
+  check (minecraft_username ~ '^[A-Za-z0-9_\.]{3,17}$')
   not valid;
 
 -- Limita tamanho de comentários para reduzir spam e payloads grandes.

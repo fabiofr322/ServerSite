@@ -3883,7 +3883,7 @@ async function handleRegister(event) {
         return;
     }
     if (!isValidMinecraftUsername(minecraft)) {
-        window.showNotification("Nick inválido! Use de 3 a 16 caracteres, contendo apenas letras, números e underline (_).", "fa-solid fa-triangle-exclamation");
+        window.showNotification("Nick inválido! Use de 3 a 17 caracteres, contendo apenas letras, números, underline (_) e ponto (.).", "fa-solid fa-triangle-exclamation");
         return;
     }
 
@@ -4176,9 +4176,9 @@ async function handleNicknameUpdate(event) {
     }
 
     // Validação de formato de Nick do Minecraft
-    const nickRegex = /^[a-zA-Z0-9_]{3,16}$/;
+    const nickRegex = /^[a-zA-Z0-9_\.]{3,17}$/;
     if (!nickRegex.test(newNick)) {
-        window.showNotification("Nick inválido! Use de 3 a 16 caracteres, contendo apenas letras, números e underline (_).", "fa-solid fa-triangle-exclamation");
+        window.showNotification("Nick inválido! Use de 3 a 17 caracteres, contendo apenas letras, números, underline (_) e ponto (.).", "fa-solid fa-triangle-exclamation");
         return;
     }
 
@@ -4944,7 +4944,7 @@ function escapeHTML(str) {
 }
 
 function isValidMinecraftUsername(username) {
-    return /^[A-Za-z0-9_]{3,16}$/.test(String(username || ''));
+    return /^[A-Za-z0-9_\.]{3,17}$/.test(String(username || ''));
 }
 
 function safeMinecraftUsername(username) {

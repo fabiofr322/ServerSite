@@ -4,7 +4,7 @@ const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIs
 exports.handler = async function handler(event) {
     const q = String(event.queryStringParameters?.q || '').trim();
 
-    if (!/^[A-Za-z0-9_]{2,16}$/.test(q)) {
+    if (!/^[A-Za-z0-9_\.]{2,17}$/.test(q)) {
         return jsonResponse(200, { players: [] });
     }
 
