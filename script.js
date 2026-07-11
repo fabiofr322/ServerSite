@@ -2518,6 +2518,9 @@ function setupPlayerHub() {
     const statusBox = document.getElementById('playerHubStatus');
     const statsGrid = document.getElementById('playerStatsGrid');
     const historyList = document.getElementById('playerHistoryList');
+    const profileShell = document.getElementById('playerProfileShell');
+    const leaderboardsContainer = document.getElementById('playerLeaderboardsContainer');
+    const backButton = document.getElementById('playerHubBackButton');
 
     if (!input || !button || !suggestions || !statsGrid || !historyList) return;
 
@@ -2917,6 +2920,100 @@ function setupPlayerHub() {
         });
     }
 
+    // Funcao para carregar o Top 5 jogadores com estatisticas combinadas
+    async function loadPlayerTop5() {
+        const ready = await waitForSupabaseReady();
+        if (!ready) {
+            console.warn('[Player Hub] Supabase nao esta pronto para carregar o Top 5.');
+            return;
+        }
+
+        const grid = document.getElementById('playerTop5Grid');
+        if (!grid) return;
+
+        grid.innerHTML = `
+            <div class="top5-skeleton"></div>
+            <div class="top5-skeleton"></div>
+            <div class="top5-skeleton"></div>
+            <div class="top5-skeleton"></div>
+            <div class="top5-skeleton"></div>
+        `;
+
+        try {
+            // Buscamos as estatísticas de todos os jogadores para calcular uma pontuação geral combinada
+            const { data: statsData, error } = await supabaseClient
+                .from('player_stats')
+                .select('playtime_hours, kills, homes, player_profiles(minecraft_username, minecraft_uuid, is_verified)')
+                .limit(100);
+
+            if (error) throw error;
+
+            // Filtramos apenas jogadores válidos com nick
+            const validPlayers = (statsData || []).filter(item => item.player_profiles && item.player_profiles.minecraft_username);
+
+            // Calculamos um Score Geral Combinado:
+            // Tempo de jogo (peso 10) + PvP Kills (peso 25) + Homes (peso 15)
+            const scoredPlayers = validPlayers.map(item => {
+                const playtime = Number(item.playtime_hours || 0);
+                const kills = Number(item.kills || 0);
+                const homes = Number(item.homes || 0);
+                const score = (playtime * 10) + (kills * 25) + (homes * 15);
+                return { ...item, score };
+            });
+
+            // Ordenamos por pontuação decrescente
+            scoredPlayers.sort((a, b) => b.score - a.score);
+
+            // Pegamos o Top 5
+            const top5 = scoredPlayers.slice(0, 5);
+
+            grid.innerHTML = top5.map((item, idx) => {
+                const profile = item.player_profiles || {};
+                const nick = profile.minecraft_username || 'Steve';
+                const safeNick = safeMinecraftUsername(nick);
+                const playtime = Number(item.playtime_hours || 0);
+                const kills = Number(item.kills || 0);
+                const homes = Number(item.homes || 0);
+
+                const verifiedIcon = profile.is_verified 
+                    ? `<span class="top5-verified" title="Jogador verificado"><i class="fa-solid fa-circle-check"></i></span>`
+                    : '';
+                const rankClass = idx === 0 ? 'rank-1' : idx === 1 ? 'rank-2' : idx === 2 ? 'rank-3' : '';
+
+                return `
+                    <div class="top5-item" data-player-nick="${escapeHTML(nick)}">
+                        <div class="top5-rank-badge ${rankClass}">${idx + 1}</div>
+                        <img class="top5-avatar" src="https://mc-heads.net/avatar/${encodeURIComponent(safeNick)}/32" alt="Avatar ${escapeHTML(nick)}" loading="lazy">
+                        <div class="top5-info">
+                            <span class="top5-name">${escapeHTML(nick)} ${verifiedIcon}</span>
+                            <div class="top5-stats-row">
+                                <span title="Tempo de jogo"><i class="fa-solid fa-clock"></i> ${numberFmt.format(playtime)}h</span>
+                                <span title="Abates PvP"><i class="fa-solid fa-sword"></i> ${numberFmt.format(kills)}</span>
+                                <span title="Casas"><i class="fa-solid fa-house"></i> ${numberFmt.format(homes)}</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            // Adiciona click nos itens para abrir o perfil correspondente
+            grid.querySelectorAll('.top5-item').forEach(el => {
+                el.addEventListener('click', () => {
+                    const nick = el.dataset.playerNick;
+                    if (nick) {
+                        input.value = nick;
+                        openPlayerProfile(nick);
+                    }
+                });
+            });
+
+        } catch (err) {
+            console.error('[Player Hub] Erro ao carregar o Top 5:', err);
+            grid.innerHTML = `<p style="grid-column: 1/-1; text-align: center; color: rgba(255,255,255,0.4); font-size: 0.8rem; padding: 0.5rem;">Nao foi possivel carregar o Top 5.</p>`;
+        }
+    }
+
+    loadPlayerTop5();
     renderStats({});
 }
 

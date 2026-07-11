@@ -6297,21 +6297,7 @@ footer a:hover {
     z-index: 1;
 }
 
-.player-stat-card[data-stat-key="clan"],
-.player-stat-card[data-stat-key="role"],
-.player-stat-card[data-stat-key="homes"] {
-    border-color: rgba(255, 20, 147, 0.18);
-    background:
-        linear-gradient(135deg, rgba(255, 20, 147, 0.07), rgba(139, 0, 255, 0.045)),
-        rgba(255, 255, 255, 0.035);
-}
 
-.player-stat-card[data-stat-key="clan"] i,
-.player-stat-card[data-stat-key="role"] i,
-.player-stat-card[data-stat-key="homes"] i {
-    color: #fff;
-    background: linear-gradient(135deg, var(--primary), var(--secondary));
-}
 
 /* Card de Histórico */
 .player-history-card {
@@ -6949,3 +6935,175 @@ footer a:hover {
         grid-column: 2;
     }
 }
+
+/* =====================================================================
+   TOP 5 JOGADORES (PLAYER HUB)
+   ===================================================================== */
+.player-top5-container {
+    width: min(760px, 100%);
+    margin-bottom: 1.2rem;
+    animation: fadeIn 0.4s ease-out;
+}
+
+.top5-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+    font-size: 0.85rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.top5-header i {
+    color: #ffd45e;
+    filter: drop-shadow(0 0 5px rgba(255, 212, 94, 0.4));
+}
+
+.top5-grid {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 0.65rem;
+    width: 100%;
+}
+
+.top5-item {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    padding: 0.6rem 0.65rem;
+    background: rgba(8, 2, 18, 0.72);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 16px;
+    cursor: pointer;
+    transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+    min-width: 0;
+}
+
+.top5-item:hover {
+    transform: translateY(-2px);
+    border-color: rgba(255, 20, 147, 0.25);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.35), 0 0 15px rgba(255, 20, 147, 0.08);
+}
+
+.top5-rank-badge {
+    position: absolute;
+    top: -5px;
+    left: -5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+    font-size: 0.65rem;
+    font-weight: 900;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.15);
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.5);
+    z-index: 5;
+}
+
+.top5-rank-badge.rank-1 {
+    background: linear-gradient(135deg, #ffd700, #ffa500);
+    border-color: #ffe875;
+    color: #000;
+}
+.top5-rank-badge.rank-2 {
+    background: linear-gradient(135deg, #c0c0c0, #a9a9a9);
+    border-color: #e0e0e0;
+    color: #000;
+}
+.top5-rank-badge.rank-3 {
+    background: linear-gradient(135deg, #cd7f32, #8b5a2b);
+    border-color: #ecb176;
+    color: #fff;
+}
+
+.top5-avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(0,0,0,0.2);
+}
+
+.top5-info {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+}
+
+.top5-name {
+    font-size: 0.75rem;
+    font-weight: 800;
+    color: #fff;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: flex;
+    align-items: center;
+    gap: 0.2rem;
+}
+
+.top5-verified {
+    color: #ff80c0;
+    font-size: 0.7rem;
+}
+
+.top5-stats-row {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.6rem;
+    color: rgba(255, 255, 255, 0.4);
+    font-weight: 700;
+}
+
+.top5-stats-row span {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.15rem;
+}
+
+.top5-stats-row i {
+    font-size: 0.55rem;
+}
+
+.top5-skeleton {
+    height: 48px;
+    border-radius: 16px;
+    background: linear-gradient(
+        90deg,
+        rgba(255, 255, 255, 0.02) 25%,
+        rgba(255, 20, 147, 0.05) 37%,
+        rgba(255, 255, 255, 0.02) 63%
+    );
+    background-size: 280% 100%;
+    animation: playerSkeleton 1.6s ease infinite;
+    border: 1px solid rgba(255, 255, 255, 0.03);
+}
+
+@media (max-width: 768px) {
+    .top5-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .top5-item:last-child {
+        grid-column: span 2;
+    }
+}
+@media (max-width: 480px) {
+    .top5-grid {
+        grid-template-columns: 1fr;
+    }
+    .top5-item:last-child {
+        grid-column: span 1;
+    }
+}
+
