@@ -6297,6 +6297,22 @@ footer a:hover {
     z-index: 1;
 }
 
+.player-stat-card[data-stat-key="clan"],
+.player-stat-card[data-stat-key="role"],
+.player-stat-card[data-stat-key="homes"] {
+    border-color: rgba(255, 20, 147, 0.18);
+    background:
+        linear-gradient(135deg, rgba(255, 20, 147, 0.07), rgba(139, 0, 255, 0.045)),
+        rgba(255, 255, 255, 0.035);
+}
+
+.player-stat-card[data-stat-key="clan"] i,
+.player-stat-card[data-stat-key="role"] i,
+.player-stat-card[data-stat-key="homes"] i {
+    color: #fff;
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+}
+
 /* Card de Histórico */
 .player-history-card {
     border-radius: 24px;

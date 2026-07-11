@@ -52,6 +52,11 @@ Este arquivo acompanha o que ja foi feito e o que ainda falta implementar no Pla
 - [x] Sincronizar kills, mortes, blocos quebrados e blocos colocados.
 - [x] Sincronizar distancia percorrida e mobs derrotados.
 - [ ] Sincronizar rank, clan, cargo, homes, claims e conquistas.
+  - [x] Rank principal via LuckPerms/PlaceholderAPI.
+  - [x] Clan atual via UltimateClans/PlaceholderAPI.
+  - [x] Cargo/tag equipada via UltimateClans role, LuckPerms prefix e placeholders comuns de tags.
+  - [x] Homes/casas via Essentials/HuskHomes/PlaceholderAPI.
+  - [ ] Claims e conquistas.
 - [x] Criar comando `/verificar <codigo>`.
 - [x] Criar comando alternativo `/confirmar <codigo>`.
 - [x] Fazer o plugin confirmar o codigo na API do site.

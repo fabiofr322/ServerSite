@@ -2534,10 +2534,10 @@ function setupPlayerHub() {
         { key: 'blocks_placed', label: 'Blocos colocados', icon: 'fa-solid fa-cubes', fallback: '0' },
         { key: 'distance_walked', label: 'Distancia percorrida', icon: 'fa-solid fa-route', fallback: '0 km', format: value => `${numberFmt.format(Number(value || 0))} km` },
         { key: 'mobs_killed', label: 'Mobs derrotados', icon: 'fa-solid fa-dragon', fallback: '0' },
-        { key: 'rank', label: 'Rank', icon: 'fa-solid fa-ranking-star', fallback: '--' },
-        { key: 'clan', label: 'Cla', icon: 'fa-solid fa-people-group', fallback: '--' },
-        { key: 'role', label: 'Cargo', icon: 'fa-solid fa-user-shield', fallback: '--' },
-        { key: 'homes', label: 'Casas', icon: 'fa-solid fa-house', fallback: '0' },
+        { key: 'rank', label: 'Rank principal', icon: 'fa-solid fa-ranking-star', fallback: '--' },
+        { key: 'clan', label: 'Clan atual', icon: 'fa-solid fa-people-group', fallback: 'Sem clan' },
+        { key: 'role', label: 'Cargo / tag equipada', icon: 'fa-solid fa-tags', fallback: '--' },
+        { key: 'homes', label: 'Homes / casas', icon: 'fa-solid fa-house', fallback: '0' },
         { key: 'claims', label: 'Claims', icon: 'fa-solid fa-map-location-dot', fallback: '0' },
         { key: 'achievements', label: 'Conquistas', icon: 'fa-solid fa-medal', fallback: '0' },
         { key: 'events_won', label: 'Eventos vencidos', icon: 'fa-solid fa-trophy', fallback: '0' }
@@ -2592,7 +2592,7 @@ function setupPlayerHub() {
 
     function renderStats(stats = {}) {
         statsGrid.innerHTML = statDefinitions.map(definition => `
-            <article class="player-stat-card">
+            <article class="player-stat-card" data-stat-key="${escapeHTML(definition.key)}">
                 <i class="${definition.icon}"></i>
                 <span>${escapeHTML(definition.label)}</span>
                 <strong>${escapeHTML(formatStatValue(definition, stats))}</strong>
