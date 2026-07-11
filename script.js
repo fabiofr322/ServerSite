@@ -2398,11 +2398,16 @@ function setupTopClans() {
             const points = Number(clan.points) || 0;
             const level = Number(clan.level) || 0;
             const members = Number(clan.members) || 0;
+            const meta = [
+                `${formatNumber(points)} pts`,
+                level > 0 ? `Nv ${formatNumber(level)}` : '',
+                `${formatNumber(members)} membros`
+            ].filter(Boolean).join(' • ');
             return `
                 <a href="#rankings-clans" class="home-clan-row" target="_self">
                     <span>#${position || '-'}</span>
                     <strong>[${escapeHTML(tag)}] ${escapeHTML(name)}</strong>
-                    <small>${formatNumber(points)} pts • Nv ${formatNumber(level)} • ${formatNumber(members)} membros</small>
+                    <small>${escapeHTML(meta)}</small>
                 </a>
             `;
         }).join('');
@@ -2435,11 +2440,11 @@ function setupTopClans() {
             const score = Number(clan.score) || getClanScore(clan);
             const extraStats = [
                 { value: formatNumber(points), label: 'Pontos' },
-                { value: formatNumber(level), label: 'Nivel' },
+                level > 0 ? { value: formatNumber(level), label: 'Nivel' } : null,
                 { value: formatNumber(members), label: 'Membros' },
                 { value: formatNumber(kills), label: 'Kills' },
                 { value: kdr.toFixed(2), label: 'KDR' }
-            ];
+            ].filter(Boolean);
             const podiumClass = position === 1 ? 'is-first' : position === 2 ? 'is-second' : position === 3 ? 'is-third' : '';
             const championBadge = position === 1
                 ? '<div class="clan-champion-badge"><i class="fa-solid fa-crown"></i> Clan dominante</div>'
