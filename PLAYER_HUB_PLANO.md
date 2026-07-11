@@ -1,3 +1,4 @@
+
 # Plano - Sistema de Perfil de Jogadores (Player Hub)
 
 Este arquivo acompanha o que ja foi feito e o que ainda falta implementar no Player Hub do FR32SURVIVAL.

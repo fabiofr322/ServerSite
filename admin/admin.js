@@ -152,6 +152,40 @@ function setupGlobalEvents() {
             switchTab(targetTab);
         });
     });
+
+    // Eventos do Lightbox para visualização de imagens
+    const lightbox = document.getElementById('imageLightbox');
+    const lightboxClose = document.getElementById('lightboxClose');
+    if (lightboxClose) {
+        lightboxClose.addEventListener('click', closeLightbox);
+    }
+    if (lightbox) {
+        lightbox.addEventListener('click', (e) => {
+            const openedAt = parseInt(lightbox.dataset.openedAt || '0', 10);
+            if (Date.now() - openedAt < 200) {
+                return; // Ignora cliques efetuados no mesmo instante da abertura
+            }
+            if (e.target === lightbox || e.target.id === 'imageLightbox') {
+                closeLightbox();
+            }
+        });
+    }
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            closeLightbox();
+        }
+    });
+
+    // Adiciona evento de clique no preview de moderacao também
+    const modPreview = document.getElementById('moderationSelectedPhotoPreview');
+    if (modPreview) {
+        modPreview.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const desc = document.getElementById('moderationSelectedPhotoDesc')?.textContent || '';
+            openLightbox(modPreview.src, desc);
+        });
+        modPreview.style.cursor = 'pointer';
+    }
 }
 
 function switchTab(tabId) {
@@ -686,6 +720,7 @@ window.changeUserRole = changeUserRole;
 // ---------------------------------------------------------------------
 let allSeasonsList = [];
 let currentSeasonPhotosList = [];
+let selectedUploadFiles = []; // Fila local de arquivos para upload
 
 // Inicializar eventos de temporadas e galeria
 function setupSeasonsEvents() {
@@ -715,7 +750,116 @@ function setupSeasonsEvents() {
             renderSeasonPhotos(currentSeasonPhotosList);
         });
     }
+
+    // Configuração do Drag & Drop e fila de arquivos
+    const dropzone = document.getElementById('uploadDropzone');
+    const fileInput = document.getElementById('inputPhotoFile');
+
+    if (dropzone && fileInput) {
+        // Clicar na dropzone abre a seleção de arquivos
+        dropzone.addEventListener('click', () => fileInput.click());
+
+        // Eventos de arrastar
+        dropzone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropzone.classList.add('dragover');
+        });
+
+        dropzone.addEventListener('dragleave', () => {
+            dropzone.classList.remove('dragover');
+        });
+
+        dropzone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropzone.classList.remove('dragover');
+            if (e.dataTransfer.files.length > 0) {
+                handleSelectedFiles(e.dataTransfer.files);
+            }
+        });
+
+        // Evento de alteração no input padrão
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                handleSelectedFiles(e.target.files);
+                fileInput.value = '';
+            }
+        });
+    }
 }
+
+// Manipulação e visualização da fila de uploads
+function handleSelectedFiles(files) {
+    const validTypes = ['image/png', 'image/jpeg', 'image/jpg', 'image/webp', 'image/gif'];
+    const maxSizeBytes = 5 * 1024 * 1024; // 5MB
+
+    for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+
+        if (!validTypes.includes(file.type)) {
+            showToast(`Arquivo "${file.name}" não é uma imagem permitida (PNG, JPG, WEBP, GIF).`, "error");
+            continue;
+        }
+
+        if (file.size > maxSizeBytes) {
+            showToast(`Arquivo "${file.name}" excede o limite de 5MB por foto.`, "error");
+            continue;
+        }
+
+        // Evitar duplicados
+        const isDuplicate = selectedUploadFiles.some(f => f.name === file.name && f.size === file.size);
+        if (!isDuplicate) {
+            selectedUploadFiles.push(file);
+        }
+    }
+
+    renderUploadPreviews();
+}
+
+function renderUploadPreviews() {
+    const previewGrid = document.getElementById('uploadPreviewsGrid');
+    if (!previewGrid) return;
+
+    previewGrid.innerHTML = '';
+
+    selectedUploadFiles.forEach((file, index) => {
+        const card = document.createElement('div');
+        card.className = 'preview-thumb-card';
+
+        const sizeInMb = (file.size / (1024 * 1024)).toFixed(2);
+        const objectUrl = URL.createObjectURL(file);
+
+        card.innerHTML = `
+            <div class="preview-thumb-wrapper">
+                <img src="${objectUrl}" alt="${escapeHTML(file.name)}">
+            </div>
+            <div class="preview-thumb-info">
+                <span class="preview-thumb-name" title="${escapeHTML(file.name)}">${escapeHTML(file.name)}</span>
+                <span class="preview-thumb-size">${sizeInMb} MB</span>
+            </div>
+            <button type="button" class="btn-remove-preview" onclick="removeUploadFile(${index})" title="Remover da lista">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        `;
+
+        previewGrid.appendChild(card);
+    });
+
+    const btnSubmit = document.getElementById('btnUploadPhotoSubmit');
+    if (btnSubmit) {
+        if (selectedUploadFiles.length > 0) {
+            btnSubmit.innerHTML = `<i class="fa-solid fa-cloud-arrow-up"></i> Fazer Upload (${selectedUploadFiles.length} foto${selectedUploadFiles.length > 1 ? 's' : ''})`;
+        } else {
+            btnSubmit.innerHTML = `<i class="fa-solid fa-cloud-arrow-up"></i> Fazer Upload`;
+        }
+    }
+}
+
+function removeUploadFile(index) {
+    selectedUploadFiles.splice(index, 1);
+    renderUploadPreviews();
+}
+
+window.removeUploadFile = removeUploadFile;
 
 // Carregar lista de temporadas e popular os selectores (dropdowns)
 async function loadSeasons() {
@@ -832,25 +976,23 @@ async function handleCreateSeasonSubmit(e) {
     }
 }
 
-// Upload de foto e vinculação à temporada
+// Upload de fotos e vinculação à temporada
 async function handleUploadPhotoSubmit(e) {
     e.preventDefault();
 
     const selectUpload = document.getElementById('selectUploadSeason');
-    const fileInput = document.getElementById('inputPhotoFile');
     const titleInput = document.getElementById('inputPhotoTitle');
     const authorInput = document.getElementById('inputPhotoAuthor');
     const descInput = document.getElementById('inputPhotoDesc');
     const btnSubmit = document.getElementById('btnUploadPhotoSubmit');
 
     const seasonId = selectUpload.value;
-    const file = fileInput.files[0];
     const title = titleInput?.value?.trim();
     const author = authorInput?.value?.trim();
-    const description = descInput.value.trim();
+    const description = descInput?.value?.trim() || '';
 
-    if (!seasonId || !file || !title || !author) {
-        showToast("Preencha a temporada, título, autor e selecione uma imagem.", "error");
+    if (!seasonId || selectedUploadFiles.length === 0 || !title || !author) {
+        showToast("Preencha a temporada, título, autor e selecione pelo menos uma imagem.", "error");
         return;
     }
 
@@ -859,56 +1001,76 @@ async function handleUploadPhotoSubmit(e) {
         return;
     }
 
-    if (!/^image\/(png|jpe?g|webp|gif)$/i.test(file.type) || file.size > 5 * 1024 * 1024) {
-        showToast("Envie uma imagem PNG, JPG, WEBP ou GIF de até 5 MB.", "error");
-        return;
-    }
-
     const selectedSeason = allSeasonsList.find(s => s.id == seasonId);
     if (!selectedSeason) return;
 
     btnSubmit.disabled = true;
     const originalBtnHtml = btnSubmit.innerHTML;
-    btnSubmit.innerHTML = `<span class="table-loading-row"><div class="spinner" style="margin:0; width:14px; height:14px;"></div> Enviando arquivo...</span>`;
+
+    let uploadedPaths = [];
+    let dbRowsToInsert = [];
+    const totalFiles = selectedUploadFiles.length;
 
     try {
-        const sanitizedFileName = file.name.replace(/\s+/g, '_').replace(/[^a-zA-Z0-9_.-]/g, '');
-        const filePath = `season_${selectedSeason.number}/${Date.now()}_${sanitizedFileName}`;
+        for (let i = 0; i < totalFiles; i++) {
+            const file = selectedUploadFiles[i];
+            
+            btnSubmit.innerHTML = `<span class="table-loading-row"><div class="spinner" style="margin:0; width:14px; height:14px;"></div> Enviando ${i + 1} de ${totalFiles}...</span>`;
 
-        const { data: uploadData, error: uploadError } = await supabaseClient.storage
-            .from('seasons')
-            .upload(filePath, file, {
-                cacheControl: '3600',
-                upsert: false
-            });
+            const sanitizedFileName = file.name.replace(/\s+/g, '_').replace(/[^a-zA-Z0-9_.-]/g, '');
+            const randomStr = Math.random().toString(36).substring(2, 8);
+            const filePath = `season_${selectedSeason.number}/${Date.now()}_${i}_${randomStr}_${sanitizedFileName}`;
 
-        if (uploadError) throw uploadError;
+            const { data: uploadData, error: uploadError } = await supabaseClient.storage
+                .from('seasons')
+                .upload(filePath, file, {
+                    cacheControl: '3600',
+                    upsert: false
+                });
 
-        const { data: { publicUrl } } = supabaseClient.storage
-            .from('seasons')
-            .getPublicUrl(filePath);
+            if (uploadError) {
+                if (uploadedPaths.length > 0) {
+                    await supabaseClient.storage.from('seasons').remove(uploadedPaths);
+                }
+                throw uploadError;
+            }
 
-        const { error: dbError } = await supabaseClient
-            .from('season_photos')
-            .insert({
+            uploadedPaths.push(filePath);
+
+            const { data: { publicUrl } } = supabaseClient.storage
+                .from('seasons')
+                .getPublicUrl(filePath);
+
+            dbRowsToInsert.push({
                 season_id: seasonId,
                 photo_path: publicUrl,
                 description: description,
                 title: title,
                 author_name: author
             });
+        }
+
+        btnSubmit.innerHTML = `<span class="table-loading-row"><div class="spinner" style="margin:0; width:14px; height:14px;"></div> Gravando no banco...</span>`;
+        const { error: dbError } = await supabaseClient
+            .from('season_photos')
+            .insert(dbRowsToInsert);
 
         if (dbError) {
-            await supabaseClient.storage.from('seasons').remove([filePath]);
+            if (uploadedPaths.length > 0) {
+                await supabaseClient.storage.from('seasons').remove(uploadedPaths);
+            }
             throw dbError;
         }
 
-        showToast("Foto enviada e adicionada à galeria!", "success");
-        fileInput.value = '';
+        showToast(`${totalFiles} foto(s) enviada(s) com sucesso!`, "success");
+        
+        selectedUploadFiles = [];
+        renderUploadPreviews();
+        
         if (titleInput) titleInput.value = '';
         if (authorInput) authorInput.value = '';
-        descInput.value = '';
-        
+        if (descInput) descInput.value = '';
+
         const selectManage = document.getElementById('selectManageSeason');
         if (selectManage.value == seasonId) {
             loadSeasonPhotos(seasonId);
@@ -1045,7 +1207,7 @@ function renderSeasonPhotos(photos) {
 
                 card.innerHTML = `
                     <div class="gallery-img-wrapper">
-                        <img src="${escapeHTML(resolvedSrc)}" alt="${escapeHTML(legendText)}" loading="lazy">
+                        <img class="gallery-preview-img" alt="${escapeHTML(legendText)}" loading="lazy">
                         <button class="btn-delete-photo" onclick="deleteSeasonPhoto(${Number(photo.id)}, '${escapeJSString(photo.photo_path)}')" title="Excluir Foto da Galeria">
                             <i class="fa-solid fa-trash-can"></i>
                         </button>
@@ -1055,6 +1217,16 @@ function renderSeasonPhotos(photos) {
                         <span class="gallery-item-date">${new Date(photo.created_at).toLocaleDateString('pt-BR')}</span>
                     </div>
                 `;
+
+                const img = card.querySelector('.gallery-preview-img');
+                if (img) {
+                    img.src = resolvedSrc;
+                    img.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        openLightbox(resolvedSrc, legendText);
+                    });
+                }
+
                 subGrid.appendChild(card);
             });
 
@@ -1091,7 +1263,7 @@ function renderSeasonPhotos(photos) {
 
             card.innerHTML = `
                 <div class="gallery-img-wrapper">
-                    <img src="${escapeHTML(resolvedSrc)}" alt="${escapeHTML(legendText)}" loading="lazy">
+                    <img class="gallery-preview-img" alt="${escapeHTML(legendText)}" loading="lazy">
                     <button class="btn-delete-photo" onclick="deleteSeasonPhoto(${Number(photo.id)}, '${escapeJSString(photo.photo_path)}')" title="Excluir Foto da Galeria">
                         <i class="fa-solid fa-trash-can"></i>
                     </button>
@@ -1101,6 +1273,15 @@ function renderSeasonPhotos(photos) {
                     <span class="gallery-item-date">${new Date(photo.created_at).toLocaleDateString('pt-BR')}</span>
                 </div>
             `;
+
+            const img = card.querySelector('.gallery-preview-img');
+            if (img) {
+                img.src = resolvedSrc;
+                img.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    openLightbox(resolvedSrc, legendText);
+                });
+            }
 
             grid.appendChild(card);
         });
@@ -2310,6 +2491,37 @@ function safeMinecraftUsername(username) {
     const value = String(username || '').trim();
     return isValidMinecraftUsername(value) ? value : 'Jogador';
 }
+
+// Funções de controle do Lightbox
+function openLightbox(src, caption) {
+    const lightbox = document.getElementById('imageLightbox');
+    const lightboxImg = document.getElementById('lightboxImage');
+    const lightboxCap = document.getElementById('lightboxCaption');
+
+    if (lightbox && lightboxImg) {
+        lightbox.dataset.openedAt = Date.now().toString(); // Salva o timestamp exato de abertura
+        lightboxImg.src = src;
+        if (lightboxCap) lightboxCap.textContent = caption || '';
+        lightbox.style.display = 'flex';
+        lightbox.offsetHeight; // Force reflow
+        lightbox.classList.add('active');
+        document.body.style.overflow = 'hidden';
+    }
+}
+
+function closeLightbox() {
+    const lightbox = document.getElementById('imageLightbox');
+    if (lightbox) {
+        lightbox.classList.remove('active');
+        document.body.style.overflow = '';
+        setTimeout(() => {
+            lightbox.style.display = 'none';
+        }, 300);
+    }
+}
+
+window.openLightbox = openLightbox;
+window.closeLightbox = closeLightbox;
 
 // Inicializa o script quando o documento HTML terminar de carregar
 document.addEventListener('DOMContentLoaded', () => {

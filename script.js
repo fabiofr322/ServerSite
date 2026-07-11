@@ -1620,6 +1620,7 @@ function bindGalleryInteractions() {
         
         const wrapper = modal.querySelector('.modal-wrapper');
         if (wrapper) {
+            wrapper.classList.remove('image-maximized');
             wrapper.classList.add('modal-zoom-in');
             setTimeout(() => {
                 wrapper.classList.remove('modal-zoom-in');
@@ -1631,6 +1632,8 @@ function bindGalleryInteractions() {
     }
 
     function closeModal() {
+        const wrapper = modal.querySelector('.modal-wrapper');
+        if (wrapper) wrapper.classList.remove('image-maximized');
         modal.classList.remove('show');
         document.body.style.overflow = 'auto'; 
     }
@@ -1645,8 +1648,19 @@ function bindGalleryInteractions() {
         freshClose.addEventListener('click', closeModal);
     }
 
+    if (modalImg && modalImg.dataset.galleryZoomBound !== 'true') {
+        modalImg.dataset.galleryZoomBound = 'true';
+        modalImg.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const wrapper = modal.querySelector('.modal-wrapper');
+            if (wrapper) {
+                wrapper.classList.toggle('image-maximized');
+            }
+        });
+    }
+
     modal.addEventListener('click', (e) => {
-        if (e.target === modal || e.target === modalImg) {
+        if (e.target === modal) {
             closeModal();
         }
     });
@@ -2226,20 +2240,19 @@ function setupTopClans() {
     const statusBar = document.getElementById('clansStatusBar');
     const statusText = document.getElementById('clansStatusText');
     const updatedAtText = document.getElementById('clansUpdatedAt');
-    const rankingTabs = document.querySelectorAll('[data-clan-ranking]');
     const rankingTitle = document.getElementById('clansRankingTitle');
     const rankingSubtitle = document.getElementById('clansRankingSubtitle');
     let lastUpdatedAt = null;
-    let rankingsData = {};
-    let activeRanking = 'points';
+    let clansData = [];
 
     if (!grid && !homeList) return;
 
-    const RANKING_META = {
-        points: { title: 'Top Clans por Pontos', subtitle: 'Os clans mais fortes da temporada, organizados por pontos.', field: 'points', label: 'Pontos' },
-        kills: { title: 'Top Clans por Kills', subtitle: 'Clans com maior presenca em combate.', field: 'kills', label: 'Kills' },
-        kdr: { title: 'Top Clans por KDR', subtitle: 'Ranking por eficiencia em combate.', field: 'kdr', label: 'KDR' },
-        members: { title: 'Top Clans por Membros', subtitle: 'Clans com as maiores equipes ativas.', field: 'members', label: 'Membros' }
+    const CLAN_SCORE_WEIGHTS = {
+        points: 1,
+        level: 120,
+        members: 45,
+        kills: 4,
+        kdr: 25
     };
 
     function setClansState(state, message = '') {
@@ -2270,11 +2283,103 @@ function setupTopClans() {
         return String(tag || 'CLN').trim().slice(0, 6).toUpperCase() || 'CLN';
     }
 
-    function normalizeRankings(data) {
-        if (data.rankings && typeof data.rankings === 'object') {
-            return data.rankings;
+    function clanKey(clan) {
+        const tag = String(clan?.tag || '').trim().toLowerCase();
+        const name = String(clan?.name || '').trim().toLowerCase();
+        return tag || name || `clan-${Math.random().toString(36).slice(2)}`;
+    }
+
+    function isTechnicalClanName(value) {
+        return ['point', 'points', 'kill', 'kills', 'kdr', 'member', 'members'].includes(String(value || '').trim().toLowerCase());
+    }
+
+    function getClanScore(clan) {
+        const points = Number(clan.points) || 0;
+        const level = Number(clan.level) || 0;
+        const members = Number(clan.members) || 0;
+        const kills = Number(clan.kills) || 0;
+        const kdr = Number(clan.kdr) || 0;
+        return Math.round(
+            points * CLAN_SCORE_WEIGHTS.points +
+            level * CLAN_SCORE_WEIGHTS.level +
+            members * CLAN_SCORE_WEIGHTS.members +
+            kills * CLAN_SCORE_WEIGHTS.kills +
+            kdr * CLAN_SCORE_WEIGHTS.kdr
+        );
+    }
+
+    function mergeClanData(target, source) {
+        if (!source) return target;
+        const textFields = ['name', 'tag', 'leader'];
+        const numericFields = ['points', 'level', 'members', 'kills', 'deaths', 'kdr'];
+
+        textFields.forEach(field => {
+            const value = String(source[field] || '').trim();
+            const current = String(target[field] || '').trim();
+            const shouldReplace = !current ||
+                current.includes('Nao informado') ||
+                (field === 'name' && isTechnicalClanName(current));
+            if (value && shouldReplace) {
+                target[field] = value;
+            }
+        });
+
+        numericFields.forEach(field => {
+            const value = Number(source[field]) || 0;
+            const current = Number(target[field]) || 0;
+            if (value > current) target[field] = value;
+        });
+
+        return target;
+    }
+
+    function normalizeClans(data) {
+        const merged = new Map();
+        const addClan = clan => {
+            if (!clan || typeof clan !== 'object') return;
+            const key = clanKey(clan);
+            const current = merged.get(key) || {};
+            merged.set(key, mergeClanData(current, clan));
+        };
+
+        if (Array.isArray(data?.clans)) {
+            data.clans.forEach(addClan);
         }
-        return { points: Array.isArray(data.clans) ? data.clans : [] };
+
+        if (data?.rankings && typeof data.rankings === 'object') {
+            Object.values(data.rankings).forEach(list => {
+                if (Array.isArray(list)) list.forEach(addClan);
+            });
+        }
+
+        return Array.from(merged.values())
+            .map(clan => {
+                const kills = Number(clan.kills) || 0;
+                const deaths = Number(clan.deaths) || 0;
+                const kdr = Number(clan.kdr) || (deaths > 0 ? kills / deaths : kills);
+                const normalized = {
+                    name: String(isTechnicalClanName(clan.name) ? clan.tag : (clan.name || clan.tag || 'Clan sem nome')).trim(),
+                    tag: String(clan.tag || clan.name || 'CLN').trim(),
+                    leader: String(clan.leader || 'Nao informado').trim(),
+                    level: Number(clan.level) || 0,
+                    points: Number(clan.points) || 0,
+                    members: Number(clan.members) || 0,
+                    kills,
+                    deaths,
+                    kdr: Math.round(kdr * 100) / 100
+                };
+                return { ...normalized, score: getClanScore(normalized) };
+            })
+            .filter(clan => clan.name || clan.tag)
+            .sort((a, b) =>
+                b.score - a.score ||
+                b.points - a.points ||
+                b.level - a.level ||
+                b.kills - a.kills ||
+                b.members - a.members ||
+                String(a.name).localeCompare(String(b.name), 'pt-BR')
+            )
+            .map((clan, index) => ({ ...clan, position: index + 1 }));
     }
 
     function renderHomeClans(clans) {
@@ -2291,11 +2396,13 @@ function setupTopClans() {
             const tag = String(clan.tag || 'CLN').trim() || 'CLN';
             const name = String(clan.name || 'Clan sem nome').trim() || 'Clan sem nome';
             const points = Number(clan.points) || 0;
+            const level = Number(clan.level) || 0;
+            const members = Number(clan.members) || 0;
             return `
                 <a href="#rankings-clans" class="home-clan-row" target="_self">
                     <span>#${position || '-'}</span>
                     <strong>[${escapeHTML(tag)}] ${escapeHTML(name)}</strong>
-                    <small>${formatNumber(points)} pts</small>
+                    <small>${formatNumber(points)} pts • Nv ${formatNumber(level)} • ${formatNumber(members)} membros</small>
                 </a>
             `;
         }).join('');
@@ -2310,9 +2417,8 @@ function setupTopClans() {
             return;
         }
 
-        const meta = RANKING_META[activeRanking] || RANKING_META.points;
-        if (rankingTitle) rankingTitle.textContent = meta.title;
-        if (rankingSubtitle) rankingSubtitle.textContent = meta.subtitle;
+        if (rankingTitle) rankingTitle.textContent = 'Top Clans Geral';
+        if (rankingSubtitle) rankingSubtitle.textContent = 'Classificacao geral usando pontos, nivel, membros, kills e KDR.';
 
         const topClans = clans.slice(0, 8);
         grid.innerHTML = topClans.map(clan => {
@@ -2324,30 +2430,36 @@ function setupTopClans() {
             const points = Number(clan.points) || 0;
             const members = Number(clan.members) || 0;
             const kills = Number(clan.kills) || 0;
+            const deaths = Number(clan.deaths) || 0;
             const kdr = Number(clan.kdr) || 0;
-            const mainValue = meta.field === 'kdr'
-                ? kdr.toFixed(2)
-                : formatNumber(clan[meta.field] || 0);
+            const score = Number(clan.score) || getClanScore(clan);
             const extraStats = [
-                { key: 'level', value: formatNumber(level), label: 'Nivel' },
-                { key: 'members', value: formatNumber(members), label: 'Membros' },
-                { key: 'points', value: formatNumber(points), label: 'Pontos' },
-                { key: 'kills', value: formatNumber(kills), label: 'Kills' },
-                { key: 'kdr', value: kdr.toFixed(2), label: 'KDR' }
-            ].filter(stat => stat.key !== meta.field).slice(0, 4);
+                { value: formatNumber(points), label: 'Pontos' },
+                { value: formatNumber(level), label: 'Nivel' },
+                { value: formatNumber(members), label: 'Membros' },
+                { value: formatNumber(kills), label: 'Kills' },
+                { value: kdr.toFixed(2), label: 'KDR' }
+            ];
             const podiumClass = position === 1 ? 'is-first' : position === 2 ? 'is-second' : position === 3 ? 'is-third' : '';
+            const championBadge = position === 1
+                ? '<div class="clan-champion-badge"><i class="fa-solid fa-crown"></i> Clan dominante</div>'
+                : '';
 
             return `
                 <article class="clan-card ${podiumClass}">
                     <div class="clan-rank">#${position || '-'}</div>
+                    ${championBadge}
                     <div class="clan-emblem">${escapeHTML(shortClanTag(tag))}</div>
                     <div class="clan-main">
                         <span class="clan-tag">[${escapeHTML(tag)}]</span>
                         <h4>${escapeHTML(name)}</h4>
-                        <p>Lider: ${escapeHTML(leader)}</p>
+                        <p>Lider: ${escapeHTML(leader)}${deaths ? ` • ${formatNumber(deaths)} mortes` : ''}</p>
+                    </div>
+                    <div class="clan-power">
+                        <strong>${formatNumber(score)}</strong>
+                        <small>Forca geral</small>
                     </div>
                     <div class="clan-stats">
-                        <span><strong>${mainValue}</strong><small>${escapeHTML(meta.label)}</small></span>
                         ${extraStats.map(stat => `<span><strong>${escapeHTML(stat.value)}</strong><small>${escapeHTML(stat.label)}</small></span>`).join('')}
                     </div>
                 </article>
@@ -2355,10 +2467,6 @@ function setupTopClans() {
         }).join('');
 
         setClansState('ready', 'Top Clans sincronizado com o servidor.');
-    }
-
-    function renderActiveClanRanking() {
-        renderClans(rankingsData[activeRanking] || []);
     }
 
     async function fetchClans() {
@@ -2373,14 +2481,14 @@ function setupTopClans() {
 
             if (!response.ok) throw new Error('API de clans offline');
             const data = await response.json();
-            rankingsData = normalizeRankings(data);
-            if (data.error && (!rankingsData.points || rankingsData.points.length === 0)) {
+            clansData = normalizeClans(data);
+            if (data.error && clansData.length === 0) {
                 throw new Error(data.error);
             }
 
             lastUpdatedAt = new Date();
-            renderHomeClans(rankingsData.points || []);
-            renderActiveClanRanking();
+            renderHomeClans(clansData);
+            renderClans(clansData);
         } catch (error) {
             console.warn('API de clans indisponivel:', error);
             lastUpdatedAt = null;
@@ -2392,14 +2500,6 @@ function setupTopClans() {
     }
 
     if (retryBtn) retryBtn.addEventListener('click', fetchClans);
-    rankingTabs.forEach(tab => {
-        tab.addEventListener('click', () => {
-            rankingTabs.forEach(item => item.classList.remove('active'));
-            tab.classList.add('active');
-            activeRanking = tab.dataset.clanRanking || 'points';
-            renderActiveClanRanking();
-        });
-    });
     fetchClans();
 }
 

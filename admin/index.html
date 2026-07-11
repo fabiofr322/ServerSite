@@ -14,7 +14,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <!-- Estilos Externos -->
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css?v=admin-ui-upgrade-20260711">
 
     <!-- Supabase SDK -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" crossorigin="anonymous"></script>
@@ -337,11 +337,14 @@
                                     </div>
                                 </div>
                                 <div class="form-group">
-                                    <label for="inputPhotoFile">Arquivo de Imagem</label>
-                                    <div class="input-wrapper">
-                                        <i class="fa-solid fa-image input-icon" style="top: 50%; transform: translateY(-50%);"></i>
-                                        <input type="file" id="inputPhotoFile" accept="image/*" required style="padding-top: 10px;">
+                                    <label>Arquivos de Imagem (Múltiplas Fotos)</label>
+                                    <div class="upload-dropzone" id="uploadDropzone">
+                                        <i class="fa-solid fa-cloud-arrow-up dropzone-icon"></i>
+                                        <p class="dropzone-text">Arraste & Solte imagens aqui ou <span class="browse-link">clique para procurar</span></p>
+                                        <p class="dropzone-hint">PNG, JPG, WEBP ou GIF (Máx. 5MB por foto)</p>
+                                        <input type="file" id="inputPhotoFile" accept="image/*" multiple style="display: none;">
                                     </div>
+                                    <div class="upload-previews-grid" id="uploadPreviewsGrid"></div>
                                 </div>
                                 <div class="form-group">
                                     <label for="inputPhotoTitle">Título do Álbum / Build</label>
@@ -824,6 +827,15 @@
     <div class="toast" id="adminToast">
         <div class="toast-icon" id="adminToastIcon"><i class="fa-solid fa-info"></i></div>
         <span id="adminToastText">Mensagem administrativa</span>
+    </div>
+
+    <!-- Lightbox Modal para Visualizar Imagens -->
+    <div id="imageLightbox" class="lightbox-modal">
+        <span class="lightbox-close" id="lightboxClose">&times;</span>
+        <div class="lightbox-content-wrapper">
+            <img class="lightbox-content" id="lightboxImage" src="" alt="Imagem Ampliada">
+            <div id="lightboxCaption" class="lightbox-caption"></div>
+        </div>
     </div>
 
     <!-- JS de Administração -->

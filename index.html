@@ -34,7 +34,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <!-- Estilos Externos -->
-    <link rel="stylesheet" href="style.css?v=player-hub-upgrade-20260710c">
+    <link rel="stylesheet" href="style.css?v=clans-unified-ranking-20260711">
 
     <!-- Supabase SDK (carregado antes do script.js para garantir disponibilidade) -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" crossorigin="anonymous"></script>
@@ -440,7 +440,7 @@
                         <div>
                             <span class="section-kicker">UltimateClans</span>
                             <h3>Top Clans</h3>
-                            <p>Resumo dos clans mais fortes por pontos.</p>
+                            <p>Resumo dos clans mais fortes da temporada.</p>
                         </div>
                     </div>
                     <div id="homeClansList" class="home-clans-list"></div>
@@ -519,23 +519,14 @@
 
         <section id="rankings-clans" class="rankings-section clans-page-section">
             <h2 class="section-title">Rankings de Clans</h2>
-            <p class="section-subtitle">Compare os clans por pontos, kills, KDR e membros.</p>
-
-            <div class="rankings-controls">
-                <div class="period-tabs clan-ranking-tabs" id="clanRankingTabs">
-                    <button class="period-btn active" data-clan-ranking="points">Pontos</button>
-                    <button class="period-btn" data-clan-ranking="kills">Kills</button>
-                    <button class="period-btn" data-clan-ranking="kdr">KDR</button>
-                    <button class="period-btn" data-clan-ranking="members">Membros</button>
-                </div>
-            </div>
+            <p class="section-subtitle">Ranking geral usando pontos, nivel, membros, kills e KDR.</p>
 
             <div class="clans-content" id="topClansPanel">
                 <div class="clans-header">
                     <div>
                         <span class="section-kicker">UltimateClans</span>
-                        <h3 id="clansRankingTitle">Top Clans por Pontos</h3>
-                        <p id="clansRankingSubtitle">Os clans mais fortes da temporada, organizados por pontos.</p>
+                        <h3 id="clansRankingTitle">Top Clans Geral</h3>
+                        <p id="clansRankingSubtitle">Classificacao geral dos clans mais fortes da temporada.</p>
                     </div>
                     <button class="btn-rank-retry" id="clansRetryBtn" type="button">
                         <i class="fa-solid fa-rotate-right"></i>
@@ -1351,7 +1342,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" crossorigin="anonymous"></script>
 
     <!-- Scripts Externos -->
-    <script src="script.js?v=player-hub-upgrade-20260710c"></script>
+    <script src="script.js?v=clans-unified-ranking-20260711"></script>
 </body>
 
 </html>
