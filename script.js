@@ -14,6 +14,7 @@ document.addEventListener('DOMContentLoaded', () => {
     setupPlayerHub();
     setupDiscordStats();
     setupNewsEvents();
+    setupStaffForms();
     setupClicker();
     setupVipStore();
 });
@@ -3391,6 +3392,310 @@ function triggerUnlockAnimation(index) {
             updateLockUI(index, CLICKER_TARGETS[index]);
         }, 300);
     }
+}
+
+/* ==========================================
+   LOGICA: FORMULARIOS PRIVADOS
+   ========================================== */
+function setupStaffForms() {
+    const section = document.getElementById('formulario');
+    const card = document.getElementById('staffFormCard');
+    const titleEl = document.getElementById('staffFormTitle');
+    const descEl = document.getElementById('staffFormDescription');
+    if (!section || !card || !titleEl || !descEl) return;
+
+    let activeSlug = '';
+    let activeForm = null;
+    let authRefreshSubscribed = false;
+
+    function waitForSupabaseReady() {
+        return new Promise(resolve => {
+            if (supabaseClient) {
+                resolve(true);
+                return;
+            }
+
+            let attempts = 0;
+            const interval = setInterval(() => {
+                attempts++;
+                if (supabaseClient) {
+                    clearInterval(interval);
+                    resolve(true);
+                } else if (attempts >= 60) {
+                    clearInterval(interval);
+                    resolve(false);
+                }
+            }, 100);
+        });
+    }
+
+    function getFormSlugFromHash() {
+        const hash = window.location.hash || '';
+        if (!hash.startsWith('#formulario')) return '';
+        const params = new URLSearchParams(hash.split('?')[1] || '');
+        return String(params.get('slug') || '').trim();
+    }
+
+    function setFormState(html) {
+        card.innerHTML = `<div class="staff-form-state">${html}</div>`;
+    }
+
+    function renderLoginRequired(slug) {
+        titleEl.textContent = 'Login necessario';
+        descEl.textContent = 'Voce precisa ter uma conta no site para responder este formulario.';
+        card.innerHTML = `
+            <div class="staff-form-login">
+                <i class="fa-solid fa-user-lock"></i>
+                <h3>Entre na sua conta para continuar</h3>
+                <p>As respostas ficam vinculadas ao seu e-mail e nick cadastrado no FR32Survival.</p>
+                <button type="button" class="btn btn-primary" id="staffFormLoginBtn">
+                    <i class="fa-solid fa-right-to-bracket"></i> Entrar ou criar conta
+                </button>
+            </div>
+        `;
+        const btn = document.getElementById('staffFormLoginBtn');
+        if (btn) {
+            btn.addEventListener('click', () => {
+                sessionStorage.setItem('fr32_pending_form_hash', `#formulario?slug=${slug}`);
+                openAuthModal();
+            });
+        }
+    }
+
+    function normalizeFields(fields) {
+        return Array.isArray(fields) ? fields : [];
+    }
+
+    function renderField(field) {
+        const id = String(field.id || '').trim();
+        const label = String(field.label || id || 'Campo').trim();
+        const type = String(field.type || 'text').trim();
+        const required = Boolean(field.required);
+        const placeholder = String(field.placeholder || '').trim();
+        const options = Array.isArray(field.options) ? field.options : [];
+        const requiredMark = required ? '<span class="staff-form-required">*</span>' : '';
+        const commonAttrs = `name="${escapeHTML(id)}" data-field-id="${escapeHTML(id)}" ${required ? 'required' : ''}`;
+
+        if (type === 'textarea') {
+            return `
+                <label class="staff-form-field">
+                    <span>${escapeHTML(label)} ${requiredMark}</span>
+                    <textarea ${commonAttrs} placeholder="${escapeHTML(placeholder)}"></textarea>
+                </label>
+            `;
+        }
+
+        if (type === 'select') {
+            return `
+                <label class="staff-form-field">
+                    <span>${escapeHTML(label)} ${requiredMark}</span>
+                    <select ${commonAttrs}>
+                        <option value="">Selecione...</option>
+                        ${options.map(option => `<option value="${escapeHTML(option)}">${escapeHTML(option)}</option>`).join('')}
+                    </select>
+                </label>
+            `;
+        }
+
+        if (type === 'checkbox') {
+            return `
+                <label class="staff-form-check">
+                    <input type="checkbox" ${commonAttrs}>
+                    <span>${escapeHTML(label)} ${requiredMark}</span>
+                </label>
+            `;
+        }
+
+        const htmlType = type === 'number' ? 'number' : type === 'email' ? 'email' : 'text';
+        return `
+            <label class="staff-form-field">
+                <span>${escapeHTML(label)} ${requiredMark}</span>
+                <input type="${htmlType}" ${commonAttrs} placeholder="${escapeHTML(placeholder)}">
+            </label>
+        `;
+    }
+
+    async function renderForm(form) {
+        activeForm = form;
+        const fields = normalizeFields(form.fields);
+        titleEl.textContent = form.title || 'Formulario FR32Survival';
+        descEl.textContent = form.description || 'Preencha as informacoes solicitadas pela equipe.';
+
+        const nick = currentProfile?.minecraft_username || 'Conta logada';
+        const email = currentUser?.email || '';
+
+        const { data: existingResponse } = await supabaseClient
+            .from('staff_form_responses')
+            .select('id, status, created_at')
+            .eq('form_id', form.id)
+            .eq('auth_user_id', currentUser.id)
+            .maybeSingle();
+
+        if (existingResponse) {
+            card.innerHTML = `
+                <div class="staff-form-login">
+                    <i class="fa-solid fa-circle-check"></i>
+                    <h3>Resposta ja enviada</h3>
+                    <p>Voce ja respondeu este formulario. Status atual: <strong>${escapeHTML(formatStaffFormStatus(existingResponse.status))}</strong>.</p>
+                    <small>Enviado em ${new Date(existingResponse.created_at).toLocaleString('pt-BR')}</small>
+                </div>
+            `;
+            return;
+        }
+
+        card.innerHTML = `
+            <div class="staff-form-account">
+                <span><i class="fa-solid fa-user"></i> Respondendo como <strong>${escapeHTML(nick)}</strong></span>
+                <span><i class="fa-solid fa-envelope"></i> ${escapeHTML(email)}</span>
+            </div>
+            <form id="staffPublicForm" class="staff-public-form">
+                ${fields.map(renderField).join('')}
+                <button type="submit" class="btn btn-primary staff-form-submit">
+                    <i class="fa-solid fa-paper-plane"></i> Enviar candidatura
+                </button>
+            </form>
+        `;
+
+        const formEl = document.getElementById('staffPublicForm');
+        if (formEl) formEl.addEventListener('submit', handleSubmit);
+    }
+
+    function collectAnswers(formEl) {
+        const answers = {};
+        normalizeFields(activeForm?.fields).forEach(field => {
+            const id = String(field.id || '').trim();
+            if (!id) return;
+            const input = formEl.querySelector(`[data-field-id="${CSS.escape(id)}"]`);
+            if (!input) return;
+            answers[id] = input.type === 'checkbox' ? input.checked : String(input.value || '').trim();
+        });
+        return answers;
+    }
+
+    async function handleSubmit(event) {
+        event.preventDefault();
+        if (!activeForm || !currentUser) return;
+
+        const submitBtn = event.currentTarget.querySelector('button[type="submit"]');
+        const originalHtml = submitBtn?.innerHTML || '';
+        if (submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Enviando...';
+        }
+
+        try {
+            const answers = collectAnswers(event.currentTarget);
+            const { error } = await supabaseClient
+                .from('staff_form_responses')
+                .insert({
+                    form_id: activeForm.id,
+                    auth_user_id: currentUser.id,
+                    user_email: currentUser.email || '',
+                    minecraft_username: currentProfile?.minecraft_username || '',
+                    answers
+                });
+
+            if (error) throw error;
+
+            card.innerHTML = `
+                <div class="staff-form-login">
+                    <i class="fa-solid fa-circle-check"></i>
+                    <h3>Resposta enviada</h3>
+                    <p>${escapeHTML(activeForm.success_message || 'Resposta enviada com sucesso.')}</p>
+                </div>
+            `;
+            showToast('Formulario enviado com sucesso!', 'success');
+        } catch (error) {
+            console.error('[Staff Forms] Erro ao enviar:', error);
+            showToast('Nao foi possivel enviar o formulario. Verifique se voce ja respondeu.', 'error');
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalHtml;
+            }
+        }
+    }
+
+    async function loadFormBySlug(slug) {
+        if (!slug || slug === activeSlug) return;
+        activeSlug = slug;
+        titleEl.textContent = 'Formulario FR32Survival';
+        descEl.textContent = 'Carregando formulario...';
+        setFormState('<div class="spinner"></div><p>Carregando formulario...</p>');
+
+        const ready = await waitForSupabaseReady();
+        if (!ready) {
+            setFormState('<i class="fa-solid fa-triangle-exclamation"></i><h3>Banco indisponivel</h3><p>Tente novamente em alguns segundos.</p>');
+            return;
+        }
+
+        const { data: { session } } = await supabaseClient.auth.getSession();
+        if (!session?.user) {
+            renderLoginRequired(slug);
+            if (!authRefreshSubscribed) {
+                authRefreshSubscribed = true;
+                supabaseClient.auth.onAuthStateChange((event, nextSession) => {
+                    if (nextSession?.user && activeSlug) {
+                        const slugToReload = activeSlug;
+                        activeSlug = '';
+                        setTimeout(() => loadFormBySlug(slugToReload), 250);
+                    }
+                });
+            }
+            return;
+        }
+
+        currentUser = session.user;
+
+        if (!currentProfile) {
+            const { data: profile } = await supabaseClient
+                .from('profiles')
+                .select('minecraft_username')
+                .eq('id', currentUser.id)
+                .maybeSingle();
+            if (profile) currentProfile = profile;
+        }
+
+        try {
+            const { data, error } = await supabaseClient
+                .from('staff_forms')
+                .select('*')
+                .eq('slug', slug)
+                .maybeSingle();
+
+            if (error) throw error;
+            if (!data) {
+                titleEl.textContent = 'Formulario indisponivel';
+                descEl.textContent = 'Esse link nao esta ativo ou nao existe.';
+                setFormState('<i class="fa-solid fa-link-slash"></i><h3>Link indisponivel</h3><p>Confira se o formulario esta ativo no painel administrativo.</p>');
+                return;
+            }
+
+            await renderForm(data);
+        } catch (error) {
+            console.error('[Staff Forms] Erro ao carregar:', error);
+            setFormState('<i class="fa-solid fa-triangle-exclamation"></i><h3>Erro ao carregar</h3><p>Confira se o SQL dos formularios foi executado no Supabase.</p>');
+        }
+    }
+
+    function handleHash() {
+        const slug = getFormSlugFromHash();
+        if (slug) loadFormBySlug(slug);
+    }
+
+    window.addEventListener('hashchange', handleHash);
+    setTimeout(handleHash, 250);
+}
+
+function formatStaffFormStatus(status) {
+    const map = {
+        nova: 'Nova',
+        em_analise: 'Em analise',
+        entrevista: 'Entrevista',
+        aprovada: 'Aprovada',
+        reprovada: 'Reprovada',
+        arquivada: 'Arquivada'
+    };
+    return map[status] || status || 'Nova';
 }
 
 /* ==========================================

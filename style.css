@@ -1025,6 +1025,7 @@ section.site-tab-active {
 #rankings-jogadores.site-tab-active,
 #rankings-clans.site-tab-active,
 #perfil-jogador.site-tab-active,
+#formulario.site-tab-active,
 #eventos.site-tab-active,
 #mural.site-tab-active {
     min-height: auto;
@@ -4832,6 +4833,7 @@ footer a:hover {
     #como-entrar.site-tab-active,
     #estatisticas.site-tab-active,
     #home-galeria.site-tab-active,
+    #formulario.site-tab-active,
     #eventos.site-tab-active,
     #mural.site-tab-active {
         padding-top: 2rem;
@@ -6381,6 +6383,151 @@ footer a:hover {
    ========================================== */
 .player-hub-section {
     width: 100%;
+}
+
+.staff-form-section {
+    width: 100%;
+    justify-content: flex-start;
+}
+
+.staff-form-shell {
+    width: min(920px, 100%);
+    margin: 0 auto;
+}
+
+.staff-form-hero {
+    text-align: center;
+    margin-bottom: 1.5rem;
+}
+
+.staff-form-card {
+    border: 1px solid rgba(255, 20, 147, 0.22);
+    border-radius: 24px;
+    background:
+        radial-gradient(circle at top left, rgba(255, 20, 147, 0.16), transparent 42%),
+        linear-gradient(180deg, rgba(20, 4, 36, 0.86), rgba(8, 2, 18, 0.72));
+    box-shadow: 0 28px 70px rgba(0, 0, 0, 0.42), inset 0 0 28px rgba(255, 20, 147, 0.035);
+    padding: clamp(1rem, 3vw, 1.6rem);
+    backdrop-filter: blur(22px);
+}
+
+.staff-form-state,
+.staff-form-login {
+    min-height: 240px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.85rem;
+    text-align: center;
+    color: var(--text-muted);
+}
+
+.staff-form-state i,
+.staff-form-login i {
+    color: var(--primary);
+    font-size: 2rem;
+}
+
+.staff-form-login h3 {
+    color: #fff;
+    font-size: 1.35rem;
+}
+
+.staff-form-login p,
+.staff-form-login small {
+    max-width: 620px;
+    color: var(--text-muted);
+    line-height: 1.55;
+}
+
+.staff-form-account {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.8rem;
+    flex-wrap: wrap;
+    margin-bottom: 1.2rem;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.04);
+    padding: 0.8rem 1rem;
+    color: var(--text-muted);
+    font-size: 0.88rem;
+}
+
+.staff-form-account strong,
+.staff-form-account i {
+    color: var(--primary);
+}
+
+.staff-public-form {
+    display: grid;
+    gap: 1rem;
+}
+
+.staff-form-field {
+    display: grid;
+    gap: 0.45rem;
+}
+
+.staff-form-field span,
+.staff-form-check span {
+    color: #fff;
+    font-weight: 800;
+}
+
+.staff-form-required {
+    color: var(--primary);
+}
+
+.staff-form-field input,
+.staff-form-field textarea,
+.staff-form-field select {
+    width: 100%;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 14px;
+    background: rgba(3, 0, 10, 0.55);
+    color: #fff;
+    padding: 0.95rem 1rem;
+    font: 700 0.95rem var(--font-main);
+    outline: none;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.staff-form-field textarea {
+    min-height: 120px;
+    resize: vertical;
+}
+
+.staff-form-field input:focus,
+.staff-form-field textarea:focus,
+.staff-form-field select:focus {
+    border-color: rgba(255, 20, 147, 0.55);
+    box-shadow: 0 0 0 3px rgba(255, 20, 147, 0.12);
+}
+
+.staff-form-check {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.04);
+    padding: 0.9rem 1rem;
+}
+
+.staff-form-check input {
+    width: 20px;
+    height: 20px;
+    accent-color: var(--primary);
+    flex: 0 0 auto;
+}
+
+.staff-form-submit {
+    width: min(100%, 360px);
+    justify-content: center;
+    margin: 0.5rem auto 0;
 }
 
 .player-hub-hero {

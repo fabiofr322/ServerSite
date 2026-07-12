@@ -14,7 +14,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <!-- Estilos Externos -->
-    <link rel="stylesheet" href="style.css?v=admin-ui-upgrade-20260711">
+    <link rel="stylesheet" href="style.css?v=staff-forms-20260712">
 
     <!-- Supabase SDK -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" crossorigin="anonymous"></script>
@@ -92,6 +92,10 @@
                     <button class="nav-tab-btn" data-tab="products" id="tabBtnProducts">
                         <i class="fa-solid fa-store"></i>
                         <span>Produtos/VIPs</span>
+                    </button>
+                    <button class="nav-tab-btn" data-tab="forms" id="tabBtnForms">
+                        <i class="fa-solid fa-clipboard-list"></i>
+                        <span>Formulários</span>
                     </button>
                 </nav>
                 
@@ -818,6 +822,140 @@
                     </div>
                 </section>
 
+                <!-- ABA 7: FORMULARIOS -->
+                <section class="tab-pane" id="tabForms">
+                    <div class="pane-header">
+                        <span class="pane-mode-badge">Link privado</span>
+                        <h2>Formulários</h2>
+                        <p>Crie formulários acessíveis apenas por link. Jogadores precisam ter conta no site para responder.</p>
+                    </div>
+
+                    <div class="announcements-layout">
+                        <div class="admin-card">
+                            <h3 id="staffFormAdminTitle"><i class="fa-solid fa-plus"></i> Criar Formulário</h3>
+                            <p class="card-desc">Use campos em JSON. O formulário de staff padrão já vem pronto pelo SQL.</p>
+
+                            <form id="formStaffForm" class="admin-form">
+                                <input type="hidden" id="inputStaffFormId" value="">
+
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="inputStaffFormTitle">Título</label>
+                                        <div class="input-wrapper">
+                                            <i class="fa-solid fa-heading input-icon"></i>
+                                            <input type="text" id="inputStaffFormTitle" placeholder="Candidatura para Staff" required maxlength="120">
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="inputStaffFormSlug">Slug do link</label>
+                                        <div class="input-wrapper">
+                                            <i class="fa-solid fa-link input-icon"></i>
+                                            <input type="text" id="inputStaffFormSlug" placeholder="vagas-staff" required maxlength="80">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="inputStaffFormDescription">Descrição</label>
+                                    <div class="input-wrapper">
+                                        <i class="fa-solid fa-align-left input-icon" style="top: 20px;"></i>
+                                        <textarea id="inputStaffFormDescription" placeholder="Texto que aparece antes do formulário"></textarea>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="inputStaffFormSuccess">Mensagem de sucesso</label>
+                                    <div class="input-wrapper">
+                                        <i class="fa-solid fa-circle-check input-icon" style="top: 20px;"></i>
+                                        <textarea id="inputStaffFormSuccess" placeholder="Mensagem exibida após o envio"></textarea>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="inputStaffFormFields">Campos em JSON</label>
+                                    <div class="input-wrapper">
+                                        <i class="fa-solid fa-code input-icon" style="top: 20px;"></i>
+                                        <textarea id="inputStaffFormFields" class="code-textarea" required></textarea>
+                                    </div>
+                                </div>
+
+                                <label class="checkbox-row">
+                                    <input type="checkbox" id="inputStaffFormActive" checked>
+                                    <span>Formulário ativo</span>
+                                </label>
+
+                                <div class="form-buttons-row">
+                                    <button type="submit" class="btn btn-primary" id="btnStaffFormSubmit">
+                                        <i class="fa-solid fa-floppy-disk"></i> Salvar
+                                    </button>
+                                    <button type="button" class="btn btn-secondary hidden" id="btnStaffFormCancelEdit">
+                                        Cancelar
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+
+                        <div class="admin-card stats-overview-card">
+                            <h3><i class="fa-solid fa-wand-magic-sparkles"></i> Modelo de campo</h3>
+                            <div class="guide-content">
+                                <p><i class="fa-solid fa-check"></i> Tipos aceitos: <strong>text</strong>, <strong>number</strong>, <strong>textarea</strong>, <strong>select</strong> e <strong>checkbox</strong>.</p>
+                                <p><i class="fa-solid fa-check"></i> Link padrão: <strong>../index.html#formulario?slug=vagas-staff</strong></p>
+                                <p><i class="fa-solid fa-check"></i> O jogador precisa estar logado para enviar.</p>
+                                <button type="button" class="btn btn-secondary btn-block" id="btnStaffFormTemplate">
+                                    <i class="fa-solid fa-file-code"></i> Usar modelo staff
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="admin-card table-card">
+                        <div class="table-header-row">
+                            <h3><i class="fa-solid fa-list"></i> Formulários cadastrados</h3>
+                            <div class="search-box">
+                                <i class="fa-solid fa-magnifying-glass"></i>
+                                <input type="text" id="inputSearchStaffForms" placeholder="Buscar formulário ou slug...">
+                            </div>
+                        </div>
+
+                        <div class="table-responsive">
+                            <table class="admin-table">
+                                <thead>
+                                    <tr>
+                                        <th>Formulário</th>
+                                        <th>Slug</th>
+                                        <th>Status</th>
+                                        <th>Respostas</th>
+                                        <th class="text-right">Ações</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tableStaffFormsBody">
+                                    <tr>
+                                        <td colspan="5" class="table-loading-row">
+                                            <div class="spinner"></div> Carregando formulários...
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="admin-card table-card">
+                        <div class="table-header-row">
+                            <h3><i class="fa-solid fa-inbox"></i> Respostas</h3>
+                            <div class="search-box">
+                                <i class="fa-solid fa-magnifying-glass"></i>
+                                <input type="text" id="inputSearchStaffResponses" placeholder="Buscar nick, e-mail ou resposta...">
+                            </div>
+                        </div>
+
+                        <div id="staffResponsesList" class="staff-responses-list">
+                            <div class="table-loading-row">
+                                <div class="spinner"></div> Selecione um formulário para ver respostas.
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
 
             </main>
         </div>
@@ -839,7 +977,7 @@
     </div>
 
     <!-- JS de Administração -->
-    <script src="admin.js"></script>
+    <script src="admin.js?v=staff-forms-20260712"></script>
 </body>
 
 </html>

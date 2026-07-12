@@ -29,6 +29,9 @@ let currentUserPermission = null;
 let allUsersList = []; // Cache local para busca instantânea no frontend
 let allAnnouncementsList = [];
 let allProductsList = [];
+let allStaffFormsList = [];
+let allStaffResponsesList = [];
+let selectedStaffFormId = null;
 let currentAnnouncementType = 'news';
 
 // Inicialização do Supabase Client
@@ -128,6 +131,7 @@ function setupAdminInterface() {
     setupCommentsEvents();
     setupAnnouncementsEvents();
     setupProductsEvents();
+    setupStaffFormsEvents();
 }
 
 function setupGlobalEvents() {
@@ -218,6 +222,8 @@ function switchTab(tabId) {
             loadAnnouncementsList();
         } else if (tabId === 'products') {
             loadProductsList();
+        } else if (tabId === 'forms') {
+            loadStaffFormsList();
         }
     }
 }
@@ -2421,7 +2427,321 @@ window.editProduct = editProduct;
 window.deleteProduct = deleteProduct;
 
 // ---------------------------------------------------------------------
-// 7. SISTEMA DE TOAST NOTIFICATION PREMIUM
+// 7. ABA FORMULARIOS: VAGAS DE STAFF E LINKS PRIVADOS
+// ---------------------------------------------------------------------
+const STAFF_FORM_TEMPLATE = [
+    { id: 'discord', label: 'Seu Discord', type: 'text', required: true, placeholder: 'Ex: fabiofr32' },
+    { id: 'idade', label: 'Idade', type: 'number', required: true, placeholder: 'Ex: 18' },
+    { id: 'tempo_servidor', label: 'Ha quanto tempo joga no FR32Survival?', type: 'textarea', required: true },
+    { id: 'disponibilidade', label: 'Qual sua disponibilidade semanal?', type: 'textarea', required: true },
+    { id: 'experiencia', label: 'Ja foi staff em outro servidor? Conte sua experiencia.', type: 'textarea', required: true },
+    { id: 'motivacao', label: 'Por que voce quer entrar para a equipe?', type: 'textarea', required: true },
+    { id: 'situacao_hack', label: 'Como voce lidaria com um jogador usando hack?', type: 'textarea', required: true },
+    { id: 'situacao_chat', label: 'Como voce lidaria com uma briga no chat?', type: 'textarea', required: true },
+    { id: 'microfone', label: 'Tem microfone para entrevista?', type: 'select', required: true, options: ['Sim', 'Nao', 'Posso usar quando necessario'] },
+    { id: 'regras', label: 'Confirmo que li as regras e aceito passar por periodo de teste.', type: 'checkbox', required: true }
+];
+
+function setupStaffFormsEvents() {
+    const form = document.getElementById('formStaffForm');
+    if (form) form.addEventListener('submit', handleStaffFormSubmit);
+
+    const cancelBtn = document.getElementById('btnStaffFormCancelEdit');
+    if (cancelBtn) cancelBtn.addEventListener('click', resetStaffFormAdmin);
+
+    const templateBtn = document.getElementById('btnStaffFormTemplate');
+    if (templateBtn) templateBtn.addEventListener('click', () => {
+        document.getElementById('inputStaffFormTitle').value = 'Candidatura para Staff';
+        document.getElementById('inputStaffFormSlug').value = 'vagas-staff';
+        document.getElementById('inputStaffFormDescription').value = 'Preencha com sinceridade. A equipe vai avaliar sua disponibilidade, postura e conhecimento sobre o servidor.';
+        document.getElementById('inputStaffFormSuccess').value = 'Candidatura enviada com sucesso. A equipe FR32Survival vai analisar suas respostas pelo painel administrativo.';
+        document.getElementById('inputStaffFormFields').value = JSON.stringify(STAFF_FORM_TEMPLATE, null, 2);
+        document.getElementById('inputStaffFormActive').checked = true;
+    });
+
+    const searchForms = document.getElementById('inputSearchStaffForms');
+    if (searchForms) searchForms.addEventListener('input', () => renderStaffFormsTable(searchForms.value));
+
+    const searchResponses = document.getElementById('inputSearchStaffResponses');
+    if (searchResponses) searchResponses.addEventListener('input', () => renderStaffResponses(searchResponses.value));
+
+    resetStaffFormAdmin();
+}
+
+async function loadStaffFormsList() {
+    const tableBody = document.getElementById('tableStaffFormsBody');
+    if (!tableBody) return;
+
+    tableBody.innerHTML = '<tr><td colspan="5" class="table-loading-row"><div class="spinner"></div> Carregando formulários...</td></tr>';
+
+    try {
+        const { data, error } = await supabaseClient
+            .from('staff_forms')
+            .select('*, staff_form_responses(count)')
+            .order('created_at', { ascending: false });
+
+        if (error) throw error;
+
+        allStaffFormsList = data || [];
+        renderStaffFormsTable();
+    } catch (err) {
+        console.error('[Staff Forms] Erro ao carregar:', err);
+        tableBody.innerHTML = `
+            <tr>
+                <td colspan="5" class="text-center text-muted">
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+                    Execute o SQL staff_forms_schema.sql no Supabase.
+                </td>
+            </tr>
+        `;
+    }
+}
+
+function getStaffFormPublicLink(slug) {
+    const base = new URL('../index.html', window.location.href).href;
+    return `${base}#formulario?slug=${encodeURIComponent(slug)}`;
+}
+
+function renderStaffFormsTable(filter = '') {
+    const tableBody = document.getElementById('tableStaffFormsBody');
+    if (!tableBody) return;
+
+    const term = String(filter || '').toLowerCase();
+    const filtered = allStaffFormsList.filter(item =>
+        String(item.title || '').toLowerCase().includes(term) ||
+        String(item.slug || '').toLowerCase().includes(term)
+    );
+
+    if (!filtered.length) {
+        tableBody.innerHTML = '<tr><td colspan="5" class="text-center text-muted">Nenhum formulário encontrado.</td></tr>';
+        return;
+    }
+
+    tableBody.innerHTML = filtered.map(item => {
+        const count = Array.isArray(item.staff_form_responses) ? (item.staff_form_responses[0]?.count || 0) : 0;
+        return `
+            <tr>
+                <td>
+                    <strong>${escapeHTML(item.title)}</strong>
+                    <br><small>${escapeHTML(item.description || '')}</small>
+                </td>
+                <td><code>${escapeHTML(item.slug)}</code></td>
+                <td>${item.is_active ? '<span class="badge-published">Ativo</span>' : '<span class="badge-draft">Inativo</span>'}</td>
+                <td>${count}</td>
+                <td class="text-right">
+                    <button class="btn-action btn-promote" onclick="copyStaffFormLink('${escapeJSString(item.slug)}')" title="Copiar link"><i class="fa-solid fa-link"></i></button>
+                    <button class="btn-action btn-promote" onclick="selectStaffFormResponses(${item.id})" title="Ver respostas"><i class="fa-solid fa-inbox"></i></button>
+                    <button class="btn-action btn-promote" onclick="editStaffForm(${item.id})" title="Editar"><i class="fa-solid fa-pen"></i></button>
+                    <button class="btn-action btn-demote" onclick="deleteStaffForm(${item.id})" title="Excluir"><i class="fa-solid fa-trash"></i></button>
+                </td>
+            </tr>
+        `;
+    }).join('');
+}
+
+async function handleStaffFormSubmit(event) {
+    event.preventDefault();
+
+    const id = document.getElementById('inputStaffFormId').value;
+    const slug = slugify(document.getElementById('inputStaffFormSlug').value);
+    let fields;
+
+    try {
+        fields = JSON.parse(document.getElementById('inputStaffFormFields').value || '[]');
+        if (!Array.isArray(fields)) throw new Error('Campos precisam ser uma lista.');
+    } catch (err) {
+        showToast('JSON dos campos invalido.', 'error');
+        return;
+    }
+
+    const payload = {
+        title: document.getElementById('inputStaffFormTitle').value.trim(),
+        slug,
+        description: document.getElementById('inputStaffFormDescription').value.trim(),
+        success_message: document.getElementById('inputStaffFormSuccess').value.trim(),
+        fields,
+        is_active: document.getElementById('inputStaffFormActive').checked,
+        updated_at: new Date().toISOString()
+    };
+
+    if (!payload.title || !payload.slug) {
+        showToast('Preencha titulo e slug.', 'error');
+        return;
+    }
+
+    try {
+        if (id) {
+            const { error } = await supabaseClient.from('staff_forms').update(payload).eq('id', id);
+            if (error) throw error;
+            showToast('Formulario atualizado.', 'success');
+        } else {
+            const { error } = await supabaseClient.from('staff_forms').insert({
+                ...payload,
+                created_by: currentUser.id
+            });
+            if (error) throw error;
+            showToast('Formulario criado.', 'success');
+        }
+
+        resetStaffFormAdmin();
+        loadStaffFormsList();
+    } catch (err) {
+        console.error('[Staff Forms] Erro ao salvar:', err);
+        showToast('Erro ao salvar formulario. Confira o SQL e permissoes.', 'error');
+    }
+}
+
+function editStaffForm(id) {
+    const item = allStaffFormsList.find(entry => Number(entry.id) === Number(id));
+    if (!item) return;
+
+    document.getElementById('inputStaffFormId').value = item.id;
+    document.getElementById('inputStaffFormTitle').value = item.title || '';
+    document.getElementById('inputStaffFormSlug').value = item.slug || '';
+    document.getElementById('inputStaffFormDescription').value = item.description || '';
+    document.getElementById('inputStaffFormSuccess').value = item.success_message || '';
+    document.getElementById('inputStaffFormFields').value = JSON.stringify(item.fields || [], null, 2);
+    document.getElementById('inputStaffFormActive').checked = Boolean(item.is_active);
+    document.getElementById('staffFormAdminTitle').innerHTML = '<i class="fa-solid fa-pen"></i> Editar Formulário';
+    document.getElementById('btnStaffFormSubmit').innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Atualizar';
+    document.getElementById('btnStaffFormCancelEdit').classList.remove('hidden');
+    document.getElementById('formStaffForm').scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+function resetStaffFormAdmin() {
+    const form = document.getElementById('formStaffForm');
+    if (form) form.reset();
+    document.getElementById('inputStaffFormId').value = '';
+    document.getElementById('inputStaffFormTitle').value = 'Candidatura para Staff';
+    document.getElementById('inputStaffFormSlug').value = 'vagas-staff';
+    document.getElementById('inputStaffFormDescription').value = 'Preencha com sinceridade. A equipe vai avaliar sua disponibilidade, postura e conhecimento sobre o servidor.';
+    document.getElementById('inputStaffFormSuccess').value = 'Candidatura enviada com sucesso. A equipe FR32Survival vai analisar suas respostas pelo painel administrativo.';
+    document.getElementById('inputStaffFormFields').value = JSON.stringify(STAFF_FORM_TEMPLATE, null, 2);
+    document.getElementById('inputStaffFormActive').checked = true;
+    document.getElementById('staffFormAdminTitle').innerHTML = '<i class="fa-solid fa-plus"></i> Criar Formulário';
+    document.getElementById('btnStaffFormSubmit').innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Salvar';
+    document.getElementById('btnStaffFormCancelEdit').classList.add('hidden');
+}
+
+async function deleteStaffForm(id) {
+    if (!confirm('Tem certeza que deseja excluir este formulario e suas respostas?')) return;
+    const { error } = await supabaseClient.from('staff_forms').delete().eq('id', id);
+    if (error) {
+        showToast('Erro ao excluir formulario.', 'error');
+        return;
+    }
+    showToast('Formulario excluido.', 'success');
+    loadStaffFormsList();
+}
+
+async function copyStaffFormLink(slug) {
+    const link = getStaffFormPublicLink(slug);
+    await navigator.clipboard.writeText(link);
+    showToast('Link do formulario copiado.', 'success');
+}
+
+async function selectStaffFormResponses(formId) {
+    selectedStaffFormId = formId;
+    const list = document.getElementById('staffResponsesList');
+    if (list) list.innerHTML = '<div class="table-loading-row"><div class="spinner"></div> Carregando respostas...</div>';
+
+    try {
+        const { data, error } = await supabaseClient
+            .from('staff_form_responses')
+            .select('*')
+            .eq('form_id', formId)
+            .order('created_at', { ascending: false });
+
+        if (error) throw error;
+        allStaffResponsesList = data || [];
+        renderStaffResponses();
+    } catch (err) {
+        console.error('[Staff Forms] Erro ao carregar respostas:', err);
+        if (list) list.innerHTML = '<div class="text-center text-muted">Erro ao carregar respostas.</div>';
+    }
+}
+
+function renderStaffResponses(filter = '') {
+    const list = document.getElementById('staffResponsesList');
+    if (!list) return;
+
+    const term = String(filter || '').toLowerCase();
+    const filtered = allStaffResponsesList.filter(item => {
+        const blob = JSON.stringify(item.answers || {}).toLowerCase();
+        return blob.includes(term) ||
+            String(item.minecraft_username || '').toLowerCase().includes(term) ||
+            String(item.user_email || '').toLowerCase().includes(term);
+    });
+
+    if (!filtered.length) {
+        list.innerHTML = '<div class="text-center text-muted">Nenhuma resposta encontrada.</div>';
+        return;
+    }
+
+    list.innerHTML = filtered.map(item => `
+        <article class="staff-response-card">
+            <div class="staff-response-head">
+                <div>
+                    <strong>${escapeHTML(item.minecraft_username || 'Sem nick')}</strong>
+                    <span>${escapeHTML(item.user_email || '')} • ${new Date(item.created_at).toLocaleString('pt-BR')}</span>
+                </div>
+                <select onchange="updateStaffResponseStatus(${item.id}, this.value)">
+                    ${['nova','em_analise','entrevista','aprovada','reprovada','arquivada'].map(status => `
+                        <option value="${status}" ${item.status === status ? 'selected' : ''}>${escapeHTML(formatStaffStatus(status))}</option>
+                    `).join('')}
+                </select>
+            </div>
+            <div class="staff-response-answers">
+                ${Object.entries(item.answers || {}).map(([key, value]) => `
+                    <div>
+                        <span>${escapeHTML(key)}</span>
+                        <p>${escapeHTML(typeof value === 'boolean' ? (value ? 'Sim' : 'Nao') : String(value || ''))}</p>
+                    </div>
+                `).join('')}
+            </div>
+        </article>
+    `).join('');
+}
+
+async function updateStaffResponseStatus(id, status) {
+    const { error } = await supabaseClient
+        .from('staff_form_responses')
+        .update({
+            status,
+            reviewed_by: currentUser.id,
+            reviewed_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+        })
+        .eq('id', id);
+
+    if (error) {
+        showToast('Erro ao atualizar status.', 'error');
+        return;
+    }
+    showToast('Status atualizado.', 'success');
+    if (selectedStaffFormId) selectStaffFormResponses(selectedStaffFormId);
+}
+
+function formatStaffStatus(status) {
+    const map = {
+        nova: 'Nova',
+        em_analise: 'Em analise',
+        entrevista: 'Entrevista',
+        aprovada: 'Aprovada',
+        reprovada: 'Reprovada',
+        arquivada: 'Arquivada'
+    };
+    return map[status] || status;
+}
+
+window.editStaffForm = editStaffForm;
+window.deleteStaffForm = deleteStaffForm;
+window.copyStaffFormLink = copyStaffFormLink;
+window.selectStaffFormResponses = selectStaffFormResponses;
+window.updateStaffResponseStatus = updateStaffResponseStatus;
+
+// ---------------------------------------------------------------------
+// 8. SISTEMA DE TOAST NOTIFICATION PREMIUM
 // ---------------------------------------------------------------------
 function showToast(message, type = "info") {
     const toast = document.getElementById('adminToast');
@@ -2490,6 +2810,16 @@ function isValidMinecraftUsername(username) {
 function safeMinecraftUsername(username) {
     const value = String(username || '').trim();
     return isValidMinecraftUsername(value) ? value : 'Jogador';
+}
+
+function slugify(value) {
+    return String(value || '')
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-+|-+$/g, '')
+        .slice(0, 80);
 }
 
 // Funções de controle do Lightbox
