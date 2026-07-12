@@ -1,88 +1,90 @@
-/**
+﻿/**
  * =====================================================================
  * FR32SURVIVAL - LOGIC SYSTEM FOR ADMIN PANEL (JS)
- * Desenvolvedor Web Full-Stack Sênior & Instrutor Didático
+ * Desenvolvedor Web Full-Stack SÃªnior & Instrutor DidÃ¡tico
  * =====================================================================
- * Explicação da lógica e do fluxo para o estudante:
+ * ExplicaÃ§Ã£o da lÃ³gica e do fluxo para o estudante:
  * 
- * 1. Inicialização: Conectamos com o Supabase usando as chaves públicas da API.
- * 2. Route Guard (Segurança no Acesso): Assim que a página carrega, verificamos a sessão.
- *    Se não estiver logado ou se não for um admin cadastrado na tabela `user_permissions`,
- *    bloqueamos o conteúdo (evitando flashes de tela) e redirecionamos para a Home.
- * 3. Gerenciamento de Abas: Controlamos a exibição das seções administrativas.
- * 4. Painel de Permissões:
- *    - O Super Admin pode listar todos os usuários usando a RPC (Stored Procedure)
+ * 1. InicializaÃ§Ã£o: Conectamos com o Supabase usando as chaves pÃºblicas da API.
+ * 2. Route Guard (SeguranÃ§a no Acesso): Assim que a pÃ¡gina carrega, verificamos a sessÃ£o.
+ *    Se nÃ£o estiver logado ou se nÃ£o for um admin cadastrado na tabela `user_permissions`,
+ *    bloqueamos o conteÃºdo (evitando flashes de tela) e redirecionamos para a Home.
+ * 3. Gerenciamento de Abas: Controlamos a exibiÃ§Ã£o das seÃ§Ãµes administrativas.
+ * 4. Painel de PermissÃµes:
+ *    - O Super Admin pode listar todos os usuÃ¡rios usando a RPC (Stored Procedure)
  *      `get_all_users_for_admin` criada no banco.
- *    - Promoção: Procuramos o UUID do usuário usando o e-mail pela RPC `get_user_id_by_email`
+ *    - PromoÃ§Ã£o: Procuramos o UUID do usuÃ¡rio usando o e-mail pela RPC `get_user_id_by_email`
  *      e inserimos o cargo correspondente.
- *    - Revogação: Deletamos o registro do usuário na tabela de permissões.
- *    - Proteção: A interface e o RLS impedem qualquer modificação na conta do Super Admin.
+ *    - RevogaÃ§Ã£o: Deletamos o registro do usuÃ¡rio na tabela de permissÃµes.
+ *    - ProteÃ§Ã£o: A interface e o RLS impedem qualquer modificaÃ§Ã£o na conta do Super Admin.
  */
 
-// Configurações do Supabase (Mesma URL e Chave do site principal)
+// ConfiguraÃ§Ãµes do Supabase (Mesma URL e Chave do site principal)
 const SUPABASE_URL = 'https://dzfmtmlgbyxnqjdwutfp.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR6Zm10bWxnYnl4bnFqZHd1dGZwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE5ODE1MjcsImV4cCI6MjA5NzU1NzUyN30.8W_0L9OzmLSDH1ZMRtFFlc3Pyf54ENgVNV535TW1T7U';
 
 let supabaseClient = null;
 let currentUser = null;
 let currentUserPermission = null;
-let allUsersList = []; // Cache local para busca instantânea no frontend
+let allUsersList = []; // Cache local para busca instantÃ¢nea no frontend
 let allAnnouncementsList = [];
 let allProductsList = [];
 let allStaffFormsList = [];
 let allStaffResponsesList = [];
 let selectedStaffFormId = null;
+let selectedStaffResponseId = null;
+let currentStaffResponseFilter = 'all';
 let currentAnnouncementType = 'news';
 
-// Inicialização do Supabase Client
+// InicializaÃ§Ã£o do Supabase Client
 function initAdminSupabase() {
     if (window.supabase) {
         supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         checkSessionAndRole();
     } else {
-        console.error("[Admin] Erro: SDK do Supabase não carregado.");
+        console.error("[Admin] Erro: SDK do Supabase nÃ£o carregado.");
         showToast("Erro ao carregar o SDK do banco de dados.", "error");
     }
 }
 
 // ---------------------------------------------------------------------
-// 1. SISTEMA DE SEGURANÇA E PROTEÇÃO DE ROTA (ROUTE GUARD)
+// 1. SISTEMA DE SEGURANÃ‡A E PROTEÃ‡ÃƒO DE ROTA (ROUTE GUARD)
 // ---------------------------------------------------------------------
 async function checkSessionAndRole() {
     try {
-        // Obter sessão atual do usuário
+        // Obter sessÃ£o atual do usuÃ¡rio
         const { data: { session }, error: sessionError } = await supabaseClient.auth.getSession();
         
         if (sessionError || !session) {
-            // Se não houver sessão ativa, expulsa para a Home
-            handleAccessDenied("Sessão expirada ou não autenticado. Faça login na Home.");
+            // Se nÃ£o houver sessÃ£o ativa, expulsa para a Home
+            handleAccessDenied("SessÃ£o expirada ou nÃ£o autenticado. FaÃ§a login na Home.");
             return;
         }
 
         currentUser = session.user;
 
-        // Buscar permissões do usuário logado diretamente na tabela
+        // Buscar permissÃµes do usuÃ¡rio logado diretamente na tabela
         const { data: permissionData, error: permError } = await supabaseClient
             .from('user_permissions')
             .select('*')
             .eq('user_id', currentUser.id)
             .single();
 
-        // Se houver erro de consulta ou o usuário não constar na tabela de permissões, ele não é admin
+        // Se houver erro de consulta ou o usuÃ¡rio nÃ£o constar na tabela de permissÃµes, ele nÃ£o Ã© admin
         if (permError || !permissionData) {
-            console.warn("[Auth Guard] Falha de validação.");
-            handleAccessDenied("Acesso Negado: Você não tem permissão para acessar o Painel Admin.");
+            console.warn("[Auth Guard] Falha de validaÃ§Ã£o.");
+            handleAccessDenied("Acesso Negado: VocÃª nÃ£o tem permissÃ£o para acessar o Painel Admin.");
             return;
         }
 
         currentUserPermission = permissionData;
 
-        // Se for admin ou super_admin, libera o acesso à página
+        // Se for admin ou super_admin, libera o acesso Ã  pÃ¡gina
         setupAdminInterface();
 
     } catch (err) {
-        console.error("[Auth Guard] Erro crítico:", err);
-        handleAccessDenied("Ocorreu um erro interno de validação.");
+        console.error("[Auth Guard] Erro crÃ­tico:", err);
+        handleAccessDenied("Ocorreu um erro interno de validaÃ§Ã£o.");
     }
 }
 
@@ -95,14 +97,14 @@ function handleAccessDenied(message) {
 }
 
 // ---------------------------------------------------------------------
-// 2. CONFIGURAÇÃO DA INTERFACE ADMIN
+// 2. CONFIGURAÃ‡ÃƒO DA INTERFACE ADMIN
 // ---------------------------------------------------------------------
 function setupAdminInterface() {
     // Oculta a tela de carregamento e exibe o painel administrativo
     document.getElementById('authLoadingScreen').style.display = 'none';
     document.getElementById('adminPanelContent').style.display = 'block';
 
-    // Atualiza os dados do usuário no cabeçalho
+    // Atualiza os dados do usuÃ¡rio no cabeÃ§alho
     document.getElementById('currentUserEmail').textContent = currentUser.email;
     
     const roleBadge = document.getElementById('currentUserRole');
@@ -110,21 +112,21 @@ function setupAdminInterface() {
         roleBadge.textContent = 'Super Admin';
         roleBadge.classList.add('super-admin');
         
-        // Exibe o botão da aba de permissões (exclusivo para Super Admin)
+        // Exibe o botÃ£o da aba de permissÃµes (exclusivo para Super Admin)
         const tabBtn = document.getElementById('tabBtnPermissions');
         tabBtn.style.display = 'flex';
         
-        // Inicializa a listagem de usuários e as interações de promoção
+        // Inicializa a listagem de usuÃ¡rios e as interaÃ§Ãµes de promoÃ§Ã£o
         loadUsersList();
         setupPermissionsEvents();
     } else {
         roleBadge.textContent = 'Administrador';
         
-        // Se for Admin comum, a aba padrão deve ser a de Veteranos
+        // Se for Admin comum, a aba padrÃ£o deve ser a de Veteranos
         switchTab('veterans');
     }
 
-    // Inicializar eventos de abas, logout, veteranos, temporadas, comentários e publicações
+    // Inicializar eventos de abas, logout, veteranos, temporadas, comentÃ¡rios e publicaÃ§Ãµes
     setupGlobalEvents();
     setupVeteransEvents();
     setupSeasonsEvents();
@@ -148,7 +150,7 @@ function setupGlobalEvents() {
         }
     });
 
-    // Navegação entre abas
+    // NavegaÃ§Ã£o entre abas
     const tabs = document.querySelectorAll('.nav-tab-btn');
     tabs.forEach(tab => {
         tab.addEventListener('click', () => {
@@ -157,7 +159,7 @@ function setupGlobalEvents() {
         });
     });
 
-    // Eventos do Lightbox para visualização de imagens
+    // Eventos do Lightbox para visualizaÃ§Ã£o de imagens
     const lightbox = document.getElementById('imageLightbox');
     const lightboxClose = document.getElementById('lightboxClose');
     if (lightboxClose) {
@@ -180,7 +182,7 @@ function setupGlobalEvents() {
         }
     });
 
-    // Adiciona evento de clique no preview de moderacao também
+    // Adiciona evento de clique no preview de moderacao tambÃ©m
     const modPreview = document.getElementById('moderationSelectedPhotoPreview');
     if (modPreview) {
         modPreview.addEventListener('click', (e) => {
@@ -193,11 +195,11 @@ function setupGlobalEvents() {
 }
 
 function switchTab(tabId) {
-    // Remove classe ativa de todos os botões e painéis
+    // Remove classe ativa de todos os botÃµes e painÃ©is
     document.querySelectorAll('.nav-tab-btn').forEach(btn => btn.classList.remove('active'));
     document.querySelectorAll('.tab-pane').forEach(pane => pane.classList.remove('active'));
 
-    // Adiciona classe ativa no botão clicado e no painel correspondente
+    // Adiciona classe ativa no botÃ£o clicado e no painel correspondente
     const activeBtn = document.querySelector(`.nav-tab-btn[data-tab="${tabId}"]`);
     const paneId = (tabId === 'news' || tabId === 'events')
         ? 'tabAnnouncements'
@@ -208,7 +210,7 @@ function switchTab(tabId) {
         activeBtn.classList.add('active');
         activePane.classList.add('active');
         
-        // Carrega dados dinâmicos da aba ativa
+        // Carrega dados dinÃ¢micos da aba ativa
         if (tabId === 'permissions') {
             loadUsersList();
         } else if (tabId === 'veterans') {
@@ -229,10 +231,10 @@ function switchTab(tabId) {
 }
 
 // ---------------------------------------------------------------------
-// 3. ABA PERMISSÕES: CARREGAR USUÁRIOS E GERENCIAR CARGOS
+// 3. ABA PERMISSÃ•ES: CARREGAR USUÃRIOS E GERENCIAR CARGOS
 // ---------------------------------------------------------------------
 
-// Eventos específicos da aba de permissões
+// Eventos especÃ­ficos da aba de permissÃµes
 function setupPermissionsEvents() {
     const form = document.getElementById('formPromoteAdmin');
     form.addEventListener('submit', handlePromoteFormSubmit);
@@ -243,7 +245,7 @@ function setupPermissionsEvents() {
     });
 }
 
-// Carregar lista geral de usuários
+// Carregar lista geral de usuÃ¡rios
 async function loadUsersList() {
     const tableBody = document.getElementById('tableUsersBody');
     tableBody.innerHTML = `
@@ -271,15 +273,15 @@ async function loadUsersList() {
         tableBody.innerHTML = `
             <tr>
                 <td colspan="5" class="table-empty-row" style="color: var(--error)">
-                    <i class="fa-solid fa-triangle-exclamation"></i> Falha ao carregar usuários: ${err.message}
+                    <i class="fa-solid fa-triangle-exclamation"></i> Falha ao carregar usuÃ¡rios: ${err.message}
                 </td>
             </tr>
         `;
-        showToast("Erro ao carregar lista de usuários.", "error");
+        showToast("Erro ao carregar lista de usuÃ¡rios.", "error");
     }
 }
 
-// Renderizar tabela de usuários
+// Renderizar tabela de usuÃ¡rios
 function renderUsersTable(users) {
     const tableBody = document.getElementById('tableUsersBody');
     
@@ -287,7 +289,7 @@ function renderUsersTable(users) {
         tableBody.innerHTML = `
             <tr>
                 <td colspan="5" class="table-empty-row">
-                    Nenhum usuário encontrado.
+                    Nenhum usuÃ¡rio encontrado.
                 </td>
             </tr>
         `;
@@ -346,7 +348,7 @@ function renderUsersTable(users) {
     });
 }
 
-// Filtrar usuários com busca instantânea local
+// Filtrar usuÃ¡rios com busca instantÃ¢nea local
 function filterUsersTable(query) {
     const filtered = allUsersList.filter(user => {
         const emailMatch = user.email.toLowerCase().includes(query.toLowerCase());
@@ -357,7 +359,7 @@ function filterUsersTable(query) {
     renderUsersTable(filtered);
 }
 
-// Atualizar estatísticas de cargos no painel
+// Atualizar estatÃ­sticas de cargos no painel
 function updateRoleStats(users) {
     const superAdmins = users.filter(u => u.role === 'super_admin').length;
     const admins = users.filter(u => u.role === 'admin').length;
@@ -367,10 +369,10 @@ function updateRoleStats(users) {
 }
 
 // ---------------------------------------------------------------------
-// 4. LÓGICA DE PROMOÇÃO E REBAIXAMENTO (API DIRECT CALLS)
+// 4. LÃ“GICA DE PROMOÃ‡ÃƒO E REBAIXAMENTO (API DIRECT CALLS)
 // ---------------------------------------------------------------------
 
-// Enviar Formulário de Promoção por Email
+// Enviar FormulÃ¡rio de PromoÃ§Ã£o por Email
 async function handlePromoteFormSubmit(e) {
     e.preventDefault();
     
@@ -380,21 +382,21 @@ async function handlePromoteFormSubmit(e) {
 
     if (!email) return;
 
-    // Desativa formulário durante o loading
+    // Desativa formulÃ¡rio durante o loading
     btnSubmit.disabled = true;
     btnSubmit.innerHTML = `<span class="table-loading-row"><div class="spinner" style="margin: 0"></div> Concedendo...</span>`;
 
     try {
-        // Passo A: Encontra o UUID do usuário correspondente ao e-mail informado
+        // Passo A: Encontra o UUID do usuÃ¡rio correspondente ao e-mail informado
         const { data: userId, error: lookupError } = await supabaseClient.rpc('get_user_id_by_email', {
             search_email: email
         });
 
         if (lookupError || !userId) {
-            throw new Error("Usuário não cadastrado ou e-mail inválido. O jogador precisa estar registrado no site.");
+            throw new Error("UsuÃ¡rio nÃ£o cadastrado ou e-mail invÃ¡lido. O jogador precisa estar registrado no site.");
         }
 
-        // Passo B: Insere o registro na tabela de permissões como 'admin'
+        // Passo B: Insere o registro na tabela de permissÃµes como 'admin'
         const { error: insertError } = await supabaseClient
             .from('user_permissions')
             .insert({
@@ -404,32 +406,32 @@ async function handlePromoteFormSubmit(e) {
             });
 
         if (insertError) {
-            // Tratamento específico de violação de chave primária (já é admin)
+            // Tratamento especÃ­fico de violaÃ§Ã£o de chave primÃ¡ria (jÃ¡ Ã© admin)
             if (insertError.code === '23505') {
-                throw new Error("Este usuário já possui permissão de Administrador ou superior.");
+                throw new Error("Este usuÃ¡rio jÃ¡ possui permissÃ£o de Administrador ou superior.");
             }
             throw insertError;
         }
 
         showToast(`Sucesso! ${email} foi promovido a Administrador.`, "success");
         emailInput.value = '';
-        loadUsersList(); // Recarrega a tabela de usuários
+        loadUsersList(); // Recarrega a tabela de usuÃ¡rios
 
     } catch (err) {
         console.error("[Promote Admin] Erro:", err);
-        showToast(err.message || "Erro desconhecido ao promover usuário.", "error");
+        showToast(err.message || "Erro desconhecido ao promover usuÃ¡rio.", "error");
     } finally {
-        // Restaura o botão
+        // Restaura o botÃ£o
         btnSubmit.disabled = false;
         btnSubmit.innerHTML = `<i class="fa-solid fa-shield-halved"></i> Conceder Cargo`;
     }
 }
 
-// Promover ou Rebaixar através dos botões de ação da tabela
+// Promover ou Rebaixar atravÃ©s dos botÃµes de aÃ§Ã£o da tabela
 async function changeUserRole(userId, action, email) {
     const confirmMessage = action === 'promote'
         ? `Tem certeza que deseja conceder cargo de Administrador para ${email}?`
-        : `Atenção: Tem certeza que deseja remover o cargo de Administrador de ${email}? Ele perderá acesso ao painel instantaneamente.`;
+        : `AtenÃ§Ã£o: Tem certeza que deseja remover o cargo de Administrador de ${email}? Ele perderÃ¡ acesso ao painel instantaneamente.`;
 
     if (!confirm(confirmMessage)) return;
 
@@ -445,7 +447,7 @@ async function changeUserRole(userId, action, email) {
                 });
 
             if (error) throw error;
-            showToast(`${email} agora é um Administrador.`, "success");
+            showToast(`${email} agora Ã© um Administrador.`, "success");
         } else {
             // Remove da tabela
             const { error } = await supabaseClient
@@ -470,7 +472,7 @@ async function changeUserRole(userId, action, email) {
 // ---------------------------------------------------------------------
 let allVeteransList = [];
 
-// Inicializar eventos específicos da aba de veteranos
+// Inicializar eventos especÃ­ficos da aba de veteranos
 function setupVeteransEvents() {
     const form = document.getElementById('formVeteran');
     if (form) form.addEventListener('submit', handleVeteranFormSubmit);
@@ -574,7 +576,7 @@ function renderVeteransTable(veterans) {
     });
 }
 
-// Filtrar veteranos na busca instantânea local
+// Filtrar veteranos na busca instantÃ¢nea local
 function filterVeteransTable(query) {
     const filtered = allVeteransList.filter(vet => {
         const nickMatch = vet.minecraft_username.toLowerCase().includes(query.toLowerCase());
@@ -585,7 +587,7 @@ function filterVeteransTable(query) {
     renderVeteransTable(filtered);
 }
 
-// Enviar Formulário (Inserir ou Atualizar)
+// Enviar FormulÃ¡rio (Inserir ou Atualizar)
 async function handleVeteranFormSubmit(e) {
     e.preventDefault();
 
@@ -601,12 +603,12 @@ async function handleVeteranFormSubmit(e) {
     const description = descInput.value.trim();
 
     if (!nick || !title || !description) {
-        showToast("Preencha todos os campos do formulário.", "error");
+        showToast("Preencha todos os campos do formulÃ¡rio.", "error");
         return;
     }
 
     if (!isValidMinecraftUsername(nick)) {
-        showToast("Nick inválido. Use de 3 a 16 caracteres: letras, números e underline (_).", "error");
+        showToast("Nick invÃ¡lido. Use de 3 a 16 caracteres: letras, nÃºmeros e underline (_).", "error");
         return;
     }
 
@@ -616,7 +618,7 @@ async function handleVeteranFormSubmit(e) {
 
     try {
         if (id) {
-            // Modo Edição
+            // Modo EdiÃ§Ã£o
             const { error } = await supabaseClient
                 .from('veterans')
                 .update({
@@ -629,7 +631,7 @@ async function handleVeteranFormSubmit(e) {
             if (error) throw error;
             showToast(`Veterano ${nick} atualizado com sucesso!`, "success");
         } else {
-            // Modo Inserção
+            // Modo InserÃ§Ã£o
             const { error } = await supabaseClient
                 .from('veterans')
                 .insert({
@@ -640,7 +642,7 @@ async function handleVeteranFormSubmit(e) {
 
             if (error) {
                 if (error.code === '23505') {
-                    throw new Error("Este jogador já está cadastrado como veterano.");
+                    throw new Error("Este jogador jÃ¡ estÃ¡ cadastrado como veterano.");
                 }
                 throw error;
             }
@@ -659,7 +661,7 @@ async function handleVeteranFormSubmit(e) {
     }
 }
 
-// Entrar em Modo Edição
+// Entrar em Modo EdiÃ§Ã£o
 function editVeteran(id) {
     const vet = allVeteransList.find(v => v.id === id);
     if (!vet) return;
@@ -671,19 +673,19 @@ function editVeteran(id) {
 
     document.getElementById('veteranFormTitle').innerHTML = `<i class="fa-solid fa-user-pen"></i> Editar Veterano`;
     document.getElementById('veteranFormDesc').textContent = "Atualize os dados do jogador selecionado.";
-    document.getElementById('btnVeteranSubmit').innerHTML = `<i class="fa-solid fa-floppy-disk"></i> Salvar Alterações`;
+    document.getElementById('btnVeteranSubmit').innerHTML = `<i class="fa-solid fa-floppy-disk"></i> Salvar AlteraÃ§Ãµes`;
     document.getElementById('btnVeteranCancelEdit').classList.remove('hidden');
 
     document.getElementById('formVeteran').scrollIntoView({ behavior: 'smooth', block: 'center' });
 }
 
-// Cancelar Edição
+// Cancelar EdiÃ§Ã£o
 function cancelVeteranEdit() {
     document.getElementById('formVeteran').reset();
     document.getElementById('inputVeteranId').value = '';
 
     document.getElementById('veteranFormTitle').innerHTML = `<i class="fa-solid fa-user-plus"></i> Adicionar Veterano`;
-    document.getElementById('veteranFormDesc').textContent = "Insira as informações do jogador para destacá-lo no mural.";
+    document.getElementById('veteranFormDesc').textContent = "Insira as informaÃ§Ãµes do jogador para destacÃ¡-lo no mural.";
     document.getElementById('btnVeteranSubmit').innerHTML = `<i class="fa-solid fa-plus"></i> Adicionar ao Mural`;
     document.getElementById('btnVeteranCancelEdit').classList.add('hidden');
 }
@@ -715,8 +717,8 @@ async function deleteVeteran(id, nick) {
     }
 }
 
-// Expor funções globais para escopo da janela (evita problemas em onclick inline no HTML)
-// Expor funções globais para escopo da janela (evita problemas em onclick inline no HTML)
+// Expor funÃ§Ãµes globais para escopo da janela (evita problemas em onclick inline no HTML)
+// Expor funÃ§Ãµes globais para escopo da janela (evita problemas em onclick inline no HTML)
 window.editVeteran = editVeteran;
 window.deleteVeteran = deleteVeteran;
 window.changeUserRole = changeUserRole;
@@ -757,12 +759,12 @@ function setupSeasonsEvents() {
         });
     }
 
-    // Configuração do Drag & Drop e fila de arquivos
+    // ConfiguraÃ§Ã£o do Drag & Drop e fila de arquivos
     const dropzone = document.getElementById('uploadDropzone');
     const fileInput = document.getElementById('inputPhotoFile');
 
     if (dropzone && fileInput) {
-        // Clicar na dropzone abre a seleção de arquivos
+        // Clicar na dropzone abre a seleÃ§Ã£o de arquivos
         dropzone.addEventListener('click', () => fileInput.click());
 
         // Eventos de arrastar
@@ -783,7 +785,7 @@ function setupSeasonsEvents() {
             }
         });
 
-        // Evento de alteração no input padrão
+        // Evento de alteraÃ§Ã£o no input padrÃ£o
         fileInput.addEventListener('change', (e) => {
             if (e.target.files.length > 0) {
                 handleSelectedFiles(e.target.files);
@@ -793,7 +795,7 @@ function setupSeasonsEvents() {
     }
 }
 
-// Manipulação e visualização da fila de uploads
+// ManipulaÃ§Ã£o e visualizaÃ§Ã£o da fila de uploads
 function handleSelectedFiles(files) {
     const validTypes = ['image/png', 'image/jpeg', 'image/jpg', 'image/webp', 'image/gif'];
     const maxSizeBytes = 5 * 1024 * 1024; // 5MB
@@ -802,7 +804,7 @@ function handleSelectedFiles(files) {
         const file = files[i];
 
         if (!validTypes.includes(file.type)) {
-            showToast(`Arquivo "${file.name}" não é uma imagem permitida (PNG, JPG, WEBP, GIF).`, "error");
+            showToast(`Arquivo "${file.name}" nÃ£o Ã© uma imagem permitida (PNG, JPG, WEBP, GIF).`, "error");
             continue;
         }
 
@@ -880,12 +882,12 @@ async function loadSeasons() {
         allSeasonsList = data || [];
         populateSeasonsDropdowns(allSeasonsList);
 
-        // Por padrão, se houver temporadas, seleciona a primeira no gerenciador e carrega as fotos
+        // Por padrÃ£o, se houver temporadas, seleciona a primeira no gerenciador e carrega as fotos
         if (allSeasonsList.length > 0) {
             const selectManage = document.getElementById('selectManageSeason');
             const currentSelected = selectManage.value;
 
-            // Se o que estava selecionado antes ainda existe, mantém. Senão, pega a primeira
+            // Se o que estava selecionado antes ainda existe, mantÃ©m. SenÃ£o, pega a primeira
             const stillExists = allSeasonsList.some(s => s.id == currentSelected);
             const targetId = stillExists ? currentSelected : allSeasonsList[0].id;
             
@@ -896,7 +898,7 @@ async function loadSeasons() {
             if (grid) {
                 grid.innerHTML = `
                     <div class="table-loading-row" style="grid-column: 1 / -1; width: 100%;">
-                        Nenhuma temporada cadastrada. Crie uma temporada no formulário acima primeiro.
+                        Nenhuma temporada cadastrada. Crie uma temporada no formulÃ¡rio acima primeiro.
                     </div>
                 `;
             }
@@ -908,7 +910,7 @@ async function loadSeasons() {
     }
 }
 
-// Preencher os dropdowns do formulário de upload e gerenciador
+// Preencher os dropdowns do formulÃ¡rio de upload e gerenciador
 function populateSeasonsDropdowns(seasons) {
     const selectUpload = document.getElementById('selectUploadSeason');
     const selectManage = document.getElementById('selectManageSeason');
@@ -945,7 +947,7 @@ async function handleCreateSeasonSubmit(e) {
     const description = descInput.value.trim();
 
     if (isNaN(number) || !name) {
-        showToast("Preencha o número e nome da temporada corretamente.", "error");
+        showToast("Preencha o nÃºmero e nome da temporada corretamente.", "error");
         return;
     }
 
@@ -964,7 +966,7 @@ async function handleCreateSeasonSubmit(e) {
 
         if (error) {
             if (error.code === '23505') {
-                throw new Error(`A Temporada ${number} já está cadastrada.`);
+                throw new Error(`A Temporada ${number} jÃ¡ estÃ¡ cadastrada.`);
             }
             throw error;
         }
@@ -982,7 +984,7 @@ async function handleCreateSeasonSubmit(e) {
     }
 }
 
-// Upload de fotos e vinculação à temporada
+// Upload de fotos e vinculaÃ§Ã£o Ã  temporada
 async function handleUploadPhotoSubmit(e) {
     e.preventDefault();
 
@@ -998,12 +1000,12 @@ async function handleUploadPhotoSubmit(e) {
     const description = descInput?.value?.trim() || '';
 
     if (!seasonId || selectedUploadFiles.length === 0 || !title || !author) {
-        showToast("Preencha a temporada, título, autor e selecione pelo menos uma imagem.", "error");
+        showToast("Preencha a temporada, tÃ­tulo, autor e selecione pelo menos uma imagem.", "error");
         return;
     }
 
     if (!isValidMinecraftUsername(author)) {
-        showToast("Autor inválido. Use um nick Minecraft válido.", "error");
+        showToast("Autor invÃ¡lido. Use um nick Minecraft vÃ¡lido.", "error");
         return;
     }
 
@@ -1148,10 +1150,10 @@ function renderSeasonPhotos(photos) {
     if (viewMode === 'albums') {
         const albums = {};
         filteredPhotos.forEach(photo => {
-            const albumKey = `${photo.title || 'Construção'}_${photo.author_name || 'Jogador'}`;
+            const albumKey = `${photo.title || 'ConstruÃ§Ã£o'}_${photo.author_name || 'Jogador'}`;
             if (!albums[albumKey]) {
                 albums[albumKey] = {
-                    title: photo.title || 'Construção',
+                    title: photo.title || 'ConstruÃ§Ã£o',
                     author: photo.author_name || 'Jogador',
                     photos: []
                 };
@@ -1163,7 +1165,7 @@ function renderSeasonPhotos(photos) {
         if (albumList.length === 0) {
             grid.innerHTML = `
                 <div class="table-loading-row" style="grid-column: 1 / -1; width: 100%;">
-                    Nenhum álbum encontrado para os critérios de busca.
+                    Nenhum Ã¡lbum encontrado para os critÃ©rios de busca.
                 </div>
             `;
             return;
@@ -1185,18 +1187,18 @@ function renderSeasonPhotos(photos) {
             albumSection.style.padding = '1.5rem';
             albumSection.style.width = '100%';
 
-            // Cabeçalho do álbum
+            // CabeÃ§alho do Ã¡lbum
             const headerHtml = `
                 <div class="admin-album-header" style="display: flex; align-items: center; gap: 12px; margin-bottom: 1.2rem; border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 0.8rem;">
                     <img src="https://mc-heads.net/avatar/${encodeURIComponent(safeAuthor)}/24" class="table-mc-avatar" onerror="this.src='../icon/Fr32_Icon.png'">
                     <div>
                         <h4 style="margin: 0; color: #fff; font-size: 1.05rem; font-weight: 700;">${escapeHTML(album.title)}</h4>
-                        <span style="font-size: 0.8rem; color: var(--text-muted);">Por: <strong>${escapeHTML(safeAuthor)}</strong> • ${album.photos.length} foto(s)</span>
+                        <span style="font-size: 0.8rem; color: var(--text-muted);">Por: <strong>${escapeHTML(safeAuthor)}</strong> â€¢ ${album.photos.length} foto(s)</span>
                     </div>
                 </div>
             `;
 
-            // Sub-grid de fotos do álbum
+            // Sub-grid de fotos do Ã¡lbum
             const subGrid = document.createElement('div');
             subGrid.className = 'admin-gallery-grid';
             subGrid.style.display = 'grid';
@@ -1206,7 +1208,7 @@ function renderSeasonPhotos(photos) {
                 card.className = 'gallery-item-card';
 
                 const resolvedSrc = resolveImagePath(photo.photo_path) || '../icon/Fr32_Icon.png';
-                const titleText = photo.title || 'Sem título';
+                const titleText = photo.title || 'Sem tÃ­tulo';
                 const authorText = photo.author_name || 'Desconhecido';
                 const descText = photo.description ? `: ${photo.description}` : '';
                 const legendText = `${titleText} (${authorText})${descText}`;
@@ -1250,7 +1252,7 @@ function renderSeasonPhotos(photos) {
         if (filteredPhotos.length === 0) {
             grid.innerHTML = `
                 <div class="table-loading-row" style="grid-column: 1 / -1; width: 100%;">
-                    Nenhuma foto encontrada para os critérios de busca.
+                    Nenhuma foto encontrada para os critÃ©rios de busca.
                 </div>
             `;
             return;
@@ -1262,7 +1264,7 @@ function renderSeasonPhotos(photos) {
             card.className = 'gallery-item-card';
 
             const resolvedSrc = resolveImagePath(photo.photo_path) || '../icon/Fr32_Icon.png';
-            const titleText = photo.title || 'Sem título';
+            const titleText = photo.title || 'Sem tÃ­tulo';
             const authorText = photo.author_name || 'Desconhecido';
             const descText = photo.description ? `: ${photo.description}` : '';
             const legendText = `${titleText} (${authorText})${descText}`;
@@ -1296,7 +1298,7 @@ function renderSeasonPhotos(photos) {
 
 // Excluir Foto (Do banco de dados e do Supabase Storage)
 async function deleteSeasonPhoto(id, photoPath) {
-    if (!confirm("Atenção: Excluir esta foto também deletará permanentemente todas as suas curtidas e comentários associados. Deseja prosseguir?")) {
+    if (!confirm("AtenÃ§Ã£o: Excluir esta foto tambÃ©m deletarÃ¡ permanentemente todas as suas curtidas e comentÃ¡rios associados. Deseja prosseguir?")) {
         return;
     }
 
@@ -1321,11 +1323,11 @@ async function deleteSeasonPhoto(id, photoPath) {
                 .remove([storagePath]);
             
             if (storageError) {
-                console.warn("[Delete Photo Storage] Falha ao remover arquivo físico no Storage:", storageError);
+                console.warn("[Delete Photo Storage] Falha ao remover arquivo fÃ­sico no Storage:", storageError);
             }
         }
 
-        showToast("Foto excluída com sucesso!", "success");
+        showToast("Foto excluÃ­da com sucesso!", "success");
         
         const selectManage = document.getElementById('selectManageSeason');
         loadSeasonPhotos(selectManage.value);
@@ -1336,18 +1338,18 @@ async function deleteSeasonPhoto(id, photoPath) {
     }
 }
 
-// Expor funções globais de temporadas para window
+// Expor funÃ§Ãµes globais de temporadas para window
 window.deleteSeasonPhoto = deleteSeasonPhoto;
 window.editVeteran = editVeteran;
 window.deleteVeteran = deleteVeteran;
 window.changeUserRole = changeUserRole;
 
 // ---------------------------------------------------------------------
-// 4.3. ABA MODERAÇÃO: LISTAR FOTOS E DELETAR COMENTÁRIOS DE QUALQUER USER
+// 4.3. ABA MODERAÃ‡ÃƒO: LISTAR FOTOS E DELETAR COMENTÃRIOS DE QUALQUER USER
 // ---------------------------------------------------------------------
-let activeCommentsPhotoPath = ''; // Guarda qual imagem está ativa na moderação
+let activeCommentsPhotoPath = ''; // Guarda qual imagem estÃ¡ ativa na moderaÃ§Ã£o
 
-// Inicializar eventos de moderação de comentários
+// Inicializar eventos de moderaÃ§Ã£o de comentÃ¡rios
 function setupCommentsEvents() {
     const select = document.getElementById('selectCommentsSeason');
     if (select) {
@@ -1364,19 +1366,19 @@ function setupCommentsEvents() {
     }
 }
 
-// Inicializar a aba de moderação de comentários
+// Inicializar a aba de moderaÃ§Ã£o de comentÃ¡rios
 async function loadCommentsTab() {
     if (allSeasonsList.length === 0) {
         await loadSeasons();
     }
     populateCommentsSeasonDropdown();
     
-    // Reseta visualização
+    // Reseta visualizaÃ§Ã£o
     document.getElementById('moderationCommentsHeader').classList.add('hidden');
     document.getElementById('moderationCommentsList').innerHTML = `
         <div class="placeholder-pane" style="padding: 4rem 1rem; border: none; background: transparent; width: 100%;">
             <i class="fa-regular fa-comment-dots" style="font-size: 2.5rem; animation: float 3s ease-in-out infinite;"></i>
-            <p style="font-size: 0.9rem;">Nenhuma foto selecionada. Escolha uma foto ao lado para gerenciar os comentários.</p>
+            <p style="font-size: 0.9rem;">Nenhuma foto selecionada. Escolha uma foto ao lado para gerenciar os comentÃ¡rios.</p>
         </div>
     `;
     const photoList = document.getElementById('moderationPhotosList');
@@ -1389,7 +1391,7 @@ async function loadCommentsTab() {
     }
 }
 
-// Popular dropdown de temporadas na aba de comentários
+// Popular dropdown de temporadas na aba de comentÃ¡rios
 function populateCommentsSeasonDropdown() {
     const select = document.getElementById('selectCommentsSeason');
     if (!select) return;
@@ -1458,7 +1460,7 @@ function renderModerationPhotos(photos) {
         const img = document.createElement('img');
         img.src = resolveImagePath(photo.photo_path);
         
-        const titleText = photo.title || 'Sem título';
+        const titleText = photo.title || 'Sem tÃ­tulo';
         const authorText = photo.author_name || 'Desconhecido';
         const descText = photo.description ? `: ${photo.description}` : '';
         const legendText = `${titleText} (${authorText})${descText}`;
@@ -1481,7 +1483,7 @@ function renderModerationPhotos(photos) {
     });
 }
 
-// Selecionar foto específica para listar seus comentários
+// Selecionar foto especÃ­fica para listar seus comentÃ¡rios
 function selectPhotoForModeration(photo) {
     activeCommentsPhotoPath = photo.photo_path;
 
@@ -1491,7 +1493,7 @@ function selectPhotoForModeration(photo) {
 
     if (header && previewImg && descText) {
         previewImg.src = resolveImagePath(photo.photo_path);
-        const titleText = photo.title || 'Sem título';
+        const titleText = photo.title || 'Sem tÃ­tulo';
         const authorText = photo.author_name || 'Desconhecido';
         const descTextVal = photo.description ? `: ${photo.description}` : '';
         descText.textContent = `${titleText} (${authorText})${descTextVal}`;
@@ -1501,14 +1503,14 @@ function selectPhotoForModeration(photo) {
     loadModerationComments(photo.photo_path);
 }
 
-// Buscar comentários de uma foto no Supabase e cruzar com nicks
+// Buscar comentÃ¡rios de uma foto no Supabase e cruzar com nicks
 async function loadModerationComments(photoPath) {
     const commentsList = document.getElementById('moderationCommentsList');
     if (!commentsList) return;
 
     commentsList.innerHTML = `
         <div class="table-loading-row" style="padding: 3rem 0;">
-            <div class="spinner"></div> Carregando comentários...
+            <div class="spinner"></div> Carregando comentÃ¡rios...
         </div>
     `;
 
@@ -1523,14 +1525,14 @@ async function loadModerationComments(photoPath) {
 
         const countText = document.getElementById('moderationCommentsCount');
         if (countText) {
-            countText.textContent = `${comments.length} ${comments.length === 1 ? 'comentário' : 'comentários'}`;
+            countText.textContent = `${comments.length} ${comments.length === 1 ? 'comentÃ¡rio' : 'comentÃ¡rios'}`;
         }
 
         if (comments.length === 0) {
             commentsList.innerHTML = `
                 <div class="placeholder-pane" style="padding: 4rem 1rem; border: none; background: transparent; width: 100%;">
                     <i class="fa-regular fa-comment-slash" style="font-size: 2.5rem; opacity: 0.5;"></i>
-                    <p style="font-size: 0.9rem;">Nenhum comentário cadastrado nesta foto.</p>
+                    <p style="font-size: 0.9rem;">Nenhum comentÃ¡rio cadastrado nesta foto.</p>
                 </div>
             `;
             return;
@@ -1570,7 +1572,7 @@ async function loadModerationComments(photoPath) {
                     </div>
                     <div class="comment-text">${escapeHTML(comment.content)}</div>
                 </div>
-                <button class="btn-delete-comment" onclick="deleteComment(${Number(comment.id)})" title="Deletar Comentário">
+                <button class="btn-delete-comment" onclick="deleteComment(${Number(comment.id)})" title="Deletar ComentÃ¡rio">
                     <i class="fa-solid fa-trash-can"></i>
                 </button>
             `;
@@ -1582,15 +1584,15 @@ async function loadModerationComments(photoPath) {
         console.error("[Load Moderation Comments] Erro:", err);
         commentsList.innerHTML = `
             <div class="table-loading-row" style="padding: 3rem 0; color: var(--error)">
-                Erro ao carregar comentários: ${err.message}
+                Erro ao carregar comentÃ¡rios: ${err.message}
             </div>
         `;
     }
 }
 
-// Excluir Comentário (Disponível para qualquer administrador)
+// Excluir ComentÃ¡rio (DisponÃ­vel para qualquer administrador)
 async function deleteComment(commentId, isAllCommentsView = false) {
-    if (!confirm("Tem certeza que deseja deletar permanentemente este comentário? Esta ação não pode ser desfeita.")) {
+    if (!confirm("Tem certeza que deseja deletar permanentemente este comentÃ¡rio? Esta aÃ§Ã£o nÃ£o pode ser desfeita.")) {
         return;
     }
 
@@ -1602,7 +1604,7 @@ async function deleteComment(commentId, isAllCommentsView = false) {
 
         if (error) throw error;
 
-        showToast("Comentário deletado com sucesso!", "success");
+        showToast("ComentÃ¡rio deletado com sucesso!", "success");
 
         if (isAllCommentsView) {
             loadAllComments();
@@ -1612,15 +1614,15 @@ async function deleteComment(commentId, isAllCommentsView = false) {
 
     } catch (err) {
         console.error("[Delete Comment] Erro:", err);
-        showToast("Erro ao deletar comentário: " + err.message, "error");
+        showToast("Erro ao deletar comentÃ¡rio: " + err.message, "error");
     }
 }
 
-// Buscar TODOS os comentários de qualquer foto no Supabase e cruzar com nicks
+// Buscar TODOS os comentÃ¡rios de qualquer foto no Supabase e cruzar com nicks
 async function loadAllComments() {
-    activeCommentsPhotoPath = ''; // Reseta seleção de foto específica
+    activeCommentsPhotoPath = ''; // Reseta seleÃ§Ã£o de foto especÃ­fica
 
-    // Desativa seleção ativa nos thumbnails da esquerda
+    // Desativa seleÃ§Ã£o ativa nos thumbnails da esquerda
     document.querySelectorAll('.moderation-photo-thumb').forEach(el => el.classList.remove('active'));
 
     const header = document.getElementById('moderationCommentsHeader');
@@ -1632,14 +1634,14 @@ async function loadAllComments() {
     if (!commentsList) return;
 
     if (header && previewImg && descText) {
-        previewImg.src = '../icon/Fr32_Icon.png'; // Thumbnail genérico
-        descText.textContent = 'Moderação Geral: Todos os Comentários';
+        previewImg.src = '../icon/Fr32_Icon.png'; // Thumbnail genÃ©rico
+        descText.textContent = 'ModeraÃ§Ã£o Geral: Todos os ComentÃ¡rios';
         header.classList.remove('hidden');
     }
 
     commentsList.innerHTML = `
         <div class="table-loading-row" style="padding: 3rem 0;">
-            <div class="spinner"></div> Carregando todos os comentários...
+            <div class="spinner"></div> Carregando todos os comentÃ¡rios...
         </div>
     `;
 
@@ -1652,14 +1654,14 @@ async function loadAllComments() {
         if (error) throw error;
 
         if (countText) {
-            countText.textContent = `${comments.length} ${comments.length === 1 ? 'comentário no total' : 'comentários no total'}`;
+            countText.textContent = `${comments.length} ${comments.length === 1 ? 'comentÃ¡rio no total' : 'comentÃ¡rios no total'}`;
         }
 
         if (comments.length === 0) {
             commentsList.innerHTML = `
                 <div class="placeholder-pane" style="padding: 4rem 1rem; border: none; background: transparent; width: 100%;">
                     <i class="fa-regular fa-comment-slash" style="font-size: 2.5rem; opacity: 0.5;"></i>
-                    <p style="font-size: 0.9rem;">Nenhum comentário cadastrado no site.</p>
+                    <p style="font-size: 0.9rem;">Nenhum comentÃ¡rio cadastrado no site.</p>
                 </div>
             `;
             return;
@@ -1701,7 +1703,7 @@ async function loadAllComments() {
                     <div class="comment-text">${escapeHTML(comment.content)}</div>
                 </div>
                 <img src="${escapeHTML(commentPhotoSrc)}" alt="Preview" class="comment-preview-thumb" style="width: 44px; height: 44px; object-fit: cover; border-radius: 8px; border: 1px solid rgba(255,255,255,0.08); margin: 0 10px; cursor: pointer; transition: transform 0.2s;" title="Clique para ver a foto original" onclick="highlightPhotoInModeration('${escapeJSString(comment.photo_path)}')">
-                <button class="btn-delete-comment" onclick="deleteComment(${Number(comment.id)}, true)" title="Deletar Comentário">
+                <button class="btn-delete-comment" onclick="deleteComment(${Number(comment.id)}, true)" title="Deletar ComentÃ¡rio">
                     <i class="fa-solid fa-trash-can"></i>
                 </button>
             `;
@@ -1713,13 +1715,13 @@ async function loadAllComments() {
         console.error("[Load All Comments] Erro:", err);
         commentsList.innerHTML = `
             <div class="table-loading-row" style="padding: 3rem 0; color: var(--error)">
-                Erro ao carregar todos os comentários: ${err.message}
+                Erro ao carregar todos os comentÃ¡rios: ${err.message}
             </div>
         `;
     }
 }
 
-// Atalho para ir para o contexto da foto ao clicar no thumbnail do comentário
+// Atalho para ir para o contexto da foto ao clicar no thumbnail do comentÃ¡rio
 async function highlightPhotoInModeration(photoPath) {
     try {
         const { data: photoData, error } = await supabaseClient
@@ -1728,7 +1730,7 @@ async function highlightPhotoInModeration(photoPath) {
             .eq('photo_path', photoPath)
             .single();
 
-        if (error || !photoData) throw new Error("Foto não encontrada.");
+        if (error || !photoData) throw new Error("Foto nÃ£o encontrada.");
 
         const select = document.getElementById('selectCommentsSeason');
         if (select) {
@@ -1749,15 +1751,15 @@ async function highlightPhotoInModeration(photoPath) {
             }
         });
 
-        showToast("Visualizando contexto do comentário.", "info");
+        showToast("Visualizando contexto do comentÃ¡rio.", "info");
 
     } catch (err) {
         console.error("[Highlight Photo] Erro:", err);
-        showToast("Não foi possível carregar o contexto da imagem original.", "error");
+        showToast("NÃ£o foi possÃ­vel carregar o contexto da imagem original.", "error");
     }
 }
 
-// Expor funções globais para window
+// Expor funÃ§Ãµes globais para window
 window.deleteComment = deleteComment;
 window.deleteSeasonPhoto = deleteSeasonPhoto;
 window.editVeteran = editVeteran;
@@ -1767,7 +1769,7 @@ window.loadAllComments = loadAllComments;
 window.highlightPhotoInModeration = highlightPhotoInModeration;
 
 // ---------------------------------------------------------------------
-// 5. ABA NOTÍCIAS/EVENTOS: GERENCIAMENTO DE PUBLICAÇÕES DO SITE
+// 5. ABA NOTÃCIAS/EVENTOS: GERENCIAMENTO DE PUBLICAÃ‡Ã•ES DO SITE
 // ---------------------------------------------------------------------
 function setupAnnouncementsEvents() {
     const form = document.getElementById('formAnnouncement');
@@ -1801,33 +1803,33 @@ function setAnnouncementsMode(type) {
     const timeGroup = document.getElementById('announcementTimeGroup');
 
     if (typeInput) typeInput.value = currentAnnouncementType;
-    if (badge) badge.textContent = isEvent ? 'Eventos' : 'Notícias';
-    if (paneTitle) paneTitle.textContent = isEvent ? 'Eventos do Site' : 'Notícias do Site';
+    if (badge) badge.textContent = isEvent ? 'Eventos' : 'NotÃ­cias';
+    if (paneTitle) paneTitle.textContent = isEvent ? 'Eventos do Site' : 'NotÃ­cias do Site';
     if (paneDesc) paneDesc.textContent = isEvent
-        ? 'Adicione, edite ou remova os eventos exibidos na agenda da página inicial.'
-        : 'Adicione, edite ou remova as notícias exibidas na página inicial.';
+        ? 'Adicione, edite ou remova os eventos exibidos na agenda da pÃ¡gina inicial.'
+        : 'Adicione, edite ou remova as notÃ­cias exibidas na pÃ¡gina inicial.';
     if (tableTitle) {
         tableTitle.innerHTML = isEvent
             ? '<i class="fa-solid fa-list"></i> Eventos cadastrados'
-            : '<i class="fa-solid fa-list"></i> Notícias cadastradas';
+            : '<i class="fa-solid fa-list"></i> NotÃ­cias cadastradas';
     }
     if (guide) {
         guide.innerHTML = isEvent
             ? `
                 <p><i class="fa-solid fa-check"></i> Eventos aparecem na <strong>Agenda da comunidade</strong>.</p>
-                <p><i class="fa-solid fa-check"></i> Use a tag como dia ou categoria, por exemplo: Sábado.</p>
+                <p><i class="fa-solid fa-check"></i> Use a tag como dia ou categoria, por exemplo: SÃ¡bado.</p>
                 <p><i class="fa-solid fa-check"></i> Desmarque <strong>Publicado</strong> para guardar um rascunho.</p>
             `
             : `
-                <p><i class="fa-solid fa-check"></i> Notícias aparecem na coluna <strong>Últimas notícias</strong>.</p>
+                <p><i class="fa-solid fa-check"></i> NotÃ­cias aparecem na coluna <strong>Ãšltimas notÃ­cias</strong>.</p>
                 <p><i class="fa-solid fa-check"></i> Use a tag como categoria, por exemplo: Temporada.</p>
                 <p><i class="fa-solid fa-check"></i> Desmarque <strong>Publicado</strong> para guardar um rascunho.</p>
             `;
     }
     if (timeGroup) timeGroup.classList.toggle('hidden', !isEvent);
-    if (timeLabel) timeLabel.textContent = 'Horário';
+    if (timeLabel) timeLabel.textContent = 'HorÃ¡rio';
     if (tagLabel) tagLabel.textContent = isEvent ? 'Dia / Tag' : 'Tag';
-    if (tagInput) tagInput.placeholder = isEvent ? 'Ex: Sábado, Domingo, Evento' : 'Ex: Temporada, Rankings, Aviso';
+    if (tagInput) tagInput.placeholder = isEvent ? 'Ex: SÃ¡bado, Domingo, Evento' : 'Ex: Temporada, Rankings, Aviso';
     if (timeInput) {
         timeInput.placeholder = isEvent ? 'Ex: 20:00' : 'Opcional';
         timeInput.disabled = !isEvent;
@@ -1844,7 +1846,7 @@ async function loadAnnouncementsList() {
     tableBody.innerHTML = `
         <tr>
             <td colspan="5" class="table-loading-row">
-                <div class="spinner"></div> Carregando publicações...
+                <div class="spinner"></div> Carregando publicaÃ§Ãµes...
             </td>
         </tr>
     `;
@@ -1867,12 +1869,12 @@ async function loadAnnouncementsList() {
             <tr>
                 <td colspan="5" class="table-empty-row announcements-setup-warning">
                     <i class="fa-solid fa-database"></i>
-                    <strong>Configuração pendente no Supabase</strong>
-                    <span>Execute o arquivo <code>site_announcements.sql</code> no SQL Editor. Depois disso você poderá editar e remover os itens cadastrados.</span>
+                    <strong>ConfiguraÃ§Ã£o pendente no Supabase</strong>
+                    <span>Execute o arquivo <code>site_announcements.sql</code> no SQL Editor. Depois disso vocÃª poderÃ¡ editar e remover os itens cadastrados.</span>
                 </td>
             </tr>
         `;
-        showToast("Execute o SQL de notícias/eventos no Supabase.", "error");
+        showToast("Execute o SQL de notÃ­cias/eventos no Supabase.", "error");
     }
 }
 
@@ -1881,7 +1883,7 @@ function renderAnnouncementsTable(items) {
     if (!tableBody) return;
 
     if (!items || items.length === 0) {
-        const emptyLabel = currentAnnouncementType === 'event' ? 'evento' : 'notícia';
+        const emptyLabel = currentAnnouncementType === 'event' ? 'evento' : 'notÃ­cia';
         tableBody.innerHTML = `
             <tr>
                 <td colspan="5" class="table-empty-row">
@@ -1894,13 +1896,13 @@ function renderAnnouncementsTable(items) {
 
     tableBody.innerHTML = '';
     items.forEach(item => {
-        const typeLabel = item.type === 'event' ? 'Evento' : 'Notícia';
+        const typeLabel = item.type === 'event' ? 'Evento' : 'NotÃ­cia';
         const typeIcon = item.type === 'event' ? 'fa-calendar-days' : 'fa-newspaper';
         const statusLabel = item.is_published ? 'Publicado' : 'Rascunho';
         const statusClass = item.is_published ? 'badge-published' : 'badge-draft';
         const tagLine = item.type === 'event'
-            ? `${item.tag || 'Evento'}${item.event_time ? ' • ' + item.event_time : ''}`
-            : (item.tag || 'Notícia');
+            ? `${item.tag || 'Evento'}${item.event_time ? ' â€¢ ' + item.event_time : ''}`
+            : (item.tag || 'NotÃ­cia');
 
         const row = document.createElement('tr');
         row.innerHTML = `
@@ -1963,12 +1965,12 @@ async function handleAnnouncementSubmit(event) {
     const btnSubmit = document.getElementById('btnAnnouncementSubmit');
 
     if (!['news', 'event'].includes(type)) {
-        showToast("Tipo de publicação inválido.", "error");
+        showToast("Tipo de publicaÃ§Ã£o invÃ¡lido.", "error");
         return;
     }
 
     if (!title || !tag || !content) {
-        showToast("Preencha título, tag e descrição.", "error");
+        showToast("Preencha tÃ­tulo, tag e descriÃ§Ã£o.", "error");
         return;
     }
 
@@ -1994,7 +1996,7 @@ async function handleAnnouncementSubmit(event) {
                 .update(payload)
                 .eq('id', id);
             if (error) throw error;
-            showToast("Publicação atualizada com sucesso.", "success");
+            showToast("PublicaÃ§Ã£o atualizada com sucesso.", "success");
         } else {
             const { error } = await supabaseClient
                 .from('site_announcements')
@@ -2003,14 +2005,14 @@ async function handleAnnouncementSubmit(event) {
                     created_by: currentUser?.id || null
                 });
             if (error) throw error;
-            showToast("Publicação adicionada com sucesso.", "success");
+            showToast("PublicaÃ§Ã£o adicionada com sucesso.", "success");
         }
 
     resetAnnouncementForm();
         loadAnnouncementsList();
     } catch (err) {
         console.error("[Announcements] Erro ao salvar:", err);
-        showToast("Erro ao salvar publicação.", "error");
+        showToast("Erro ao salvar publicaÃ§Ã£o.", "error");
     } finally {
         btnSubmit.disabled = false;
         btnSubmit.innerHTML = originalHtml;
@@ -2032,8 +2034,8 @@ function editAnnouncement(id) {
 
     document.getElementById('announcementFormTitle').innerHTML = item.type === 'event'
         ? '<i class="fa-solid fa-pen"></i> Editar Evento'
-        : '<i class="fa-solid fa-pen"></i> Editar Notícia';
-    document.getElementById('announcementFormDesc').textContent = 'Altere as informações e salve para atualizar o site.';
+        : '<i class="fa-solid fa-pen"></i> Editar NotÃ­cia';
+    document.getElementById('announcementFormDesc').textContent = 'Altere as informaÃ§Ãµes e salve para atualizar o site.';
     document.getElementById('btnAnnouncementSubmit').innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Atualizar';
     document.getElementById('btnAnnouncementCancelEdit').classList.remove('hidden');
 
@@ -2054,16 +2056,16 @@ function resetAnnouncementForm(keepMode = true) {
     const isEvent = currentAnnouncementType === 'event';
     document.getElementById('announcementFormTitle').innerHTML = isEvent
         ? '<i class="fa-solid fa-plus"></i> Adicionar Evento'
-        : '<i class="fa-solid fa-plus"></i> Adicionar Notícia';
+        : '<i class="fa-solid fa-plus"></i> Adicionar NotÃ­cia';
     document.getElementById('announcementFormDesc').textContent = isEvent
         ? 'Cadastre um evento para aparecer na agenda da home.'
-        : 'Cadastre uma notícia para aparecer na home do site.';
+        : 'Cadastre uma notÃ­cia para aparecer na home do site.';
     document.getElementById('btnAnnouncementSubmit').innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Salvar';
     document.getElementById('btnAnnouncementCancelEdit').classList.add('hidden');
 }
 
 async function deleteAnnouncement(id) {
-    if (!confirm("Tem certeza que deseja excluir esta publicação?")) return;
+    if (!confirm("Tem certeza que deseja excluir esta publicaÃ§Ã£o?")) return;
 
     try {
         const { error } = await supabaseClient
@@ -2073,11 +2075,11 @@ async function deleteAnnouncement(id) {
 
         if (error) throw error;
 
-        showToast("Publicação removida.", "success");
+        showToast("PublicaÃ§Ã£o removida.", "success");
         loadAnnouncementsList();
     } catch (err) {
         console.error("[Announcements] Erro ao excluir:", err);
-        showToast("Erro ao excluir publicação.", "error");
+        showToast("Erro ao excluir publicaÃ§Ã£o.", "error");
     }
 }
 
@@ -2207,8 +2209,8 @@ async function loadProductsList() {
             <tr>
                 <td colspan="5" class="table-empty-row announcements-setup-warning">
                     <i class="fa-solid fa-database"></i>
-                    <strong>Configuração pendente no Supabase</strong>
-                    <span>Execute o arquivo <code>site_products.sql</code> no SQL Editor. Depois disso você poderá editar e remover os VIPs pelo painel.</span>
+                    <strong>ConfiguraÃ§Ã£o pendente no Supabase</strong>
+                    <span>Execute o arquivo <code>site_products.sql</code> no SQL Editor. Depois disso vocÃª poderÃ¡ editar e remover os VIPs pelo painel.</span>
                 </td>
             </tr>
         `;
@@ -2235,7 +2237,7 @@ function renderProductsTable(items) {
     items.forEach(item => {
         const statusLabel = item.is_published ? 'Publicado' : 'Rascunho';
         const statusClass = item.is_published ? 'badge-published' : 'badge-draft';
-        const featured = item.is_featured ? ' • Destaque' : '';
+        const featured = item.is_featured ? ' â€¢ Destaque' : '';
         const row = document.createElement('tr');
         row.innerHTML = `
             <td>
@@ -2290,7 +2292,7 @@ async function handleProductSubmit(event) {
     const btnSubmit = document.getElementById('btnProductSubmit');
 
     if (!name || !slug || !priceText || features.length === 0) {
-        showToast("Preencha nome, slug, preço e benefícios.", "error");
+        showToast("Preencha nome, slug, preÃ§o e benefÃ­cios.", "error");
         return;
     }
 
@@ -2346,7 +2348,7 @@ async function handleProductSubmit(event) {
         loadProductsList();
     } catch (err) {
         console.error("[Products] Erro ao salvar:", err);
-        showToast("Erro ao salvar produto. Confira se o slug já existe.", "error");
+        showToast("Erro ao salvar produto. Confira se o slug jÃ¡ existe.", "error");
     } finally {
         btnSubmit.disabled = false;
         btnSubmit.innerHTML = originalHtml;
@@ -2379,7 +2381,7 @@ function editProduct(id) {
     document.getElementById('inputProductPublished').checked = item.is_published !== false;
 
     document.getElementById('productFormTitle').innerHTML = '<i class="fa-solid fa-pen"></i> Editar Produto';
-    document.getElementById('productFormDesc').textContent = 'Altere as informações do VIP e salve para atualizar a loja.';
+    document.getElementById('productFormDesc').textContent = 'Altere as informaÃ§Ãµes do VIP e salve para atualizar a loja.';
     document.getElementById('btnProductSubmit').innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Atualizar';
     document.getElementById('btnProductCancelEdit').classList.remove('hidden');
     document.getElementById('formProduct').scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -2472,7 +2474,7 @@ async function loadStaffFormsList() {
     const tableBody = document.getElementById('tableStaffFormsBody');
     if (!tableBody) return;
 
-    tableBody.innerHTML = '<tr><td colspan="5" class="table-loading-row"><div class="spinner"></div> Carregando formulários...</td></tr>';
+    tableBody.innerHTML = '<tr><td colspan="5" class="table-loading-row"><div class="spinner"></div> Carregando formulÃ¡rios...</td></tr>';
 
     try {
         const { data, error } = await supabaseClient
@@ -2513,7 +2515,7 @@ function renderStaffFormsTable(filter = '') {
     );
 
     if (!filtered.length) {
-        tableBody.innerHTML = '<tr><td colspan="5" class="text-center text-muted">Nenhum formulário encontrado.</td></tr>';
+        tableBody.innerHTML = '<tr><td colspan="5" class="text-center text-muted">Nenhum formulÃ¡rio encontrado.</td></tr>';
         return;
     }
 
@@ -2573,14 +2575,14 @@ async function handleStaffFormSubmit(event) {
         if (id) {
             const { error } = await supabaseClient.from('staff_forms').update(payload).eq('id', id);
             if (error) throw error;
-            showToast('Formulario atualizado.', 'success');
+            showToast('Formulário atualizado.', 'success');
         } else {
             const { error } = await supabaseClient.from('staff_forms').insert({
                 ...payload,
                 created_by: currentUser.id
             });
             if (error) throw error;
-            showToast('Formulario criado.', 'success');
+            showToast('Formulário criado.', 'success');
         }
 
         resetStaffFormAdmin();
@@ -2630,7 +2632,7 @@ async function deleteStaffForm(id) {
         showToast('Erro ao excluir formulario.', 'error');
         return;
     }
-    showToast('Formulario excluido.', 'success');
+    showToast('Formulário excluído.', 'success');
     loadStaffFormsList();
 }
 
@@ -2668,18 +2670,73 @@ function renderStaffResponses(filter = '') {
     const term = String(filter || '').toLowerCase();
     const filtered = allStaffResponsesList.filter(item => {
         const blob = JSON.stringify(item.answers || {}).toLowerCase();
-        return blob.includes(term) ||
+        const matchesSearch = blob.includes(term) ||
             String(item.minecraft_username || '').toLowerCase().includes(term) ||
             String(item.user_email || '').toLowerCase().includes(term);
+        const matchesStatus = currentStaffResponseFilter === 'all' || item.status === currentStaffResponseFilter;
+        return matchesSearch && matchesStatus;
     });
 
-    if (!filtered.length) {
-        list.innerHTML = '<div class="text-center text-muted">Nenhuma resposta encontrada.</div>';
-        return;
-    }
+    const selected = filtered.find(item => Number(item.id) === Number(selectedStaffResponseId)) || filtered[0] || null;
+    selectedStaffResponseId = selected?.id || null;
+    list.innerHTML = renderStaffResponsesShell(filtered, selected);
+}
 
-    list.innerHTML = filtered.map(item => `
-        <article class="staff-response-card">
+function renderStaffResponsesShell(items, selected) {
+    const statusCounts = allStaffResponsesList.reduce((acc, item) => {
+        acc[item.status] = (acc[item.status] || 0) + 1;
+        return acc;
+    }, {});
+    const total = allStaffResponsesList.length;
+
+    return `
+        <div class="forms-response-dashboard">
+            <div class="forms-response-summary">
+                <div><strong>${total}</strong><span>respostas</span></div>
+                <div><strong>${statusCounts.nova || 0}</strong><span>novas</span></div>
+                <div><strong>${statusCounts.aprovada || 0}</strong><span>aprovadas</span></div>
+                <div><strong>${statusCounts.reprovada || 0}</strong><span>reprovadas</span></div>
+            </div>
+
+            <div class="forms-response-filters">
+                ${['all','nova','em_analise','entrevista','aprovada','reprovada','arquivada'].map(status => `
+                    <button type="button" class="${currentStaffResponseFilter === status ? 'active' : ''}" onclick="setStaffResponseFilter('${status}')">
+                        ${escapeHTML(status === 'all' ? 'Todas' : formatStaffStatus(status))}
+                    </button>
+                `).join('')}
+            </div>
+
+            <div class="forms-response-workspace">
+                <aside class="forms-response-list">
+                    ${items.length ? items.map(item => renderStaffResponseListItem(item)).join('') : '<div class="forms-empty-response">Nenhuma resposta encontrada.</div>'}
+                </aside>
+                <section class="forms-response-detail">
+                    ${selected ? renderStaffResponseDetail(selected) : '<div class="forms-empty-response">Selecione uma resposta para ver detalhes.</div>'}
+                </section>
+            </div>
+        </div>
+    `;
+}
+
+function renderStaffResponseListItem(item) {
+    const selected = Number(item.id) === Number(selectedStaffResponseId);
+    const answerPreview = getStaffResponsePreview(item);
+    return `
+        <button type="button" class="forms-response-row ${selected ? 'active' : ''}" onclick="selectStaffResponseDetail(${item.id})">
+            <span class="forms-response-avatar">${escapeHTML((item.minecraft_username || '?').slice(0, 1).toUpperCase())}</span>
+            <span class="forms-response-row-main">
+                <strong>${escapeHTML(item.minecraft_username || 'Sem nick')}</strong>
+                <small>${escapeHTML(item.user_email || '')}</small>
+                <em>${escapeHTML(answerPreview)}</em>
+            </span>
+            <span class="forms-status-pill ${escapeHTML(item.status)}">${escapeHTML(formatStaffStatus(item.status))}</span>
+        </button>
+    `;
+}
+
+function renderStaffResponseDetail(item) {
+    return `
+        <article class="staff-response-card is-detail">
             <div class="staff-response-head">
                 <div>
                     <strong>${escapeHTML(item.minecraft_username || 'Sem nick')}</strong>
@@ -2694,15 +2751,36 @@ function renderStaffResponses(filter = '') {
             <div class="staff-response-answers">
                 ${Object.entries(item.answers || {}).map(([key, value]) => `
                     <div>
-                        <span>${escapeHTML(key)}</span>
+                        <span>${escapeHTML(formatAnswerLabel(key))}</span>
                         <p>${escapeHTML(typeof value === 'boolean' ? (value ? 'Sim' : 'Nao') : String(value || ''))}</p>
                     </div>
                 `).join('')}
             </div>
         </article>
-    `).join('');
+    `;
 }
 
+function getStaffResponsePreview(item) {
+    const answers = item.answers || {};
+    return answers.motivacao || answers.discord || Object.values(answers).find(Boolean) || 'Sem previa';
+}
+
+function formatAnswerLabel(key) {
+    return String(key || '')
+        .replace(/_/g, ' ')
+        .replace(/\b\w/g, char => char.toUpperCase());
+}
+
+function selectStaffResponseDetail(id) {
+    selectedStaffResponseId = id;
+    renderStaffResponses(document.getElementById('inputSearchStaffResponses')?.value || '');
+}
+
+function setStaffResponseFilter(status) {
+    currentStaffResponseFilter = status;
+    selectedStaffResponseId = null;
+    renderStaffResponses(document.getElementById('inputSearchStaffResponses')?.value || '');
+}
 async function updateStaffResponseStatus(id, status) {
     const { error } = await supabaseClient
         .from('staff_form_responses')
@@ -2738,6 +2816,8 @@ window.editStaffForm = editStaffForm;
 window.deleteStaffForm = deleteStaffForm;
 window.copyStaffFormLink = copyStaffFormLink;
 window.selectStaffFormResponses = selectStaffFormResponses;
+window.selectStaffResponseDetail = selectStaffResponseDetail;
+window.setStaffResponseFilter = setStaffResponseFilter;
 window.updateStaffResponseStatus = updateStaffResponseStatus;
 
 // ---------------------------------------------------------------------
@@ -2748,7 +2828,7 @@ function showToast(message, type = "info") {
     const toastIcon = document.getElementById('adminToastIcon');
     const toastText = document.getElementById('adminToastText');
 
-    // Configura o ícone e cor com base no tipo
+    // Configura o Ã­cone e cor com base no tipo
     toast.className = 'toast'; // Reset
     toast.classList.add(type);
 
@@ -2765,7 +2845,7 @@ function showToast(message, type = "info") {
     // Mostra o Toast
     toast.classList.add('show');
 
-    // Oculta após 4 segundos
+    // Oculta apÃ³s 4 segundos
     setTimeout(() => {
         toast.classList.remove('show');
     }, 4000);
@@ -2785,7 +2865,7 @@ function resolveImagePath(path) {
     return '';
 }
 
-// Helper: Escape HTML contra injeção de script (XSS)
+// Helper: Escape HTML contra injeÃ§Ã£o de script (XSS)
 function escapeHTML(str) {
     if (!str) return '';
     return String(str).replace(/[&<>'"]/g,
@@ -2822,7 +2902,7 @@ function slugify(value) {
         .slice(0, 80);
 }
 
-// Funções de controle do Lightbox
+// FunÃ§Ãµes de controle do Lightbox
 function openLightbox(src, caption) {
     const lightbox = document.getElementById('imageLightbox');
     const lightboxImg = document.getElementById('lightboxImage');
@@ -2857,3 +2937,4 @@ window.closeLightbox = closeLightbox;
 document.addEventListener('DOMContentLoaded', () => {
     initAdminSupabase();
 });
+
