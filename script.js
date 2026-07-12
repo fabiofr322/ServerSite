@@ -3526,20 +3526,41 @@ function setupStaffForms() {
 
         const { data: existingResponse } = await supabaseClient
             .from('staff_form_responses')
-            .select('id, status, created_at')
+            .select('id, status, created_at, reviewed_at, updated_at')
             .eq('form_id', form.id)
             .eq('auth_user_id', currentUser.id)
             .maybeSingle();
 
         if (existingResponse) {
+            const statusLabel = formatStaffFormStatus(existingResponse.status);
+            const submittedAt = existingResponse.created_at ? new Date(existingResponse.created_at).toLocaleString('pt-BR') : '--';
+            const updatedAt = (existingResponse.reviewed_at || existingResponse.updated_at)
+                ? new Date(existingResponse.reviewed_at || existingResponse.updated_at).toLocaleString('pt-BR')
+                : 'Ainda sem revisão';
             card.innerHTML = `
-                <div class="staff-form-login">
-                    <i class="fa-solid fa-circle-check"></i>
-                    <h3>Resposta ja enviada</h3>
-                    <p>Voce ja respondeu este formulario. Status atual: <strong>${escapeHTML(formatStaffFormStatus(existingResponse.status))}</strong>.</p>
-                    <small>Enviado em ${new Date(existingResponse.created_at).toLocaleString('pt-BR')}</small>
+                <div class="staff-form-status-card">
+                    <div class="staff-form-status-icon ${escapeHTML(existingResponse.status || 'nova')}">
+                        <i class="fa-solid fa-clipboard-check"></i>
+                    </div>
+                    <div>
+                        <span class="staff-form-status-kicker">Acompanhamento</span>
+                        <h3>Voce ja enviou este formulario</h3>
+                        <p>Status atual: <strong>${escapeHTML(statusLabel)}</strong></p>
+                        <div class="staff-form-status-meta">
+                            <span><i class="fa-solid fa-paper-plane"></i> Enviado em ${escapeHTML(submittedAt)}</span>
+                            <span><i class="fa-solid fa-rotate"></i> Ultima atualização: ${escapeHTML(updatedAt)}</span>
+                        </div>
+                        <button type="button" class="btn btn-secondary staff-form-refresh-status" id="staffFormRefreshStatusBtn">
+                            <i class="fa-solid fa-rotate-right"></i> Atualizar situação
+                        </button>
+                    </div>
                 </div>
             `;
+            document.getElementById('staffFormRefreshStatusBtn')?.addEventListener('click', () => {
+                const slugToReload = activeSlug;
+                activeSlug = '';
+                loadFormBySlug(slugToReload);
+            });
             return;
         }
 
@@ -3598,10 +3619,16 @@ function setupStaffForms() {
             if (error) throw error;
 
             card.innerHTML = `
-                <div class="staff-form-login">
-                    <i class="fa-solid fa-circle-check"></i>
-                    <h3>Resposta enviada</h3>
-                    <p>${escapeHTML(activeForm.success_message || 'Resposta enviada com sucesso.')}</p>
+                <div class="staff-form-status-card">
+                    <div class="staff-form-status-icon nova">
+                        <i class="fa-solid fa-circle-check"></i>
+                    </div>
+                    <div>
+                        <span class="staff-form-status-kicker">Enviado</span>
+                        <h3>Resposta enviada</h3>
+                        <p>${escapeHTML(activeForm.success_message || 'Resposta enviada com sucesso.')}</p>
+                        <small>Volte neste mesmo link para acompanhar a situação do formulário.</small>
+                    </div>
                 </div>
             `;
             showToast('Formulario enviado com sucesso!', 'success');

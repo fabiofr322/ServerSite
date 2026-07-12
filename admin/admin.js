@@ -33,6 +33,7 @@ let allStaffFormsList = [];
 let allStaffResponsesList = [];
 let selectedStaffFormId = null;
 let selectedStaffResponseId = null;
+let selectedStaffResponseIds = new Set();
 let currentStaffResponseFilter = 'all';
 let currentAnnouncementType = 'news';
 
@@ -2451,6 +2452,14 @@ function setupStaffFormsEvents() {
     const cancelBtn = document.getElementById('btnStaffFormCancelEdit');
     if (cancelBtn) cancelBtn.addEventListener('click', resetStaffFormAdmin);
 
+    const deleteCurrentBtn = document.getElementById('btnStaffFormDeleteCurrent');
+    if (deleteCurrentBtn) {
+        deleteCurrentBtn.addEventListener('click', () => {
+            const id = document.getElementById('inputStaffFormId')?.value;
+            if (id) deleteStaffForm(id);
+        });
+    }
+
     const templateBtn = document.getElementById('btnStaffFormTemplate');
     if (templateBtn) templateBtn.addEventListener('click', () => {
         document.getElementById('inputStaffFormTitle').value = 'Candidatura para Staff';
@@ -2470,6 +2479,20 @@ function setupStaffFormsEvents() {
     const responsesList = document.getElementById('staffResponsesList');
     if (responsesList) {
         responsesList.addEventListener('click', (event) => {
+            const bulkButton = event.target.closest('[data-bulk-action]');
+            if (bulkButton) {
+                event.preventDefault();
+                handleStaffBulkAction(bulkButton.dataset.bulkAction);
+                return;
+            }
+
+            const selectAllButton = event.target.closest('[data-bulk-select-all]');
+            if (selectAllButton) {
+                event.preventDefault();
+                toggleAllVisibleStaffResponses();
+                return;
+            }
+
             const actionButton = event.target.closest('[data-response-action]');
             if (actionButton) {
                 event.preventDefault();
@@ -2499,6 +2522,12 @@ function setupStaffFormsEvents() {
         });
 
         responsesList.addEventListener('change', (event) => {
+            const checkbox = event.target.closest('[data-response-select]');
+            if (checkbox) {
+                toggleStaffResponseSelection(checkbox.dataset.responseSelect, checkbox.checked);
+                return;
+            }
+
             const statusSelect = event.target.closest('[data-response-status]');
             if (statusSelect) {
                 updateStaffResponseStatus(statusSelect.dataset.responseId, statusSelect.value);
@@ -2575,9 +2604,9 @@ function renderStaffFormsTable(filter = '') {
                 <td>${count}</td>
                 <td class="text-right" onclick="event.stopPropagation()">
                     <button class="btn-action btn-promote" onclick="copyStaffFormLink('${escapeJSString(item.slug)}')" title="Copiar link"><i class="fa-solid fa-link"></i></button>
-                    <button class="btn-action btn-promote" onclick="selectStaffFormResponses(${item.id})" title="Ver respostas"><i class="fa-solid fa-inbox"></i></button>
-                    <button class="btn-action btn-promote" onclick="editStaffForm(${item.id})" title="Editar"><i class="fa-solid fa-pen"></i></button>
-                    <button class="btn-action btn-demote" onclick="deleteStaffForm(${item.id})" title="Excluir"><i class="fa-solid fa-trash"></i></button>
+                    <button class="btn-action btn-promote" onclick="selectStaffFormResponses(${item.id})" title="Ver respostas"><i class="fa-solid fa-inbox"></i> Respostas</button>
+                    <button class="btn-action btn-promote" onclick="editStaffForm(${item.id})" title="Editar"><i class="fa-solid fa-pen"></i> Editar</button>
+                    <button class="btn-action btn-demote" onclick="deleteStaffForm(${item.id})" title="Excluir formulário"><i class="fa-solid fa-trash"></i> Excluir</button>
                 </td>
             </tr>
         `;
@@ -2650,6 +2679,7 @@ function editStaffForm(id) {
     document.getElementById('staffFormAdminTitle').innerHTML = '<i class="fa-solid fa-pen"></i> Editar Formulário';
     document.getElementById('btnStaffFormSubmit').innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Atualizar';
     document.getElementById('btnStaffFormCancelEdit').classList.remove('hidden');
+    document.getElementById('btnStaffFormDeleteCurrent')?.classList.remove('hidden');
     document.getElementById('formStaffForm').scrollIntoView({ behavior: 'smooth', block: 'center' });
 }
 
@@ -2666,6 +2696,7 @@ function resetStaffFormAdmin() {
     document.getElementById('staffFormAdminTitle').innerHTML = '<i class="fa-solid fa-plus"></i> Criar Formulário';
     document.getElementById('btnStaffFormSubmit').innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Salvar';
     document.getElementById('btnStaffFormCancelEdit').classList.add('hidden');
+    document.getElementById('btnStaffFormDeleteCurrent')?.classList.add('hidden');
 }
 
 async function deleteStaffForm(id) {
@@ -2674,6 +2705,17 @@ async function deleteStaffForm(id) {
     if (error) {
         showToast('Erro ao excluir formulario.', 'error');
         return;
+    }
+    if (Number(selectedStaffFormId) === Number(id)) {
+        selectedStaffFormId = null;
+        selectedStaffResponseId = null;
+        selectedStaffResponseIds = new Set();
+        allStaffResponsesList = [];
+        const list = document.getElementById('staffResponsesList');
+        if (list) {
+            list.innerHTML = '<div class="table-loading-row"><div class="spinner"></div> Selecione um formulário para ver respostas.</div>';
+        }
+        resetStaffFormAdmin();
     }
     showToast('Formulário excluído.', 'success');
     loadStaffFormsList();
@@ -2688,6 +2730,7 @@ async function copyStaffFormLink(slug) {
 async function selectStaffFormResponses(formId, options = {}) {
     selectedStaffFormId = formId;
     selectedStaffResponseId = null;
+    selectedStaffResponseIds = new Set();
     const list = document.getElementById('staffResponsesList');
     if (list) list.innerHTML = '<div class="table-loading-row"><div class="spinner"></div> Carregando respostas...</div>';
     renderStaffFormsTable(document.getElementById('inputSearchStaffForms')?.value || '');
@@ -2773,6 +2816,18 @@ function renderStaffResponsesShell(items, selected) {
                 `).join('')}
             </div>
 
+            <div class="forms-bulk-toolbar">
+                <button type="button" data-bulk-select-all>
+                    <i class="fa-solid fa-check-double"></i> Selecionar visíveis
+                </button>
+                <span>${selectedStaffResponseIds.size} selecionado(s)</span>
+                <button type="button" data-bulk-action="em_analise"><i class="fa-solid fa-clock"></i> Em análise</button>
+                <button type="button" data-bulk-action="aprovada" class="approve"><i class="fa-solid fa-check"></i> Aprovar</button>
+                <button type="button" data-bulk-action="reprovada" class="reject"><i class="fa-solid fa-xmark"></i> Reprovar</button>
+                <button type="button" data-bulk-action="arquivada"><i class="fa-solid fa-box-archive"></i> Arquivar</button>
+                <button type="button" data-bulk-action="delete" class="danger"><i class="fa-solid fa-trash"></i> Excluir</button>
+            </div>
+
             <div class="forms-response-workspace">
                 <aside class="forms-response-list">
                     ${items.length ? items.map(item => {
@@ -2782,9 +2837,6 @@ function renderStaffResponsesShell(items, selected) {
                             : row;
                     }).join('') : '<div class="forms-empty-response">Nenhuma resposta encontrada.</div>'}
                 </aside>
-                <section class="forms-response-detail" id="staffResponseDetailPanel">
-                    ${selected ? renderStaffResponseDetail(selected) : '<div class="forms-empty-response">Selecione uma resposta para ver detalhes.</div>'}
-                </section>
             </div>
         </div>
     `;
@@ -2792,9 +2844,13 @@ function renderStaffResponsesShell(items, selected) {
 
 function renderStaffResponseListItem(item) {
     const selected = Number(item.id) === Number(selectedStaffResponseId);
+    const checked = selectedStaffResponseIds.has(Number(item.id));
     const answerPreview = getStaffResponsePreview(item);
     return `
-        <button type="button" class="forms-response-row ${selected ? 'active' : ''}" data-response-id="${Number(item.id)}" onclick="selectStaffResponseDetailFromClick(event, ${Number(item.id)})">
+        <div class="forms-response-row ${selected ? 'active' : ''}" role="button" tabindex="0" data-response-id="${Number(item.id)}" onclick="selectStaffResponseDetailFromClick(event, ${Number(item.id)})">
+            <label class="forms-response-select" onclick="event.stopPropagation()">
+                <input type="checkbox" data-response-select="${Number(item.id)}" ${checked ? 'checked' : ''}>
+            </label>
             <span class="forms-response-avatar">${escapeHTML((item.minecraft_username || '?').slice(0, 1).toUpperCase())}</span>
             <span class="forms-response-row-main">
                 <strong>${escapeHTML(item.minecraft_username || 'Sem nick')}</strong>
@@ -2805,7 +2861,7 @@ function renderStaffResponseListItem(item) {
                 <span class="forms-status-pill ${escapeHTML(item.status)}">${escapeHTML(formatStaffStatus(item.status))}</span>
                 <small>Ver resposta</small>
             </span>
-        </button>
+        </div>
     `;
 }
 
@@ -2878,9 +2934,105 @@ function selectStaffResponseDetailFromClick(event, id) {
     selectStaffResponseDetail(id);
 }
 
+function toggleStaffResponseSelection(id, checked) {
+    const numericId = Number(id);
+    if (!numericId) return;
+    if (checked) {
+        selectedStaffResponseIds.add(numericId);
+    } else {
+        selectedStaffResponseIds.delete(numericId);
+    }
+    renderStaffResponses(document.getElementById('inputSearchStaffResponses')?.value || '');
+}
+
+function getVisibleStaffResponses() {
+    const term = String(document.getElementById('inputSearchStaffResponses')?.value || '').toLowerCase();
+    return allStaffResponsesList.filter(item => {
+        const blob = JSON.stringify(item.answers || {}).toLowerCase();
+        const matchesSearch = blob.includes(term) ||
+            String(item.minecraft_username || '').toLowerCase().includes(term) ||
+            String(item.user_email || '').toLowerCase().includes(term);
+        const matchesStatus = currentStaffResponseFilter === 'all' || item.status === currentStaffResponseFilter;
+        return matchesSearch && matchesStatus;
+    });
+}
+
+function toggleAllVisibleStaffResponses() {
+    const visible = getVisibleStaffResponses();
+    if (!visible.length) return;
+    const allSelected = visible.every(item => selectedStaffResponseIds.has(Number(item.id)));
+    visible.forEach(item => {
+        const id = Number(item.id);
+        if (allSelected) {
+            selectedStaffResponseIds.delete(id);
+        } else {
+            selectedStaffResponseIds.add(id);
+        }
+    });
+    renderStaffResponses(document.getElementById('inputSearchStaffResponses')?.value || '');
+}
+
+async function handleStaffBulkAction(action) {
+    const ids = Array.from(selectedStaffResponseIds).filter(Boolean);
+    if (!ids.length) {
+        showToast('Selecione pelo menos uma resposta.', 'error');
+        return;
+    }
+
+    if (action === 'delete') {
+        if (!confirm(`Excluir ${ids.length} resposta(s) selecionada(s)? Esta acao nao pode ser desfeita.`)) return;
+        const { error } = await supabaseClient
+            .from('staff_form_responses')
+            .delete()
+            .in('id', ids);
+
+        if (error) {
+            showToast('Erro ao excluir respostas.', 'error');
+            return;
+        }
+
+        allStaffResponsesList = allStaffResponsesList.filter(item => !ids.includes(Number(item.id)));
+        selectedStaffResponseIds = new Set();
+        selectedStaffResponseId = null;
+        renderStaffResponses(document.getElementById('inputSearchStaffResponses')?.value || '');
+        loadStaffFormsList();
+        showToast('Respostas excluidas.', 'success');
+        return;
+    }
+
+    const allowedStatuses = ['nova', 'em_analise', 'entrevista', 'aprovada', 'reprovada', 'arquivada'];
+    if (!allowedStatuses.includes(action)) return;
+
+    const now = new Date().toISOString();
+    const { error } = await supabaseClient
+        .from('staff_form_responses')
+        .update({
+            status: action,
+            reviewed_by: currentUser.id,
+            reviewed_at: now,
+            updated_at: now
+        })
+        .in('id', ids);
+
+    if (error) {
+        showToast('Erro ao atualizar respostas.', 'error');
+        return;
+    }
+
+    allStaffResponsesList = allStaffResponsesList.map(item =>
+        ids.includes(Number(item.id))
+            ? { ...item, status: action, reviewed_by: currentUser.id, reviewed_at: now, updated_at: now }
+            : item
+    );
+    selectedStaffResponseIds = new Set();
+    renderStaffResponses(document.getElementById('inputSearchStaffResponses')?.value || '');
+    showToast('Respostas atualizadas.', 'success');
+}
+
 function setStaffResponseFilter(status) {
     currentStaffResponseFilter = status;
     selectedStaffResponseId = null;
+    selectedStaffResponseIds = new Set();
     renderStaffResponses(document.getElementById('inputSearchStaffResponses')?.value || '');
 }
 async function updateStaffResponseStatus(id, status) {

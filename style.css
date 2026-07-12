@@ -6441,6 +6441,92 @@ footer a:hover {
     line-height: 1.55;
 }
 
+.staff-form-status-card {
+    display: grid;
+    grid-template-columns: 72px minmax(0, 1fr);
+    gap: 1rem;
+    align-items: start;
+    border: 1px solid rgba(255, 20, 147, 0.22);
+    border-radius: 20px;
+    background:
+        radial-gradient(circle at top right, rgba(139, 0, 255, 0.18), transparent 36%),
+        rgba(255, 255, 255, 0.045);
+    padding: clamp(1rem, 3vw, 1.4rem);
+}
+
+.staff-form-status-icon {
+    width: 64px;
+    height: 64px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 18px;
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    color: #fff;
+    box-shadow: 0 14px 32px rgba(255, 20, 147, 0.24);
+}
+
+.staff-form-status-icon i {
+    font-size: 1.6rem;
+}
+
+.staff-form-status-icon.aprovada {
+    background: linear-gradient(135deg, #00c853, #74ffad);
+}
+
+.staff-form-status-icon.reprovada {
+    background: linear-gradient(135deg, #ff3838, #ff8585);
+}
+
+.staff-form-status-icon.em_analise,
+.staff-form-status-icon.entrevista {
+    background: linear-gradient(135deg, #ffb703, #ffd166);
+    color: #1b1024;
+}
+
+.staff-form-status-kicker {
+    display: inline-flex;
+    margin-bottom: 0.35rem;
+    color: var(--primary);
+    font-size: 0.72rem;
+    font-weight: 950;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+.staff-form-status-card h3 {
+    color: #fff;
+    font-size: 1.35rem;
+    margin-bottom: 0.35rem;
+}
+
+.staff-form-status-card p,
+.staff-form-status-card small {
+    color: var(--text-muted);
+    line-height: 1.55;
+}
+
+.staff-form-status-card strong {
+    color: #fff;
+}
+
+.staff-form-status-meta {
+    display: grid;
+    gap: 0.45rem;
+    margin: 0.9rem 0 1rem;
+    color: var(--text-muted);
+    font-size: 0.86rem;
+}
+
+.staff-form-status-meta i {
+    color: var(--primary);
+    margin-right: 0.35rem;
+}
+
+.staff-form-refresh-status {
+    width: fit-content;
+}
+
 .staff-form-account {
     display: flex;
     align-items: center;
@@ -6528,6 +6614,12 @@ footer a:hover {
     width: min(100%, 360px);
     justify-content: center;
     margin: 0.5rem auto 0;
+}
+
+@media (max-width: 620px) {
+    .staff-form-status-card {
+        grid-template-columns: 1fr;
+    }
 }
 
 .player-hub-hero {
