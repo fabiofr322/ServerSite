@@ -2914,6 +2914,24 @@ function setupPlayerHub() {
         openPlayerProfile(nick);
     });
 
+    let lastDeepLinkedPlayer = '';
+
+    function openPlayerFromHash() {
+        const hash = window.location.hash || '';
+        if (!hash.startsWith('#perfil-jogador') || !hash.includes('?')) return;
+
+        const params = new URLSearchParams(hash.split('?')[1] || '');
+        const nick = String(params.get('player') || '').trim();
+        if (!nick || nick === lastDeepLinkedPlayer) return;
+
+        lastDeepLinkedPlayer = nick;
+        input.value = nick;
+        renderSuggestions([]);
+        openPlayerProfile(nick);
+    }
+
+    window.addEventListener('hashchange', openPlayerFromHash);
+
     document.addEventListener('click', event => {
         if (!suggestions.contains(event.target) && event.target !== input) {
             suggestions.classList.add('hidden');
@@ -3057,6 +3075,7 @@ function setupPlayerHub() {
 
     loadPlayerTop5();
     renderStats({});
+    setTimeout(openPlayerFromHash, 150);
 }
 
 async function setupDiscordStats() {

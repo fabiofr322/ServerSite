@@ -300,7 +300,7 @@ function formatPlayerField(players, previousPlayers) {
     return (players || []).slice(0, 5).map(player => {
         const movement = formatMovement(previousById.get(player.id), player.position);
         return [
-            `**${getPositionMedal(player.position)} #${player.position} — [${escapeDiscordMarkdown(player.nick)}](${getPlayerHeadUrl(player.nick, 256)})**`,
+            `**${getPositionMedal(player.position)} #${player.position} — [${escapeDiscordMarkdown(player.nick)}](${getPlayerProfileUrl(player.nick)})**`,
             movement,
             `**${formatNumber(player.score)} pontos** • **${formatNumber(player.kills)} abates**`
         ].filter(Boolean).join('\n');
@@ -341,6 +341,10 @@ function getPositionMedal(position) {
 
 function getPlayerHeadUrl(nick, size = 128) {
     return `https://mc-heads.net/avatar/${encodeURIComponent(String(nick || 'Steve'))}/${size}`;
+}
+
+function getPlayerProfileUrl(nick) {
+    return `${SITE_URL}/#perfil-jogador?player=${encodeURIComponent(String(nick || ''))}`;
 }
 
 function escapeDiscordMarkdown(value) {
