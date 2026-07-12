@@ -4893,6 +4893,64 @@ footer a:hover {
     gap: 10px;
 }
 
+.auth-inline-action {
+    width: fit-content;
+    align-self: center;
+    background: transparent;
+    border: 0;
+    color: var(--primary);
+    font-family: var(--font-main);
+    font-size: 0.82rem;
+    font-weight: 800;
+    cursor: pointer;
+    padding: 0;
+    text-align: center;
+    transition: color 0.2s ease, text-shadow 0.2s ease;
+}
+
+.auth-inline-action:hover {
+    color: #fff;
+    text-shadow: 0 0 14px rgba(255, 20, 147, 0.45);
+}
+
+.auth-form-heading {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+    padding: 1rem;
+    border: 1px solid rgba(255, 20, 147, 0.22);
+    border-radius: 14px;
+    background: rgba(255, 20, 147, 0.06);
+}
+
+.auth-form-heading i {
+    display: grid;
+    place-items: center;
+    width: 42px;
+    height: 42px;
+    flex: 0 0 42px;
+    border-radius: 12px;
+    color: #fff;
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    box-shadow: 0 12px 26px rgba(255, 20, 147, 0.24);
+}
+
+.auth-form-heading strong,
+.auth-form-heading span {
+    display: block;
+}
+
+.auth-form-heading strong {
+    color: #fff;
+    font-size: 0.95rem;
+}
+
+.auth-form-heading span {
+    color: var(--text-muted);
+    font-size: 0.76rem;
+    line-height: 1.35;
+}
+
 /* ==========================================
    MODAL DE FOTOS COM INTERAÇÕES (CSS)
    ========================================== */
@@ -7106,4 +7164,3 @@ footer a:hover {
         grid-column: span 1;
     }
 }
-

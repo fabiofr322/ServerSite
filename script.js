@@ -3338,6 +3338,7 @@ function triggerUnlockAnimation(index) {
 
 const SUPABASE_URL = 'https://dzfmtmlgbyxnqjdwutfp.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR6Zm10bWxnYnl4bnFqZHd1dGZwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE5ODE1MjcsImV4cCI6MjA5NzU1NzUyN30.8W_0L9OzmLSDH1ZMRtFFlc3Pyf54ENgVNV535TW1T7U';
+const SITE_PUBLIC_URL = 'https://www.fr32survival.com/';
 let supabaseClient = null;
 let currentUser = null;
 let currentProfile = null;
@@ -3402,6 +3403,9 @@ function injectHtmlElements() {
                         <label for="loginPassword">Senha</label>
                         <input type="password" id="loginPassword" required placeholder="Digite sua senha" autocomplete="current-password">
                     </div>
+                    <button type="button" class="auth-inline-action" onclick="openPasswordRecovery()">
+                        Esqueci minha senha
+                    </button>
                     <button type="submit" class="btn btn-primary btn-auth-submit" id="btnLoginSubmit">
                         Entrar <i class="fa-solid fa-right-to-bracket"></i>
                     </button>
@@ -3422,6 +3426,45 @@ function injectHtmlElements() {
                     </div>
                     <button type="submit" class="btn btn-primary btn-auth-submit" id="btnRegisterSubmit">
                         Criar Conta <i class="fa-solid fa-user-plus"></i>
+                    </button>
+                </form>
+                <form id="passwordRecoveryForm" class="auth-form hidden" onsubmit="handlePasswordRecoveryRequest(event)" autocomplete="off">
+                    <div class="auth-form-heading">
+                        <i class="fa-solid fa-key"></i>
+                        <div>
+                            <strong>Recuperar senha</strong>
+                            <span>Enviaremos um link seguro para seu e-mail.</span>
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label for="recoveryEmail">E-mail da conta</label>
+                        <input type="email" id="recoveryEmail" required placeholder="seuemail@exemplo.com" autocomplete="email">
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-auth-submit" id="btnRecoverySubmit">
+                        Enviar link <i class="fa-solid fa-envelope-circle-check"></i>
+                    </button>
+                    <button type="button" class="auth-inline-action" onclick="switchAuthTab('login')">
+                        Voltar para o login
+                    </button>
+                </form>
+                <form id="passwordResetForm" class="auth-form hidden" onsubmit="handlePasswordRecoveryUpdate(event)" autocomplete="off">
+                    <div class="auth-form-heading">
+                        <i class="fa-solid fa-shield-halved"></i>
+                        <div>
+                            <strong>Definir nova senha</strong>
+                            <span>Escolha uma senha nova para acessar sua conta.</span>
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label for="resetNewPassword">Nova senha</label>
+                        <input type="password" id="resetNewPassword" required minlength="6" placeholder="Mínimo 6 caracteres" autocomplete="new-password">
+                    </div>
+                    <div class="input-group">
+                        <label for="resetConfirmPassword">Confirmar nova senha</label>
+                        <input type="password" id="resetConfirmPassword" required minlength="6" placeholder="Repita a nova senha" autocomplete="new-password">
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-auth-submit" id="btnResetSubmit">
+                        Salvar nova senha <i class="fa-solid fa-lock-open"></i>
                     </button>
                 </form>
             </div>
@@ -3678,6 +3721,8 @@ function injectHtmlElements() {
 
 function setupSupabaseAuthAndInteractions() {
     if (!supabaseClient) return;
+    const hasRecoveryMarker = window.location.hash.includes('type=recovery')
+        || window.location.search.includes('type=recovery');
 
     // Restaurar sessão existente ao carregar a página (persiste login após reload)
     supabaseClient.auth.getSession().then(async ({ data: { session } }) => {
@@ -3706,6 +3751,13 @@ function setupSupabaseAuthAndInteractions() {
             isCurrentUserAdmin = false;
             updateUserInterface();
         }
+
+        if (hasRecoveryMarker) {
+            setTimeout(() => {
+                openPasswordReset();
+                window.showNotification("Digite sua nova senha para concluir a recuperação.", "fa-solid fa-key", 5000);
+            }, 0);
+        }
     });
 
     // CORREÇÃO CRÍTICA do deadlock do Supabase v2:
@@ -3716,6 +3768,13 @@ function setupSupabaseAuthAndInteractions() {
     supabaseClient.auth.onAuthStateChange((event, session) => {
         const user = session?.user || null;
         currentUser = user;
+
+        if (event === 'PASSWORD_RECOVERY') {
+            setTimeout(() => {
+                openPasswordReset();
+                window.showNotification("Digite sua nova senha para concluir a recuperação.", "fa-solid fa-key", 5000);
+            }, 0);
+        }
 
         if (!user) {
             // Logout: limpar perfil, cargo e atualizar UI na próxima iteração do event loop
@@ -3933,6 +3992,8 @@ function closeAuthModal() {
         }
         document.getElementById('loginForm')?.reset();
         document.getElementById('registerForm')?.reset();
+        document.getElementById('passwordRecoveryForm')?.reset();
+        document.getElementById('passwordResetForm')?.reset();
     }
 }
 
@@ -3941,6 +4002,11 @@ function switchAuthTab(mode) {
     const tabRegister = document.getElementById('tabRegister');
     const loginForm = document.getElementById('loginForm');
     const registerForm = document.getElementById('registerForm');
+    const recoveryForm = document.getElementById('passwordRecoveryForm');
+    const resetForm = document.getElementById('passwordResetForm');
+
+    recoveryForm?.classList.add('hidden');
+    resetForm?.classList.add('hidden');
 
     if (mode === 'login') {
         tabLogin?.classList.add('active');
@@ -3953,6 +4019,36 @@ function switchAuthTab(mode) {
         registerForm?.classList.remove('hidden');
         loginForm?.classList.add('hidden');
     }
+}
+
+function openPasswordRecovery() {
+    const authModal = document.getElementById('authModal');
+    if (authModal) {
+        authModal.classList.add('show');
+        document.body.style.overflow = 'hidden';
+    }
+
+    document.getElementById('tabLogin')?.classList.remove('active');
+    document.getElementById('tabRegister')?.classList.remove('active');
+    document.getElementById('loginForm')?.classList.add('hidden');
+    document.getElementById('registerForm')?.classList.add('hidden');
+    document.getElementById('passwordResetForm')?.classList.add('hidden');
+    document.getElementById('passwordRecoveryForm')?.classList.remove('hidden');
+}
+
+function openPasswordReset() {
+    const authModal = document.getElementById('authModal');
+    if (authModal) {
+        authModal.classList.add('show');
+        document.body.style.overflow = 'hidden';
+    }
+
+    document.getElementById('tabLogin')?.classList.remove('active');
+    document.getElementById('tabRegister')?.classList.remove('active');
+    document.getElementById('loginForm')?.classList.add('hidden');
+    document.getElementById('registerForm')?.classList.add('hidden');
+    document.getElementById('passwordRecoveryForm')?.classList.add('hidden');
+    document.getElementById('passwordResetForm')?.classList.remove('hidden');
 }
 
 // Exibir mensagem de erro diretamente no formulário de autenticação
@@ -4153,6 +4249,113 @@ async function handleRegister(event) {
 }
 
 // Lógica de Logout
+function getPasswordRecoveryRedirectUrl() {
+    if (window.location.protocol === 'http:' || window.location.protocol === 'https:') {
+        return `${window.location.origin}${window.location.pathname}`;
+    }
+    return SITE_PUBLIC_URL;
+}
+
+async function handlePasswordRecoveryRequest(event) {
+    event.preventDefault();
+
+    if (!supabaseClient) {
+        window.showNotification("Aguarde, conectando ao servidor...", "fa-solid fa-spinner");
+        return;
+    }
+
+    const emailInput = document.getElementById('recoveryEmail');
+    const email = emailInput?.value?.trim();
+    const btnSubmit = document.getElementById('btnRecoverySubmit');
+
+    if (!email) {
+        window.showNotification("Informe o e-mail da conta.", "fa-solid fa-triangle-exclamation");
+        return;
+    }
+
+    if (btnSubmit) {
+        btnSubmit.disabled = true;
+        btnSubmit.innerHTML = 'Enviando... <i class="fa-solid fa-spinner fa-spin"></i>';
+    }
+
+    try {
+        const { error } = await supabaseClient.auth.resetPasswordForEmail(email, {
+            redirectTo: getPasswordRecoveryRedirectUrl()
+        });
+        if (error) throw error;
+
+        if (emailInput) emailInput.value = '';
+        window.showNotification("Se este e-mail estiver cadastrado, o link de recuperação foi enviado.", "fa-solid fa-envelope-circle-check", 5000);
+        switchAuthTab('login');
+    } catch (err) {
+        const msg = getErrorMessage(err);
+        showAuthError('passwordRecoveryForm', msg);
+        window.showNotification(msg, "fa-solid fa-circle-xmark");
+    } finally {
+        if (btnSubmit) {
+            btnSubmit.disabled = false;
+            btnSubmit.innerHTML = 'Enviar link <i class="fa-solid fa-envelope-circle-check"></i>';
+        }
+    }
+}
+
+async function handlePasswordRecoveryUpdate(event) {
+    event.preventDefault();
+
+    if (!supabaseClient) {
+        window.showNotification("Aguarde, conectando ao servidor...", "fa-solid fa-spinner");
+        return;
+    }
+
+    const passwordInput = document.getElementById('resetNewPassword');
+    const confirmInput = document.getElementById('resetConfirmPassword');
+    const newPassword = passwordInput?.value;
+    const confirmPassword = confirmInput?.value;
+    const btnSubmit = document.getElementById('btnResetSubmit');
+
+    if (!newPassword || !confirmPassword) {
+        window.showNotification("Preencha a nova senha e a confirmação.", "fa-solid fa-triangle-exclamation");
+        return;
+    }
+    if (newPassword.length < 6) {
+        window.showNotification("A nova senha deve ter no mínimo 6 caracteres.", "fa-solid fa-triangle-exclamation");
+        return;
+    }
+    if (newPassword !== confirmPassword) {
+        window.showNotification("As senhas não coincidem.", "fa-solid fa-triangle-exclamation");
+        return;
+    }
+
+    if (btnSubmit) {
+        btnSubmit.disabled = true;
+        btnSubmit.innerHTML = 'Salvando... <i class="fa-solid fa-spinner fa-spin"></i>';
+    }
+
+    try {
+        const { error } = await supabaseClient.auth.updateUser({ password: newPassword });
+        if (error) throw error;
+
+        if (passwordInput) passwordInput.value = '';
+        if (confirmInput) confirmInput.value = '';
+        window.showNotification("Senha alterada com sucesso. Você já pode fazer login.", "fa-solid fa-circle-check", 5000);
+        await supabaseClient.auth.signOut();
+        closeAuthModal();
+        setTimeout(() => {
+            openAuthModal();
+            switchAuthTab('login');
+        }, 300);
+    } catch (err) {
+        const msg = getErrorMessage(err);
+        showAuthError('passwordResetForm', msg);
+        window.showNotification(msg, "fa-solid fa-circle-xmark");
+    } finally {
+        if (btnSubmit) {
+            btnSubmit.disabled = false;
+            btnSubmit.innerHTML = 'Salvar nova senha <i class="fa-solid fa-lock-open"></i>';
+        }
+    }
+}
+
 async function handleLogout() {
     if (!supabaseClient) return;
     try {
@@ -5261,6 +5464,10 @@ window.closeAuthModal = closeAuthModal;
 window.switchAuthTab = switchAuthTab;
 window.handleLogin = handleLogin;
 window.handleRegister = handleRegister;
+window.openPasswordRecovery = openPasswordRecovery;
+window.openPasswordReset = openPasswordReset;
+window.handlePasswordRecoveryRequest = handlePasswordRecoveryRequest;
+window.handlePasswordRecoveryUpdate = handlePasswordRecoveryUpdate;
 window.handleLogout = handleLogout;
 window.handleCommentSubmit = handleCommentSubmit;
 window.openVipPackage = openVipPackage;
