@@ -2467,6 +2467,45 @@ function setupStaffFormsEvents() {
     const searchResponses = document.getElementById('inputSearchStaffResponses');
     if (searchResponses) searchResponses.addEventListener('input', () => renderStaffResponses(searchResponses.value));
 
+    const responsesList = document.getElementById('staffResponsesList');
+    if (responsesList) {
+        responsesList.addEventListener('click', (event) => {
+            const actionButton = event.target.closest('[data-response-action]');
+            if (actionButton) {
+                event.preventDefault();
+                updateStaffResponseStatus(actionButton.dataset.responseId, actionButton.dataset.responseAction);
+                return;
+            }
+
+            const filterButton = event.target.closest('[data-response-filter]');
+            if (filterButton) {
+                event.preventDefault();
+                setStaffResponseFilter(filterButton.dataset.responseFilter);
+                return;
+            }
+
+            const refreshButton = event.target.closest('[data-response-refresh]');
+            if (refreshButton) {
+                event.preventDefault();
+                selectStaffFormResponses(refreshButton.dataset.responseRefresh);
+                return;
+            }
+
+            const responseRow = event.target.closest('[data-response-id]');
+            if (responseRow) {
+                event.preventDefault();
+                selectStaffResponseDetail(responseRow.dataset.responseId);
+            }
+        });
+
+        responsesList.addEventListener('change', (event) => {
+            const statusSelect = event.target.closest('[data-response-status]');
+            if (statusSelect) {
+                updateStaffResponseStatus(statusSelect.dataset.responseId, statusSelect.value);
+            }
+        });
+    }
+
     resetStaffFormAdmin();
 }
 
@@ -2486,6 +2525,10 @@ async function loadStaffFormsList() {
 
         allStaffFormsList = data || [];
         renderStaffFormsTable();
+
+        if (!selectedStaffFormId && allStaffFormsList.length) {
+            await selectStaffFormResponses(allStaffFormsList[0].id, { silent: true });
+        }
     } catch (err) {
         console.error('[Staff Forms] Erro ao carregar:', err);
         tableBody.innerHTML = `
@@ -2522,7 +2565,7 @@ function renderStaffFormsTable(filter = '') {
     tableBody.innerHTML = filtered.map(item => {
         const count = Array.isArray(item.staff_form_responses) ? (item.staff_form_responses[0]?.count || 0) : 0;
         return `
-            <tr>
+            <tr class="${Number(item.id) === Number(selectedStaffFormId) ? 'selected-row' : ''}" onclick="selectStaffFormResponses(${item.id})">
                 <td>
                     <strong>${escapeHTML(item.title)}</strong>
                     <br><small>${escapeHTML(item.description || '')}</small>
@@ -2530,7 +2573,7 @@ function renderStaffFormsTable(filter = '') {
                 <td><code>${escapeHTML(item.slug)}</code></td>
                 <td>${item.is_active ? '<span class="badge-published">Ativo</span>' : '<span class="badge-draft">Inativo</span>'}</td>
                 <td>${count}</td>
-                <td class="text-right">
+                <td class="text-right" onclick="event.stopPropagation()">
                     <button class="btn-action btn-promote" onclick="copyStaffFormLink('${escapeJSString(item.slug)}')" title="Copiar link"><i class="fa-solid fa-link"></i></button>
                     <button class="btn-action btn-promote" onclick="selectStaffFormResponses(${item.id})" title="Ver respostas"><i class="fa-solid fa-inbox"></i></button>
                     <button class="btn-action btn-promote" onclick="editStaffForm(${item.id})" title="Editar"><i class="fa-solid fa-pen"></i></button>
@@ -2642,10 +2685,12 @@ async function copyStaffFormLink(slug) {
     showToast('Link do formulario copiado.', 'success');
 }
 
-async function selectStaffFormResponses(formId) {
+async function selectStaffFormResponses(formId, options = {}) {
     selectedStaffFormId = formId;
+    selectedStaffResponseId = null;
     const list = document.getElementById('staffResponsesList');
     if (list) list.innerHTML = '<div class="table-loading-row"><div class="spinner"></div> Carregando respostas...</div>';
+    renderStaffFormsTable(document.getElementById('inputSearchStaffForms')?.value || '');
 
     try {
         const { data, error } = await supabaseClient
@@ -2657,9 +2702,19 @@ async function selectStaffFormResponses(formId) {
         if (error) throw error;
         allStaffResponsesList = data || [];
         renderStaffResponses();
+        if (!options.silent) {
+            document.getElementById('staffResponsesList')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
     } catch (err) {
         console.error('[Staff Forms] Erro ao carregar respostas:', err);
-        if (list) list.innerHTML = '<div class="text-center text-muted">Erro ao carregar respostas.</div>';
+        if (list) {
+            list.innerHTML = `
+                <div class="forms-empty-response">
+                    <strong>Erro ao carregar respostas.</strong>
+                    <span>${escapeHTML(err.message || 'Confira as politicas RLS e a tabela staff_form_responses no Supabase.')}</span>
+                </div>
+            `;
+        }
     }
 }
 
@@ -2688,19 +2743,31 @@ function renderStaffResponsesShell(items, selected) {
         return acc;
     }, {});
     const total = allStaffResponsesList.length;
+    const selectedForm = allStaffFormsList.find(form => Number(form.id) === Number(selectedStaffFormId));
 
     return `
         <div class="forms-response-dashboard">
+            <div class="forms-response-board-head">
+                <div>
+                    <span>Central de respostas</span>
+                    <h3>${escapeHTML(selectedForm?.title || 'Formulário')}</h3>
+                    <p>${escapeHTML(selectedForm?.description || 'Analise as candidaturas recebidas e atualize o andamento.')}</p>
+                </div>
+                <button type="button" class="forms-refresh-btn" data-response-refresh="${Number(selectedStaffFormId) || 0}">
+                    <i class="fa-solid fa-rotate"></i> Atualizar
+                </button>
+            </div>
+
             <div class="forms-response-summary">
-                <div><strong>${total}</strong><span>respostas</span></div>
-                <div><strong>${statusCounts.nova || 0}</strong><span>novas</span></div>
-                <div><strong>${statusCounts.aprovada || 0}</strong><span>aprovadas</span></div>
-                <div><strong>${statusCounts.reprovada || 0}</strong><span>reprovadas</span></div>
+                <div><i class="fa-solid fa-inbox"></i><strong>${total}</strong><span>respostas</span></div>
+                <div><i class="fa-solid fa-sparkles"></i><strong>${statusCounts.nova || 0}</strong><span>novas</span></div>
+                <div><i class="fa-solid fa-circle-check"></i><strong>${statusCounts.aprovada || 0}</strong><span>aprovadas</span></div>
+                <div><i class="fa-solid fa-circle-xmark"></i><strong>${statusCounts.reprovada || 0}</strong><span>reprovadas</span></div>
             </div>
 
             <div class="forms-response-filters">
                 ${['all','nova','em_analise','entrevista','aprovada','reprovada','arquivada'].map(status => `
-                    <button type="button" class="${currentStaffResponseFilter === status ? 'active' : ''}" onclick="setStaffResponseFilter('${status}')">
+                    <button type="button" class="${currentStaffResponseFilter === status ? 'active' : ''}" data-response-filter="${status}">
                         ${escapeHTML(status === 'all' ? 'Todas' : formatStaffStatus(status))}
                     </button>
                 `).join('')}
@@ -2710,7 +2777,7 @@ function renderStaffResponsesShell(items, selected) {
                 <aside class="forms-response-list">
                     ${items.length ? items.map(item => renderStaffResponseListItem(item)).join('') : '<div class="forms-empty-response">Nenhuma resposta encontrada.</div>'}
                 </aside>
-                <section class="forms-response-detail">
+                <section class="forms-response-detail" id="staffResponseDetailPanel">
                     ${selected ? renderStaffResponseDetail(selected) : '<div class="forms-empty-response">Selecione uma resposta para ver detalhes.</div>'}
                 </section>
             </div>
@@ -2722,31 +2789,52 @@ function renderStaffResponseListItem(item) {
     const selected = Number(item.id) === Number(selectedStaffResponseId);
     const answerPreview = getStaffResponsePreview(item);
     return `
-        <button type="button" class="forms-response-row ${selected ? 'active' : ''}" onclick="selectStaffResponseDetail(${item.id})">
+        <button type="button" class="forms-response-row ${selected ? 'active' : ''}" data-response-id="${Number(item.id)}" onclick="selectStaffResponseDetailFromClick(event, ${Number(item.id)})">
             <span class="forms-response-avatar">${escapeHTML((item.minecraft_username || '?').slice(0, 1).toUpperCase())}</span>
             <span class="forms-response-row-main">
                 <strong>${escapeHTML(item.minecraft_username || 'Sem nick')}</strong>
                 <small>${escapeHTML(item.user_email || '')}</small>
                 <em>${escapeHTML(answerPreview)}</em>
             </span>
-            <span class="forms-status-pill ${escapeHTML(item.status)}">${escapeHTML(formatStaffStatus(item.status))}</span>
+            <span class="forms-response-row-side">
+                <span class="forms-status-pill ${escapeHTML(item.status)}">${escapeHTML(formatStaffStatus(item.status))}</span>
+                <small>Ver resposta</small>
+            </span>
         </button>
     `;
 }
 
 function renderStaffResponseDetail(item) {
+    const submittedAt = item.created_at ? new Date(item.created_at).toLocaleString('pt-BR') : '--';
+    const reviewedAt = item.reviewed_at ? new Date(item.reviewed_at).toLocaleString('pt-BR') : 'Ainda não revisado';
     return `
         <article class="staff-response-card is-detail">
+            <div class="staff-response-hero">
+                <div class="staff-response-avatar-large">${escapeHTML((item.minecraft_username || '?').slice(0, 1).toUpperCase())}</div>
+                <div>
+                    <span class="forms-status-pill ${escapeHTML(item.status)}">${escapeHTML(formatStaffStatus(item.status))}</span>
+                    <h3>${escapeHTML(item.minecraft_username || 'Sem nick')}</h3>
+                    <p>${escapeHTML(item.user_email || '')}</p>
+                </div>
+            </div>
+
             <div class="staff-response-head">
                 <div>
-                    <strong>${escapeHTML(item.minecraft_username || 'Sem nick')}</strong>
-                    <span>${escapeHTML(item.user_email || '')} • ${new Date(item.created_at).toLocaleString('pt-BR')}</span>
+                    <strong>Resumo da candidatura</strong>
+                    <span>Enviada em ${escapeHTML(submittedAt)} • ${escapeHTML(reviewedAt)}</span>
                 </div>
-                <select onchange="updateStaffResponseStatus(${item.id}, this.value)">
+                <select data-response-status data-response-id="${Number(item.id)}">
                     ${['nova','em_analise','entrevista','aprovada','reprovada','arquivada'].map(status => `
                         <option value="${status}" ${item.status === status ? 'selected' : ''}>${escapeHTML(formatStaffStatus(status))}</option>
                     `).join('')}
                 </select>
+            </div>
+            <div class="staff-response-actions">
+                <button type="button" data-response-id="${Number(item.id)}" data-response-action="em_analise"><i class="fa-solid fa-clock"></i> Em análise</button>
+                <button type="button" data-response-id="${Number(item.id)}" data-response-action="entrevista"><i class="fa-solid fa-comments"></i> Entrevista</button>
+                <button type="button" class="approve" data-response-id="${Number(item.id)}" data-response-action="aprovada"><i class="fa-solid fa-check"></i> Aprovar</button>
+                <button type="button" class="reject" data-response-id="${Number(item.id)}" data-response-action="reprovada"><i class="fa-solid fa-xmark"></i> Reprovar</button>
+                <button type="button" data-response-id="${Number(item.id)}" data-response-action="arquivada"><i class="fa-solid fa-box-archive"></i> Arquivar</button>
             </div>
             <div class="staff-response-answers">
                 ${Object.entries(item.answers || {}).map(([key, value]) => `
@@ -2773,7 +2861,30 @@ function formatAnswerLabel(key) {
 
 function selectStaffResponseDetail(id) {
     selectedStaffResponseId = id;
+    const selected = allStaffResponsesList.find(item => Number(item.id) === Number(id));
+    const detailPanel = document.getElementById('staffResponseDetailPanel');
+
+    document.querySelectorAll('.forms-response-row').forEach(row => {
+        row.classList.toggle('active', Number(row.dataset.responseId) === Number(id));
+    });
+
+    if (detailPanel) {
+        detailPanel.innerHTML = selected
+            ? renderStaffResponseDetail(selected)
+            : '<div class="forms-empty-response">Não encontramos esta resposta na lista atual.</div>';
+        detailPanel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        return;
+    }
+
     renderStaffResponses(document.getElementById('inputSearchStaffResponses')?.value || '');
+}
+
+function selectStaffResponseDetailFromClick(event, id) {
+    if (event) {
+        event.preventDefault();
+        event.stopPropagation();
+    }
+    selectStaffResponseDetail(id);
 }
 
 function setStaffResponseFilter(status) {
@@ -2796,8 +2907,21 @@ async function updateStaffResponseStatus(id, status) {
         showToast('Erro ao atualizar status.', 'error');
         return;
     }
+
+    allStaffResponsesList = allStaffResponsesList.map(item =>
+        Number(item.id) === Number(id)
+            ? {
+                ...item,
+                status,
+                reviewed_by: currentUser.id,
+                reviewed_at: new Date().toISOString(),
+                updated_at: new Date().toISOString()
+            }
+            : item
+    );
+    selectedStaffResponseId = id;
+    renderStaffResponses(document.getElementById('inputSearchStaffResponses')?.value || '');
     showToast('Status atualizado.', 'success');
-    if (selectedStaffFormId) selectStaffFormResponses(selectedStaffFormId);
 }
 
 function formatStaffStatus(status) {
@@ -2817,6 +2941,7 @@ window.deleteStaffForm = deleteStaffForm;
 window.copyStaffFormLink = copyStaffFormLink;
 window.selectStaffFormResponses = selectStaffFormResponses;
 window.selectStaffResponseDetail = selectStaffResponseDetail;
+window.selectStaffResponseDetailFromClick = selectStaffResponseDetailFromClick;
 window.setStaffResponseFilter = setStaffResponseFilter;
 window.updateStaffResponseStatus = updateStaffResponseStatus;
 
