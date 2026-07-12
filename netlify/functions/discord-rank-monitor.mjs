@@ -3,6 +3,7 @@ const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const DISCORD_RANK_WEBHOOK_URL = process.env.DISCORD_RANK_WEBHOOK_URL;
 const RANKS_TOKEN = process.env.RANKS_TOKEN;
 const CLANS_ENDPOINT = process.env.CLANS_ENDPOINT || 'http://enx-cirion-92.enx.host:10026/clans';
+const SITE_URL = process.env.SITE_URL || process.env.URL || 'https://www.fr32survival.com';
 const SNAPSHOT_KEY = 'discord_rank_monitor_v1';
 
 const CLAN_SCORE_WEIGHTS = {
@@ -34,17 +35,22 @@ export default async function handler() {
         };
         const signature = JSON.stringify(snapshot);
         const previous = await getSnapshot();
+        const previousSnapshot = previous?.snapshot || {};
+        const previousMessageId = previousSnapshot.discord_message_id || '';
         const changed = previous?.signature && previous.signature !== signature;
+        let discordMessageId = previousMessageId;
 
-        if (changed) {
-            await sendDiscordEmbed(snapshot, previous.snapshot || {});
+        if (!previousMessageId || changed) {
+            discordMessageId = await upsertDiscordEmbed(snapshot, previousSnapshot, previousMessageId);
         }
 
-        await saveSnapshot(snapshot, signature);
+        await saveSnapshot({ ...snapshot, discord_message_id: discordMessageId }, signature);
 
         return jsonResponse(200, {
             ok: true,
             changed: Boolean(changed),
+            updated_discord_message: Boolean(!previousMessageId || changed),
+            discord_message_id: discordMessageId || null,
             players: snapshot.players.length,
             clans: snapshot.clans.length
         });
@@ -223,51 +229,82 @@ async function saveSnapshot(snapshot, signature) {
     }
 }
 
-async function sendDiscordEmbed(snapshot, previousSnapshot) {
-    const playerField = formatPlayerField(snapshot.players, previousSnapshot.players || []);
-    const clanField = formatClanField(snapshot.clans, previousSnapshot.clans || []);
+async function upsertDiscordEmbed(snapshot, previousSnapshot, messageId) {
+    const payload = buildDiscordPayload(snapshot, previousSnapshot);
+    const url = messageId
+        ? `${DISCORD_RANK_WEBHOOK_URL}/messages/${encodeURIComponent(messageId)}`
+        : `${DISCORD_RANK_WEBHOOK_URL}?wait=true`;
+    const method = messageId ? 'PATCH' : 'POST';
 
-    const response = await fetch(DISCORD_RANK_WEBHOOK_URL, {
-        method: 'POST',
+    let response = await fetch(url, {
+        method,
         headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({
-            username: 'FR32SURVIVAL',
-            embeds: [
-                {
-                    title: 'Rankings atualizados',
-                    description: 'O site detectou mudancas nos destaques da temporada.',
-                    color: 16716947,
-                    fields: [
-                        {
-                            name: 'Top Jogadores',
-                            value: playerField || 'Sem jogadores sincronizados.',
-                            inline: false
-                        },
-                        {
-                            name: 'Top Clans',
-                            value: clanField || 'Sem clans sincronizados.',
-                            inline: false
-                        }
-                    ],
-                    footer: { text: 'FR32SURVIVAL • Monitor automatico do site' },
-                    timestamp: new Date().toISOString()
-                }
-            ]
-        })
+        body: JSON.stringify(payload)
     });
+
+    if (messageId && response.status === 404) {
+        response = await fetch(`${DISCORD_RANK_WEBHOOK_URL}?wait=true`, {
+            method: 'POST',
+            headers: { 'content-type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+    }
 
     if (!response.ok) {
         const body = await response.text();
         throw new Error(`Discord webhook failed: ${body || response.status}`);
     }
+
+    const body = await response.json().catch(() => ({}));
+    return body.id || messageId || '';
+}
+
+function buildDiscordPayload(snapshot, previousSnapshot) {
+    const topPlayer = snapshot.players?.[0];
+    return {
+        username: 'FR32Survival',
+        avatar_url: `${SITE_URL}/icon/Fr32_Icon.png`,
+        embeds: [
+            {
+                title: '🏆 RANKINGS ATUALIZADOS!',
+                url: `${SITE_URL}/#rankings-clans`,
+                description: [
+                    'O site detectou mudanças nos principais destaques da temporada do **FR32Survival**!',
+                    '',
+                    '## ⚔️ TOP JOGADORES',
+                    formatPlayerField(snapshot.players, previousSnapshot.players || []),
+                    '',
+                    '## 🛡️ TOP CLÃS',
+                    formatClanField(snapshot.clans, previousSnapshot.clans || []),
+                    '',
+                    '## 🔥 A DISPUTA CONTINUA!',
+                    '',
+                    'Suba no ranking, fortaleça seu clã e lute para conquistar o topo da temporada!',
+                    '',
+                    `🌐 **[Ver rankings no site](${SITE_URL}/#rankings-clans)**`,
+                    '',
+                    '**FR32Survival • Monitor automático do site**',
+                    `**Atualizado hoje às ${new Date().toLocaleTimeString('pt-BR', { timeZone: 'America/Sao_Paulo', hour: '2-digit', minute: '2-digit' })}**`
+                ].join('\n'),
+                color: 16716947,
+                thumbnail: topPlayer ? { url: getPlayerHeadUrl(topPlayer.nick, 128) } : undefined,
+                footer: { text: 'Clique no titulo para abrir o site' },
+                timestamp: new Date().toISOString()
+            }
+        ]
+    };
 }
 
 function formatPlayerField(players, previousPlayers) {
     const previousById = new Map((previousPlayers || []).map(player => [player.id, player.position]));
     return (players || []).slice(0, 5).map(player => {
         const movement = formatMovement(previousById.get(player.id), player.position);
-        return `#${player.position} ${player.nick}${movement} • ${formatNumber(player.score)} pts • ${formatNumber(player.kills)} kills`;
-    }).join('\n');
+        return [
+            `**${getPositionMedal(player.position)} #${player.position} — [${escapeDiscordMarkdown(player.nick)}](${getPlayerHeadUrl(player.nick, 256)})**`,
+            movement,
+            `**${formatNumber(player.score)} pontos** • **${formatNumber(player.kills)} abates**`
+        ].filter(Boolean).join('\n');
+    }).join('\n\n') || 'Sem jogadores sincronizados.';
 }
 
 function formatClanField(clans, previousClans) {
@@ -275,15 +312,45 @@ function formatClanField(clans, previousClans) {
     return (clans || []).slice(0, 5).map(clan => {
         const key = String(clan.tag || clan.name).toLowerCase();
         const movement = formatMovement(previousByKey.get(key), clan.position);
-        return `#${clan.position} [${clan.tag}] ${clan.name}${movement} • ${formatNumber(clan.score)} forca • Nv ${formatNumber(clan.level)}`;
-    }).join('\n');
+        return [
+            `**${getPositionMedal(clan.position)} #${clan.position} — [${escapeDiscordMarkdown(clan.tag)}] ${escapeDiscordMarkdown(clan.name)}**`,
+            movement,
+            `**${formatNumber(clan.score)} de força** • **Nível ${formatNumber(clan.level)}**`
+        ].filter(Boolean).join('\n');
+    }).join('\n\n') || 'Sem clãs sincronizados.';
 }
 
 function formatMovement(previousPosition, currentPosition) {
-    if (!previousPosition) return ' • novo';
+    if (!previousPosition) return '🆕 **Novo no ranking!**';
     if (previousPosition === currentPosition) return '';
-    if (previousPosition > currentPosition) return ` • subiu ${previousPosition - currentPosition}`;
-    return ` • caiu ${currentPosition - previousPosition}`;
+    if (previousPosition > currentPosition) {
+        const amount = previousPosition - currentPosition;
+        return `📈 **Subiu ${amount} ${amount === 1 ? 'posição' : 'posições'}**`;
+    }
+    const amount = currentPosition - previousPosition;
+    return `📉 **Caiu ${amount} ${amount === 1 ? 'posição' : 'posições'}**`;
+}
+
+function getPositionMedal(position) {
+    if (position === 1) return '🥇';
+    if (position === 2) return '🥈';
+    if (position === 3) return '🥉';
+    if (position === 4) return '🏅';
+    return '✨';
+}
+
+function getPlayerHeadUrl(nick, size = 128) {
+    return `https://mc-heads.net/avatar/${encodeURIComponent(String(nick || 'Steve'))}/${size}`;
+}
+
+function escapeDiscordMarkdown(value) {
+    return String(value || '')
+        .replace(/\\/g, '\\\\')
+        .replace(/_/g, '\\_')
+        .replace(/\*/g, '\\*')
+        .replace(/~/g, '\\~')
+        .replace(/`/g, '\\`')
+        .replace(/\|/g, '\\|');
 }
 
 async function fetchSingle(table, params) {

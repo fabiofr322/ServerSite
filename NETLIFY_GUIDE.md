@@ -56,6 +56,7 @@ netlify/functions/discord-rank-monitor.mjs
 ```
 
 Ela roda a cada 10 minutos, compara o Top Jogadores e Top Clans com o ultimo snapshot salvo no Supabase e envia um embed no Discord somente quando detectar mudanca.
+Depois que a primeira mensagem for criada, as proximas mudancas atualizam o mesmo embed em vez de enviar varias mensagens novas.
 
 Antes de ativar, execute no Supabase:
 
@@ -69,6 +70,7 @@ Depois adicione estas variaveis no Netlify:
 SUPABASE_SERVICE_ROLE_KEY=sua_service_role_key_do_supabase
 DISCORD_RANK_WEBHOOK_URL=url_do_webhook_do_canal_do_discord
 RANKS_TOKEN=o_mesmo_token_usado_no_FrSiteBridge
+SITE_URL=https://www.fr32survival.com
 ```
 
 Opcional:
