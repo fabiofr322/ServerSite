@@ -71,6 +71,7 @@ SUPABASE_SERVICE_ROLE_KEY=sua_service_role_key_do_supabase
 DISCORD_RANK_WEBHOOK_URL=url_do_webhook_do_canal_do_discord
 RANKS_TOKEN=o_mesmo_token_usado_no_FrSiteBridge
 SITE_URL=https://www.fr32survival.com
+DISCORD_RANK_MENTION_ROLE_ID=1525938148058730496
 ```
 
 Opcional:

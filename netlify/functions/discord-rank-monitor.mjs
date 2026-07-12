@@ -4,6 +4,7 @@ const DISCORD_RANK_WEBHOOK_URL = process.env.DISCORD_RANK_WEBHOOK_URL;
 const RANKS_TOKEN = process.env.RANKS_TOKEN;
 const CLANS_ENDPOINT = process.env.CLANS_ENDPOINT || 'http://enx-cirion-92.enx.host:10026/clans';
 const SITE_URL = process.env.SITE_URL || process.env.URL || 'https://www.fr32survival.com';
+const DISCORD_RANK_MENTION_ROLE_ID = process.env.DISCORD_RANK_MENTION_ROLE_ID || '1525938148058730496';
 const SNAPSHOT_KEY = 'discord_rank_monitor_v1';
 
 const CLAN_SCORE_WEIGHTS = {
@@ -261,9 +262,12 @@ async function upsertDiscordEmbed(snapshot, previousSnapshot, messageId) {
 
 function buildDiscordPayload(snapshot, previousSnapshot) {
     const topPlayer = snapshot.players?.[0];
+    const mentionRoleId = String(DISCORD_RANK_MENTION_ROLE_ID || '').trim();
     return {
         username: 'FR32Survival',
         avatar_url: `${SITE_URL}/icon/Fr32_Icon.png`,
+        content: mentionRoleId ? `<@&${mentionRoleId}>` : '',
+        allowed_mentions: mentionRoleId ? { roles: [mentionRoleId] } : { parse: [] },
         embeds: [
             {
                 title: '🏆 RANKINGS ATUALIZADOS!',
