@@ -34,7 +34,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <!-- Estilos Externos -->
-    <link rel="stylesheet" href="style.css?v=password-recovery-20260712">
+    <link rel="stylesheet" href="style.css?v=home-pro-layout-20260712">
 
     <!-- Supabase SDK (carregado antes do script.js para garantir disponibilidade) -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" crossorigin="anonymous"></script>
@@ -135,8 +135,27 @@
                 <button type="button" class="btn btn-secondary hero-copy-btn" onclick="copyIP()">
                     <i class="fa-regular fa-copy"></i> Copiar IP
                 </button>
-                <a href="https://discord.gg/MNWtkEzM3B" target="_blank" class="btn btn-primary">
-                    <i class="fa-brands fa-discord"></i> Entrar no Discord
+                <a href="#loja" target="_self" class="btn btn-primary">
+                    <i class="fa-solid fa-bag-shopping"></i> Ver produtos
+                </a>
+            </div>
+
+            <div class="home-feature-strip">
+                <a href="#como-entrar" class="home-feature-pill" target="_self">
+                    <i class="fa-solid fa-right-to-bracket"></i>
+                    <span>Entrar agora</span>
+                </a>
+                <a href="#eventos" class="home-feature-pill" target="_self">
+                    <i class="fa-regular fa-calendar-days"></i>
+                    <span>Eventos e avisos</span>
+                </a>
+                <a href="#estatisticas" class="home-feature-pill" target="_self">
+                    <i class="fa-solid fa-ranking-star"></i>
+                    <span>Rankings ao vivo</span>
+                </a>
+                <a href="#galeria" class="home-feature-pill" target="_self">
+                    <i class="fa-solid fa-images"></i>
+                    <span>Galeria</span>
                 </a>
             </div>
 
@@ -457,6 +476,37 @@
                         Ver ranking de clans
                     </a>
                 </div>
+            </div>
+        </section>
+
+        <section id="home-galeria" class="home-gallery-section">
+            <div class="home-gallery-header">
+                <div>
+                    <span class="section-kicker"><i class="fa-solid fa-images"></i> Galeria</span>
+                    <h2 class="section-title">Momentos da Comunidade</h2>
+                    <p class="section-subtitle">Construções, prints e lembranças das temporadas em um preview rápido.</p>
+                </div>
+                <a href="#galeria" class="btn btn-secondary home-gallery-cta" target="_self">
+                    Ver galeria completa <i class="fa-solid fa-arrow-right"></i>
+                </a>
+            </div>
+
+            <div class="home-gallery-grid">
+                <a href="#galeria" class="home-gallery-card" target="_self">
+                    <img src="Images/7_Temporada/junin_House.png" alt="Casa do jogador junin">
+                    <span>Construções</span>
+                    <strong>Casas da temporada</strong>
+                </a>
+                <a href="#galeria" class="home-gallery-card is-featured" target="_self">
+                    <img src="Images/7_Temporada/templo_lxzin.png" alt="Templo da temporada">
+                    <span>Destaque</span>
+                    <strong>Projetos da comunidade</strong>
+                </a>
+                <a href="#galeria" class="home-gallery-card" target="_self">
+                    <img src="Images/7_Temporada/Master_house.png" alt="Casa do jogador masterdobudhaa">
+                    <span>Memórias</span>
+                    <strong>Álbuns dos jogadores</strong>
+                </a>
             </div>
         </section>
 
@@ -1353,7 +1403,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" crossorigin="anonymous"></script>
 
     <!-- Scripts Externos -->
-    <script src="script.js?v=password-recovery-20260712"></script>
+    <script src="script.js?v=home-pro-layout-20260712"></script>
 </body>
 
 </html>

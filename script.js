@@ -268,7 +268,7 @@ function setupNavigation() {
     const mobileMenuBtn = document.getElementById('mobileMenuBtn');
     const mobileDropdown = document.getElementById('mobileDropdown');
     const tabSections = document.querySelectorAll('.container > section[id]');
-    const homeSectionIds = ['home', 'como-entrar', 'eventos', 'estatisticas', 'mural'];
+    const homeSectionIds = ['home', 'como-entrar', 'eventos', 'estatisticas', 'home-galeria', 'mural'];
     const navDropdowns = document.querySelectorAll('.nav-dropdown');
 
     function showSiteTab(targetId, updateHash = true) {

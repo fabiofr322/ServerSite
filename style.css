@@ -377,6 +377,7 @@ section.site-tab-active {
     justify-content: flex-start;
     padding: 2rem 2rem 4rem;
     margin-bottom: 0;
+    gap: 0;
 }
 
 .hero-kicker {
@@ -692,9 +693,47 @@ section.site-tab-active {
     flex-wrap: wrap;
     justify-content: center;
     animation: fadeInUp 1s ease 0.5s both;
-    margin-bottom: 3rem;
+    margin-bottom: 1rem;
     position: relative;
     z-index: 5;
+}
+
+.home-feature-strip {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0.75rem;
+    width: min(100%, 920px);
+    margin: 0 auto 1.25rem;
+    animation: fadeInUp 1s ease 0.58s both;
+    position: relative;
+    z-index: 6;
+}
+
+.home-feature-pill {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.55rem;
+    min-height: 46px;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.07), rgba(255, 20, 147, 0.07));
+    color: #fff;
+    text-decoration: none;
+    font-size: 0.78rem;
+    font-weight: 900;
+    box-shadow: 0 14px 34px rgba(0, 0, 0, 0.22);
+    transition: transform 0.25s ease, border-color 0.25s ease, background 0.25s ease;
+}
+
+.home-feature-pill:hover {
+    transform: translateY(-3px);
+    border-color: rgba(255, 20, 147, 0.5);
+    background: linear-gradient(135deg, rgba(255, 20, 147, 0.18), rgba(139, 0, 255, 0.16));
+}
+
+.home-feature-pill i {
+    color: var(--primary);
 }
 
 .btn-secondary.hero-copy-btn {
@@ -744,9 +783,9 @@ section.site-tab-active {
     border: 1px solid rgba(139, 0, 255, 0.25);
     border-radius: 16px;
     padding: 1.2rem 2.5rem;
-    max-width: 450px;
+    max-width: 720px;
     width: 100%;
-    margin: 0 auto;
+    margin: 0 auto 1rem;
     backdrop-filter: blur(15px);
     -webkit-backdrop-filter: blur(15px);
     box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4), inset 0 0 10px rgba(139, 0, 255, 0.15);
@@ -880,22 +919,25 @@ section.site-tab-active {
     grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: 0.9rem;
     width: 100%;
-    max-width: 1050px;
-    margin-top: -1.1rem;
+    max-width: 1120px;
+    margin: 0 auto 1.5rem;
     position: relative;
     z-index: 8;
 }
 
 .home-hub-card {
-    display: block;
+    display: flex;
+    flex-direction: column;
     text-decoration: none;
     color: inherit;
     text-align: left;
-    border-radius: 8px;
+    border-radius: 16px;
     border: 1px solid rgba(255, 255, 255, 0.08);
-    background: linear-gradient(180deg, rgba(20, 4, 36, 0.78), rgba(8, 2, 18, 0.6));
-    padding: 1rem;
-    min-height: 155px;
+    background:
+        radial-gradient(circle at top left, rgba(255, 20, 147, 0.14), transparent 42%),
+        linear-gradient(180deg, rgba(20, 4, 36, 0.78), rgba(8, 2, 18, 0.6));
+    padding: 1.15rem;
+    min-height: 165px;
     transition: all 0.25s ease;
     box-shadow: 0 18px 45px rgba(0, 0, 0, 0.34);
 }
@@ -907,9 +949,17 @@ section.site-tab-active {
 }
 
 .home-hub-card i {
-    color: var(--primary);
-    font-size: 1.35rem;
-    margin-bottom: 0.9rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 42px;
+    height: 42px;
+    color: #fff;
+    background: linear-gradient(135deg, rgba(255, 20, 147, 0.9), rgba(139, 0, 255, 0.82));
+    border-radius: 12px;
+    font-size: 1rem;
+    margin-bottom: 0.95rem;
+    box-shadow: 0 10px 22px rgba(255, 20, 147, 0.2);
 }
 
 .home-hub-card h3 {
@@ -926,10 +976,32 @@ section.site-tab-active {
 
 .home-staff-block {
     width: 100%;
-    max-width: 900px;
+    max-width: 1120px;
     margin: 0 auto 2rem;
     position: relative;
     z-index: 6;
+}
+
+#home .discord-widget-info {
+    order: 8;
+    margin: 0 auto 0.8rem;
+}
+
+#home .support-ticket-action {
+    order: 9;
+    margin: 0 auto 1rem;
+}
+
+#home .server-status-card {
+    order: 10;
+}
+
+#home .home-hub-grid {
+    order: 11;
+}
+
+#home .home-staff-block {
+    order: 12;
 }
 
 /* ==========================================
@@ -949,6 +1021,7 @@ section.site-tab-active {
 
 #como-entrar.site-tab-active,
 #estatisticas.site-tab-active,
+#home-galeria.site-tab-active,
 #rankings-jogadores.site-tab-active,
 #rankings-clans.site-tab-active,
 #perfil-jogador.site-tab-active,
@@ -3815,6 +3888,106 @@ section.site-tab-active {
     box-shadow: 0 5px 20px rgba(255, 20, 147, 0.5);
 }
 
+.home-gallery-section {
+    min-height: auto;
+    padding: 3rem 0 1rem;
+}
+
+.home-gallery-header {
+    width: min(1100px, 100%);
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.home-gallery-header .section-title,
+.home-gallery-header .section-subtitle {
+    text-align: left;
+    margin-left: 0;
+    margin-right: 0;
+}
+
+.home-gallery-cta {
+    flex: 0 0 auto;
+}
+
+.home-gallery-grid {
+    width: min(1100px, 100%);
+    display: grid;
+    grid-template-columns: 0.9fr 1.2fr 0.9fr;
+    gap: 1rem;
+}
+
+.home-gallery-card {
+    position: relative;
+    min-height: 245px;
+    overflow: hidden;
+    border-radius: 18px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(8, 2, 18, 0.55);
+    box-shadow: 0 20px 48px rgba(0, 0, 0, 0.34);
+    isolation: isolate;
+    transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+.home-gallery-card::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(5, 1, 12, 0.08), rgba(5, 1, 12, 0.82));
+    z-index: -1;
+}
+
+.home-gallery-card img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: -2;
+    transform: scale(1.01);
+    transition: transform 0.35s ease;
+}
+
+.home-gallery-card:hover {
+    transform: translateY(-4px);
+    border-color: rgba(255, 20, 147, 0.45);
+    box-shadow: 0 24px 58px rgba(255, 20, 147, 0.14), 0 20px 48px rgba(0, 0, 0, 0.38);
+}
+
+.home-gallery-card:hover img {
+    transform: scale(1.08);
+}
+
+.home-gallery-card span,
+.home-gallery-card strong {
+    position: absolute;
+    left: 1rem;
+    right: 1rem;
+}
+
+.home-gallery-card span {
+    bottom: 3.25rem;
+    color: var(--primary);
+    font-size: 0.72rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+}
+
+.home-gallery-card strong {
+    bottom: 1rem;
+    color: #fff;
+    font-size: 1.05rem;
+    line-height: 1.1;
+}
+
+.home-gallery-card.is-featured {
+    min-height: 285px;
+}
+
 /* Grid da Galeria */
 .gallery-grid {
     display: grid;
@@ -4365,50 +4538,164 @@ footer a:hover {
     body {
         padding-top: 75px;
     }
+
+    .container {
+        padding: 1rem;
+    }
+
+    section {
+        min-height: auto;
+    }
+
+    #home {
+        padding: 0.75rem 0 2rem;
+        min-height: auto;
+    }
     
     header.navbar-container {
         height: 70px;
+        padding: 0 0.65rem;
     }
     
     .navbar {
         height: 50px;
+        border-radius: 16px;
+        padding: 0 0.7rem;
     }
     
     .nav-logo img {
         width: 26px;
         height: 26px;
     }
+
+    .nav-logo-text {
+        font-size: 0.58rem;
+        max-width: 142px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .mobile-dropdown {
+        top: 72px;
+        left: 0.75rem;
+        right: 0.75rem;
+        max-height: calc(100vh - 92px);
+        overflow-y: auto;
+        padding: 0.8rem;
+        border-radius: 18px;
+        gap: 0.35rem;
+    }
+
+    .mobile-dropdown .nav-link {
+        font-size: 0.82rem;
+        padding: 0.75rem 0.85rem;
+        text-align: left;
+        border-radius: 12px;
+    }
+
+    .hero-kicker {
+        margin-bottom: 0.65rem;
+        padding: 0.35rem 0.65rem;
+        font-size: 0.62rem;
+    }
     
     .btn-nav-ip {
         padding: 6px 12px;
         font-size: 0.75rem;
     }
+
+    .logo {
+        font-size: clamp(1.15rem, 8vw, 1.75rem);
+        line-height: 1.25;
+        margin-bottom: 0.45rem;
+    }
+
+    .subtitle {
+        max-width: 330px;
+        margin-bottom: 0.75rem;
+        font-size: 0.92rem;
+        line-height: 1.45;
+    }
+
+    .hero-trust-row {
+        gap: 0.35rem;
+        margin-bottom: 1rem;
+    }
+
+    .hero-trust-row span {
+        padding: 0.38rem 0.52rem;
+        font-size: 0.68rem;
+    }
     
     .countdown-container {
         gap: 0.4rem;
+        width: 100%;
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        margin-bottom: 1rem;
     }
 
     .hero-icon {
-        width: clamp(240px, 82vw, 340px);
+        width: clamp(150px, 50vw, 230px);
+    }
+
+    .hero-logo-container {
+        margin-bottom: 0.25rem;
+    }
+
+    .hero-logo-container::after {
+        height: 64px;
+        bottom: -12px;
     }
     
     .countdown-item {
-        min-width: 70px;
-        padding: 0.7rem;
+        min-width: 0;
+        padding: 0.58rem 0.35rem;
         border-radius: 12px;
+    }
+
+    .countdown-number {
+        font-size: 1rem;
+        margin-bottom: 0.25rem;
+    }
+
+    .countdown-label {
+        font-size: 0.53rem;
+        letter-spacing: 0.6px;
     }
     
     .buttons {
-        flex-direction: column;
+        order: 2;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
         width: 100%;
-        max-width: 280px;
-        margin: 0 auto 2rem;
+        max-width: 360px;
+        gap: 0.55rem;
+        margin: 0 auto 0.8rem;
+    }
+
+    .home-feature-strip {
+        order: 3;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        width: 100%;
+        gap: 0.5rem;
+        margin: 0 auto 0.8rem;
+    }
+
+    .home-feature-pill {
+        min-height: 42px;
+        padding: 0 0.55rem;
+        border-radius: 14px;
+        font-size: 0.66rem;
+        line-height: 1.2;
     }
     
     .btn {
         width: 100%;
         justify-content: center;
-        padding: 0.8rem 2rem;
+        padding: 0.78rem 0.75rem;
+        font-size: 0.72rem;
+        letter-spacing: 0.7px;
     }
     
     .server-ip-widget {
@@ -4416,17 +4703,138 @@ footer a:hover {
     }
 
     .discord-widget-info {
+        order: 4;
         align-items: flex-start;
         flex-direction: column;
-        width: min(100%, 330px);
+        width: 100%;
+        margin: 0.1rem auto 0.7rem;
+        padding: 0.8rem;
+        gap: 0.65rem;
+    }
+
+    .discord-icon-wrap {
+        width: 36px;
+        height: 36px;
+        border-radius: 10px;
+        font-size: 1rem;
     }
 
     .discord-widget-counts {
         justify-content: flex-start;
+        gap: 0.4rem;
+    }
+
+    .discord-widget-counts > span {
+        font-size: 0.68rem;
+        padding: 0.32rem 0.48rem;
+    }
+
+    .support-ticket-action {
+        order: 5;
+        margin: 0 auto 0.8rem;
+        width: 100%;
+        max-width: 360px;
     }
 
     .home-hub-grid {
-        margin-top: 0;
+        order: 7;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 0.55rem;
+        margin-top: 0.15rem;
+    }
+
+    .home-hub-card {
+        min-height: 112px;
+        padding: 0.82rem;
+        border-radius: 12px;
+    }
+
+    .home-hub-card i {
+        font-size: 1.05rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .home-hub-card h3 {
+        font-size: 0.82rem;
+        margin-bottom: 0;
+    }
+
+    .home-hub-card p {
+        display: none;
+    }
+
+    .server-status-card {
+        order: 6;
+        padding: 0.9rem;
+        margin: 0 auto 0.75rem;
+        border-radius: 14px;
+    }
+
+    .server-ip-copy .widget-ip,
+    .server-ip-widget .widget-ip {
+        font-size: 0.68rem;
+        overflow-wrap: anywhere;
+    }
+
+    .home-staff-block {
+        order: 8;
+        margin: 1rem auto 0;
+    }
+
+    .home-staff-block .section-title {
+        font-size: 1.05rem;
+        line-height: 1.35;
+        margin-bottom: 0.45rem;
+    }
+
+    .home-staff-block .section-subtitle {
+        display: none;
+    }
+
+    .staff-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 0.55rem;
+        margin-top: 0.8rem;
+    }
+
+    .staff-member {
+        min-height: 0;
+        padding: 0.75rem;
+        border-radius: 14px;
+    }
+
+    .staff-avatar {
+        width: 54px;
+        height: 54px;
+        margin-bottom: 0.5rem;
+    }
+
+    .staff-name {
+        font-size: 0.78rem;
+        overflow-wrap: anywhere;
+    }
+
+    .staff-role {
+        font-size: 0.58rem;
+    }
+
+    .section-title {
+        font-size: clamp(1.35rem, 8vw, 2rem);
+        line-height: 1.25;
+    }
+
+    .section-subtitle {
+        font-size: 0.9rem;
+        line-height: 1.5;
+        margin-bottom: 1.25rem;
+    }
+
+    #como-entrar.site-tab-active,
+    #estatisticas.site-tab-active,
+    #home-galeria.site-tab-active,
+    #eventos.site-tab-active,
+    #mural.site-tab-active {
+        padding-top: 2rem;
     }
     
     .server-ip-widget .widget-ip {
@@ -4445,9 +4853,58 @@ footer a:hover {
         margin: 0 auto;
     }
 
+    .home-gallery-section {
+        padding: 2.1rem 0 0.5rem;
+    }
+
+    .home-gallery-header {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 0.75rem;
+        margin-bottom: 1rem;
+    }
+
+    .home-gallery-header .section-title,
+    .home-gallery-header .section-subtitle {
+        text-align: left;
+    }
+
+    .home-gallery-cta {
+        width: 100%;
+    }
+
+    .home-gallery-grid {
+        display: flex;
+        width: calc(100vw - 2rem);
+        overflow-x: auto;
+        gap: 0.75rem;
+        padding: 0 0 0.35rem;
+        scroll-snap-type: x mandatory;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .home-gallery-card {
+        flex: 0 0 78%;
+        min-height: 210px;
+        border-radius: 16px;
+        scroll-snap-align: start;
+    }
+
+    .home-gallery-card.is-featured {
+        min-height: 210px;
+    }
+
+    .home-gallery-card span {
+        bottom: 3rem;
+        font-size: 0.66rem;
+    }
+
+    .home-gallery-card strong {
+        font-size: 0.95rem;
+    }
+
     .join-grid,
     .server-benefits-grid,
-    .home-hub-grid,
     .shop-storefront,
     .vip-products-grid,
     .shop-cards-grid,
