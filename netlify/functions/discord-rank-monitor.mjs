@@ -232,24 +232,23 @@ async function saveSnapshot(snapshot, signature) {
 
 async function upsertDiscordEmbed(snapshot, previousSnapshot, messageId) {
     const payload = buildDiscordPayload(snapshot, previousSnapshot);
-    const url = messageId
-        ? `${DISCORD_RANK_WEBHOOK_URL}/messages/${encodeURIComponent(messageId)}`
-        : `${DISCORD_RANK_WEBHOOK_URL}?wait=true`;
-    const method = messageId ? 'PATCH' : 'POST';
 
-    let response = await fetch(url, {
-        method,
+    if (messageId) {
+        const deleteResponse = await fetch(`${DISCORD_RANK_WEBHOOK_URL}/messages/${encodeURIComponent(messageId)}`, {
+            method: 'DELETE'
+        });
+
+        if (!deleteResponse.ok && deleteResponse.status !== 404) {
+            const body = await deleteResponse.text();
+            throw new Error(`Discord webhook delete failed: ${body || deleteResponse.status}`);
+        }
+    }
+
+    const response = await fetch(`${DISCORD_RANK_WEBHOOK_URL}?wait=true`, {
+        method: 'POST',
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify(payload)
     });
-
-    if (messageId && response.status === 404) {
-        response = await fetch(`${DISCORD_RANK_WEBHOOK_URL}?wait=true`, {
-            method: 'POST',
-            headers: { 'content-type': 'application/json' },
-            body: JSON.stringify(payload)
-        });
-    }
 
     if (!response.ok) {
         const body = await response.text();
@@ -257,7 +256,7 @@ async function upsertDiscordEmbed(snapshot, previousSnapshot, messageId) {
     }
 
     const body = await response.json().catch(() => ({}));
-    return body.id || messageId || '';
+    return body.id || '';
 }
 
 function buildDiscordPayload(snapshot, previousSnapshot) {
