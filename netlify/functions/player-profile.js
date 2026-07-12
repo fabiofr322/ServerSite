@@ -19,7 +19,7 @@ exports.handler = async function handler(event) {
             return jsonResponse(404, { error: 'Player not found.' });
         }
 
-        const [stats, activity] = await Promise.all([
+        const [stats, activity, siteRank] = await Promise.all([
             fetchSingle('player_stats', {
                 select: '*',
                 player_id: `eq.${profile.id}`,
@@ -30,18 +30,44 @@ exports.handler = async function handler(event) {
                 player_id: `eq.${profile.id}`,
                 order: 'created_at.desc',
                 limit: '8'
-            })
+            }),
+            getPlayerSiteRank(profile.id)
         ]);
 
         return jsonResponse(200, {
             profile,
-            stats: stats || {},
+            stats: { ...(stats || {}), site_rank: siteRank },
             activity: activity || []
         });
     } catch (error) {
         return jsonResponse(502, { error: 'Unable to fetch player profile.' });
     }
 };
+
+async function getPlayerSiteRank(playerId) {
+    const rows = await fetchRows('player_stats', {
+        select: 'player_id,playtime_hours,kills,homes,player_profiles(id,minecraft_username)',
+        limit: '1000'
+    });
+
+    const rankedPlayers = rows
+        .filter(item => item.player_id && item.player_profiles?.minecraft_username)
+        .map(item => ({
+            playerId: item.player_id,
+            score: calculatePlayerScore(item)
+        }))
+        .sort((a, b) => b.score - a.score);
+
+    const index = rankedPlayers.findIndex(item => item.playerId === playerId);
+    return index >= 0 ? `#${index + 1}` : '--';
+}
+
+function calculatePlayerScore(stats = {}) {
+    const playtime = Number(stats.playtime_hours || 0);
+    const kills = Number(stats.kills || 0);
+    const homes = Number(stats.homes || 0);
+    return (playtime * 10) + (kills * 25) + (homes * 15);
+}
 
 async function fetchSingle(table, params) {
     const rows = await fetchRows(table, params);

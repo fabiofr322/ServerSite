@@ -46,3 +46,35 @@ O arquivo `_redirects` deve conter:
 ## Observacao de seguranca
 
 O token antigo foi removido dos arquivos publicos. Como ele ja apareceu no repositorio, trate-o como vazado e troque por um novo.
+
+## Embed automatico de rankings no Discord
+
+Foi adicionada a funcao agendada:
+
+```text
+netlify/functions/discord-rank-monitor.mjs
+```
+
+Ela roda a cada 10 minutos, compara o Top Jogadores e Top Clans com o ultimo snapshot salvo no Supabase e envia um embed no Discord somente quando detectar mudanca.
+
+Antes de ativar, execute no Supabase:
+
+```text
+discord_rank_monitor.sql
+```
+
+Depois adicione estas variaveis no Netlify:
+
+```text
+SUPABASE_SERVICE_ROLE_KEY=sua_service_role_key_do_supabase
+DISCORD_RANK_WEBHOOK_URL=url_do_webhook_do_canal_do_discord
+RANKS_TOKEN=o_mesmo_token_usado_no_FrSiteBridge
+```
+
+Opcional:
+
+```text
+CLANS_ENDPOINT=http://enx-cirion-92.enx.host:10026/clans
+```
+
+Nao coloque o webhook no `script.js` ou em qualquer arquivo publico do site. Ele deve ficar apenas nas variaveis de ambiente do Netlify.

@@ -2537,7 +2537,7 @@ function setupPlayerHub() {
         { key: 'blocks_placed', label: 'Blocos colocados', icon: 'fa-solid fa-cubes', fallback: '0' },
         { key: 'distance_walked', label: 'Distancia percorrida', icon: 'fa-solid fa-route', fallback: '0 km', format: value => `${numberFmt.format(Number(value || 0))} km` },
         { key: 'mobs_killed', label: 'Mobs derrotados', icon: 'fa-solid fa-dragon', fallback: '0' },
-        { key: 'rank', label: 'Rank principal', icon: 'fa-solid fa-ranking-star', fallback: '--' },
+        { key: 'site_rank', label: 'Rank', icon: 'fa-solid fa-ranking-star', fallback: '--' },
         { key: 'clan', label: 'Clan atual', icon: 'fa-solid fa-people-group', fallback: 'Sem clan' },
         { key: 'role', label: 'Cargo / tag equipada', icon: 'fa-solid fa-tags', fallback: '--' },
         { key: 'homes', label: 'Homes / casas', icon: 'fa-solid fa-house', fallback: '0' },
@@ -2591,6 +2591,36 @@ function setupPlayerHub() {
         if (typeof definition.format === 'function') return definition.format(raw);
         if (typeof raw === 'number') return numberFmt.format(raw);
         return String(raw);
+    }
+
+    function calculatePlayerScore(stats = {}) {
+        const playtime = Number(stats.playtime_hours || 0);
+        const kills = Number(stats.kills || 0);
+        const homes = Number(stats.homes || 0);
+        return (playtime * 10) + (kills * 25) + (homes * 15);
+    }
+
+    async function getPlayerSiteRankViaSupabase(profile = {}) {
+        const ready = await waitForSupabaseReady();
+        if (!ready || !profile?.id) return '--';
+
+        const { data, error } = await supabaseClient
+            .from('player_stats')
+            .select('player_id, playtime_hours, kills, homes, player_profiles(id, minecraft_username)')
+            .limit(1000);
+
+        if (error) throw error;
+
+        const rankedPlayers = (data || [])
+            .filter(item => item.player_id && item.player_profiles?.minecraft_username)
+            .map(item => ({
+                playerId: item.player_id,
+                score: calculatePlayerScore(item)
+            }))
+            .sort((a, b) => b.score - a.score);
+
+        const index = rankedPlayers.findIndex(item => item.playerId === profile.id);
+        return index >= 0 ? `#${index + 1}` : '--';
     }
 
     function renderStats(stats = {}) {
@@ -2776,15 +2806,19 @@ function setupPlayerHub() {
         const profile = Array.isArray(profiles) ? profiles[0] : null;
         if (!profile) return null;
 
-        const [{ data: stats, error: statsError }, { data: activity, error: activityError }] = await Promise.all([
+        const [{ data: stats, error: statsError }, { data: activity, error: activityError }, siteRankResult] = await Promise.all([
             supabaseClient.from('player_stats').select('*').eq('player_id', profile.id).maybeSingle(),
-            supabaseClient.from('player_activity').select('*').eq('player_id', profile.id).order('created_at', { ascending: false }).limit(8)
+            supabaseClient.from('player_activity').select('*').eq('player_id', profile.id).order('created_at', { ascending: false }).limit(8),
+            getPlayerSiteRankViaSupabase(profile).catch(error => {
+                console.warn('[Player Hub] Rank do site indisponivel:', error);
+                return '--';
+            })
         ]);
 
         if (statsError) console.warn('[Player Hub] Estatisticas indisponiveis:', statsError);
         if (activityError) console.warn('[Player Hub] Historico indisponivel:', activityError);
 
-        return { profile, stats: stats || {}, activity: activity || [] };
+        return { profile, stats: { ...(stats || {}), site_rank: siteRankResult }, activity: activity || [] };
     }
 
     async function searchPlayers(query) {
@@ -2837,6 +2871,14 @@ function setupPlayerHub() {
                 renderStats({});
                 renderHistory([]);
                 return;
+            }
+
+            if (!profileData.stats?.site_rank) {
+                const siteRank = await getPlayerSiteRankViaSupabase(profileData.profile).catch(error => {
+                    console.warn('[Player Hub] Rank do site indisponivel:', error);
+                    return '--';
+                });
+                profileData.stats = { ...(profileData.stats || {}), site_rank: siteRank };
             }
 
             renderProfile(profileData);
@@ -2957,7 +2999,7 @@ function setupPlayerHub() {
                 const playtime = Number(item.playtime_hours || 0);
                 const kills = Number(item.kills || 0);
                 const homes = Number(item.homes || 0);
-                const score = (playtime * 10) + (kills * 25) + (homes * 15);
+                const score = calculatePlayerScore(item);
                 return { ...item, score };
             });
 
