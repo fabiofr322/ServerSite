@@ -34,7 +34,7 @@ export default async function handler() {
             players: players.slice(0, 5),
             clans: clans.slice(0, 5)
         };
-        const signature = JSON.stringify(snapshot);
+        const signature = buildRankingSignature(snapshot);
         const previous = await getSnapshot();
         const previousSnapshot = previous?.snapshot || {};
         const previousMessageId = previousSnapshot.discord_message_id || '';
@@ -199,6 +199,20 @@ function calculatePlayerScore(stats = {}) {
     const kills = safeInteger(stats.kills);
     const homes = safeInteger(stats.homes);
     return Math.round((playtime * 10) + (kills * 25) + (homes * 15));
+}
+
+function buildRankingSignature(snapshot) {
+    return JSON.stringify({
+        players: (snapshot.players || []).map(player => ({
+            position: player.position,
+            id: player.id,
+            nick: String(player.nick || '').toLowerCase()
+        })),
+        clans: (snapshot.clans || []).map(clan => ({
+            position: clan.position,
+            key: String(clan.tag || clan.name || '').toLowerCase()
+        }))
+    });
 }
 
 async function getSnapshot() {

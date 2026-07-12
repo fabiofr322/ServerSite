@@ -55,7 +55,8 @@ Foi adicionada a funcao agendada:
 netlify/functions/discord-rank-monitor.mjs
 ```
 
-Ela roda a cada 10 minutos, compara o Top Jogadores e Top Clans com o ultimo snapshot salvo no Supabase e envia um embed no Discord somente quando detectar mudanca.
+Ela roda a cada 10 minutos, compara o Top Jogadores e Top Clans com o ultimo snapshot salvo no Supabase e envia um embed no Discord somente quando detectar mudanca de posicao ou entrada/saida do Top 5.
+Mudancas pequenas de pontos, abates, forca ou nivel sem alteracao na ordem nao disparam uma nova mensagem.
 Depois que a primeira mensagem for criada, as proximas mudancas apagam a mensagem antiga e enviam uma nova. Assim o cargo pode ser mencionado novamente sem acumular varias mensagens de ranking no canal.
 
 Antes de ativar, execute no Supabase:
