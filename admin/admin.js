@@ -2775,7 +2775,12 @@ function renderStaffResponsesShell(items, selected) {
 
             <div class="forms-response-workspace">
                 <aside class="forms-response-list">
-                    ${items.length ? items.map(item => renderStaffResponseListItem(item)).join('') : '<div class="forms-empty-response">Nenhuma resposta encontrada.</div>'}
+                    ${items.length ? items.map(item => {
+                        const row = renderStaffResponseListItem(item);
+                        return Number(item.id) === Number(selectedStaffResponseId)
+                            ? `${row}<div class="forms-response-inline-detail">${renderStaffResponseDetail(item)}</div>`
+                            : row;
+                    }).join('') : '<div class="forms-empty-response">Nenhuma resposta encontrada.</div>'}
                 </aside>
                 <section class="forms-response-detail" id="staffResponseDetailPanel">
                     ${selected ? renderStaffResponseDetail(selected) : '<div class="forms-empty-response">Selecione uma resposta para ver detalhes.</div>'}
@@ -2861,22 +2866,8 @@ function formatAnswerLabel(key) {
 
 function selectStaffResponseDetail(id) {
     selectedStaffResponseId = id;
-    const selected = allStaffResponsesList.find(item => Number(item.id) === Number(id));
-    const detailPanel = document.getElementById('staffResponseDetailPanel');
-
-    document.querySelectorAll('.forms-response-row').forEach(row => {
-        row.classList.toggle('active', Number(row.dataset.responseId) === Number(id));
-    });
-
-    if (detailPanel) {
-        detailPanel.innerHTML = selected
-            ? renderStaffResponseDetail(selected)
-            : '<div class="forms-empty-response">Não encontramos esta resposta na lista atual.</div>';
-        detailPanel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-        return;
-    }
-
     renderStaffResponses(document.getElementById('inputSearchStaffResponses')?.value || '');
+    document.querySelector(`[data-response-id="${Number(id)}"]`)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
 }
 
 function selectStaffResponseDetailFromClick(event, id) {
@@ -2970,10 +2961,10 @@ function showToast(message, type = "info") {
     // Mostra o Toast
     toast.classList.add('show');
 
-    // Oculta apÃ³s 4 segundos
+    // Oculta apÃ³s alguns segundos
     setTimeout(() => {
         toast.classList.remove('show');
-    }, 4000);
+    }, 2400);
 }
 
 // Helper: Resolve o caminho de imagens locais ou externas
