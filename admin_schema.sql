@@ -144,7 +144,7 @@ drop policy if exists "Usuários autenticados podem ver permissões" on public.u
 create policy "Usuários autenticados podem ver permissões"
   on public.user_permissions
   for select
-  using (auth.uid() = user_id or public.is_admin(auth.uid()));
+  using (auth.role() = 'authenticated');
 
 -- Apenas o e-mail do Super Admin principal (extraído de forma segura do JWT) pode modificar a tabela
 drop policy if exists "Apenas Super Admin pode inserir permissões" on public.user_permissions;

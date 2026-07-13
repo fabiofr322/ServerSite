@@ -1,4 +1,4 @@
-﻿/**
+/**
  * =====================================================================
  * FR32SURVIVAL - LOGIC SYSTEM FOR ADMIN PANEL (JS)
  * Desenvolvedor Web Full-Stack SÃªnior & Instrutor DidÃ¡tico
@@ -2514,7 +2514,7 @@ function setupStaffFormsEvents() {
                 return;
             }
 
-            const responseRow = event.target.closest('[data-response-id]');
+            const responseRow = event.target.closest('.forms-response-row');
             if (responseRow) {
                 event.preventDefault();
                 selectStaffResponseDetail(responseRow.dataset.responseId);
@@ -2728,10 +2728,25 @@ async function copyStaffFormLink(slug) {
 }
 
 async function selectStaffFormResponses(formId, options = {}) {
-    selectedStaffFormId = formId;
+    const numericId = Number(formId);
+    const list = document.getElementById('staffResponsesList');
+
+    if (Number(selectedStaffFormId) === numericId) {
+        // Toggle/recolher: desmarcar o formulário selecionado
+        selectedStaffFormId = null;
+        selectedStaffResponseId = null;
+        selectedStaffResponseIds = new Set();
+        allStaffResponsesList = [];
+        renderStaffFormsTable(document.getElementById('inputSearchStaffForms')?.value || '');
+        if (list) {
+            list.innerHTML = '<div class="table-loading-row"><div class="spinner"></div> Selecione um formulário para ver respostas.</div>';
+        }
+        return;
+    }
+
+    selectedStaffFormId = numericId;
     selectedStaffResponseId = null;
     selectedStaffResponseIds = new Set();
-    const list = document.getElementById('staffResponsesList');
     if (list) list.innerHTML = '<div class="table-loading-row"><div class="spinner"></div> Carregando respostas...</div>';
     renderStaffFormsTable(document.getElementById('inputSearchStaffForms')?.value || '');
 
@@ -2739,7 +2754,7 @@ async function selectStaffFormResponses(formId, options = {}) {
         const { data, error } = await supabaseClient
             .from('staff_form_responses')
             .select('*')
-            .eq('form_id', formId)
+            .eq('form_id', numericId)
             .order('created_at', { ascending: false });
 
         if (error) throw error;
@@ -2775,8 +2790,18 @@ function renderStaffResponses(filter = '') {
         return matchesSearch && matchesStatus;
     });
 
-    const selected = filtered.find(item => Number(item.id) === Number(selectedStaffResponseId)) || filtered[0] || null;
-    selectedStaffResponseId = selected?.id || null;
+    let selected = null;
+    if (selectedStaffResponseId === null) {
+        selected = filtered[0] || null;
+        selectedStaffResponseId = selected?.id || null;
+    } else if (selectedStaffResponseId === -1) {
+        selected = null;
+    } else {
+        selected = filtered.find(item => Number(item.id) === Number(selectedStaffResponseId)) || null;
+        if (!selected) {
+            selectedStaffResponseId = -1;
+        }
+    }
     list.innerHTML = renderStaffResponsesShell(filtered, selected);
 }
 
@@ -2868,6 +2893,20 @@ function renderStaffResponseListItem(item) {
 function renderStaffResponseDetail(item) {
     const submittedAt = item.created_at ? new Date(item.created_at).toLocaleString('pt-BR') : '--';
     const reviewedAt = item.reviewed_at ? new Date(item.reviewed_at).toLocaleString('pt-BR') : 'Ainda não revisado';
+    
+    // Buscar a definição dos campos do formulário selecionado para exibir as perguntas originais
+    const selectedForm = allStaffFormsList.find(form => Number(form.id) === Number(selectedStaffFormId));
+    let fields = [];
+    if (selectedForm) {
+        try {
+            fields = typeof selectedForm.fields === 'string'
+                ? JSON.parse(selectedForm.fields)
+                : (selectedForm.fields || []);
+        } catch (e) {
+            console.error('[Staff Forms] Erro ao analisar campos do formulário:', e);
+        }
+    }
+
     return `
         <article class="staff-response-card is-detail">
             <div class="staff-response-hero">
@@ -2884,26 +2923,27 @@ function renderStaffResponseDetail(item) {
                     <strong>Resumo da candidatura</strong>
                     <span>Enviada em ${escapeHTML(submittedAt)} • ${escapeHTML(reviewedAt)}</span>
                 </div>
-                <select data-response-status data-response-id="${Number(item.id)}">
-                    ${['nova','em_analise','entrevista','aprovada','reprovada','arquivada'].map(status => `
-                        <option value="${status}" ${item.status === status ? 'selected' : ''}>${escapeHTML(formatStaffStatus(status))}</option>
-                    `).join('')}
-                </select>
             </div>
+
             <div class="staff-response-actions">
-                <button type="button" data-response-id="${Number(item.id)}" data-response-action="em_analise"><i class="fa-solid fa-clock"></i> Em análise</button>
-                <button type="button" data-response-id="${Number(item.id)}" data-response-action="entrevista"><i class="fa-solid fa-comments"></i> Entrevista</button>
-                <button type="button" class="approve" data-response-id="${Number(item.id)}" data-response-action="aprovada"><i class="fa-solid fa-check"></i> Aprovar</button>
-                <button type="button" class="reject" data-response-id="${Number(item.id)}" data-response-action="reprovada"><i class="fa-solid fa-xmark"></i> Reprovar</button>
-                <button type="button" data-response-id="${Number(item.id)}" data-response-action="arquivada"><i class="fa-solid fa-box-archive"></i> Arquivar</button>
+                <button type="button" class="${item.status === 'em_analise' ? 'active' : ''}" data-response-id="${Number(item.id)}" data-response-action="em_analise"><i class="fa-solid fa-clock"></i> Em análise</button>
+                <button type="button" class="${item.status === 'entrevista' ? 'active' : ''}" data-response-id="${Number(item.id)}" data-response-action="entrevista"><i class="fa-solid fa-comments"></i> Entrevista</button>
+                <button type="button" class="approve ${item.status === 'aprovada' ? 'active' : ''}" data-response-id="${Number(item.id)}" data-response-action="aprovada"><i class="fa-solid fa-check"></i> Aprovar</button>
+                <button type="button" class="reject ${item.status === 'reprovada' ? 'active' : ''}" data-response-id="${Number(item.id)}" data-response-action="reprovada"><i class="fa-solid fa-xmark"></i> Reprovar</button>
+                <button type="button" class="${item.status === 'arquivada' ? 'active' : ''}" data-response-id="${Number(item.id)}" data-response-action="arquivada"><i class="fa-solid fa-box-archive"></i> Arquivar</button>
             </div>
+
             <div class="staff-response-answers">
-                ${Object.entries(item.answers || {}).map(([key, value]) => `
-                    <div>
-                        <span>${escapeHTML(formatAnswerLabel(key))}</span>
-                        <p>${escapeHTML(typeof value === 'boolean' ? (value ? 'Sim' : 'Nao') : String(value || ''))}</p>
-                    </div>
-                `).join('')}
+                ${Object.entries(item.answers || {}).map(([key, value]) => {
+                    const field = fields.find(f => String(f.id) === String(key));
+                    const questionLabel = field && field.label ? field.label : formatAnswerLabel(key);
+                    return `
+                        <div>
+                            <span>${escapeHTML(questionLabel)}</span>
+                            <p>${escapeHTML(typeof value === 'boolean' ? (value ? 'Sim' : 'Não') : String(value || ''))}</p>
+                        </div>
+                    `;
+                }).join('')}
             </div>
         </article>
     `;
@@ -2921,9 +2961,15 @@ function formatAnswerLabel(key) {
 }
 
 function selectStaffResponseDetail(id) {
-    selectedStaffResponseId = id;
+    if (Number(selectedStaffResponseId) === Number(id)) {
+        selectedStaffResponseId = -1;
+    } else {
+        selectedStaffResponseId = id;
+    }
     renderStaffResponses(document.getElementById('inputSearchStaffResponses')?.value || '');
-    document.querySelector(`[data-response-id="${Number(id)}"]`)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    if (selectedStaffResponseId !== -1 && selectedStaffResponseId !== null) {
+        document.querySelector(`[data-response-id="${Number(id)}"]`)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
 }
 
 function selectStaffResponseDetailFromClick(event, id) {
