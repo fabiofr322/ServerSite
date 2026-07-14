@@ -40,7 +40,7 @@ Este arquivo acompanha o que ja foi feito e o que ainda falta implementar no Pla
 - [x] Criar endpoint `/api/player-sync`.
 - [x] Validar codigo com expiracao curta.
 - [x] Impedir reutilizacao de codigos.
-- [ ] Limitar tentativas para reduzir forca bruta.
+- [x] Limitar tentativas para reduzir forca bruta.
 
 ## Fase 4 - Plugin Minecraft
 

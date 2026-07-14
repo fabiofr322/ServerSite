@@ -35,7 +35,14 @@ No painel da Netlify, crie a variavel de ambiente:
 
 ```text
 RANKS_TOKEN=use_o_mesmo_token_configurado_no_plugin
+RANKS_ENDPOINT=https://seu-endpoint-seguro/ranks
+CLANS_ENDPOINT=https://seu-endpoint-seguro/clans
+PLAYER_BRIDGE_TOKEN=use_um_token_forte_e_diferente
 ```
+
+Os endpoints de rankings e clans devem usar HTTPS. O `PLAYER_BRIDGE_TOKEN`
+protege a sincronizacao e a confirmacao de perfis e nao deve ser reutilizado
+como token de rankings.
 
 O arquivo `_redirects` deve conter:
 

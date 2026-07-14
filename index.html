@@ -34,7 +34,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <!-- Estilos Externos -->
-    <link rel="stylesheet" href="style.css?v=form-status-tracking-20260712">
+    <link rel="stylesheet" href="style.css?v=redesign-completo-20260713b">
 
     <!-- Supabase SDK (carregado antes do script.js para garantir disponibilidade) -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" crossorigin="anonymous"></script>
@@ -50,7 +50,9 @@
     <!-- Cabeçalho / Menu Flutuante -->
     <header class="navbar-container">
         <nav class="navbar">
-            <div class="nav-logo" onclick="window.showSiteTab ? window.showSiteTab('home') : window.scrollTo({top: 0, behavior: 'smooth'})" style="cursor: pointer;">
+            <div class="nav-logo"
+                onclick="window.showSiteTab ? window.showSiteTab('home') : window.scrollTo({top: 0, behavior: 'smooth'})"
+                style="cursor: pointer;">
                 <img src="icon/Fr32_Icon.png" alt="FR32 Logo">
                 <span class="nav-logo-text">FR32SURVIVAL</span>
             </div>
@@ -170,7 +172,8 @@
                 </div>
                 <div class="discord-widget-counts">
                     <span><i class="fa-solid fa-users"></i> <strong id="discordMembersCount">--</strong> membros</span>
-                    <span><span class="discord-online-dot"></span> <strong id="discordOnlineCount">--</strong> online</span>
+                    <span><span class="discord-online-dot"></span> <strong id="discordOnlineCount">--</strong>
+                        online</span>
                 </div>
             </div>
 
@@ -182,48 +185,49 @@
 
             <!-- Secao da Equipe -->
             <div id="staff" class="staff-section home-staff-block">
-            <h2 class="section-title">Equipe Administrativa</h2>
-            <p class="section-subtitle">Os administradores e fundadores dedicados ao desenvolvimento da comunidade.</p>
+                <h2 class="section-title">Equipe Administrativa</h2>
+                <p class="section-subtitle">Os administradores e fundadores dedicados ao desenvolvimento da comunidade.
+                </p>
 
-            <div class="staff-grid">
-                <!-- Dono 1 -->
-                <div class="staff-member">
-                    <img src="https://mc-heads.net/avatar/fabiofr32/100" alt="Dono fabiofr32" class="staff-avatar">
-                    <div class="staff-info">
-                        <span class="staff-role role-owner">Dono</span>
-                        <span class="staff-name">fabiofr32</span>
+                <div class="staff-grid">
+                    <!-- Dono 1 -->
+                    <div class="staff-member">
+                        <img src="https://mc-heads.net/avatar/fabiofr32/100" alt="Dono fabiofr32" class="staff-avatar">
+                        <div class="staff-info">
+                            <span class="staff-role role-owner">Dono</span>
+                            <span class="staff-name">fabiofr32</span>
+                        </div>
+                    </div>
+
+                    <!-- Dono 2 -->
+                    <div class="staff-member">
+                        <img src="https://mc-heads.net/avatar/KellCerejinha/100" alt="Dono KellCerejinha"
+                            class="staff-avatar">
+                        <div class="staff-info">
+                            <span class="staff-role role-owner">Dona</span>
+                            <span class="staff-name">KellCerejinha</span>
+                        </div>
+                    </div>
+
+                    <!-- Admin 1 -->
+                    <div class="staff-member">
+                        <img src="https://mc-heads.net/avatar/juninww7/100" alt="Admin juninww7" class="staff-avatar">
+                        <div class="staff-info">
+                            <span class="staff-role role-admin">Admin</span>
+                            <span class="staff-name">juninww7</span>
+                        </div>
+                    </div>
+
+                    <!-- Admin 2 -->
+                    <div class="staff-member">
+                        <img src="https://mc-heads.net/avatar/masterdobudhaa/100" alt="Admin masterdobudhaa"
+                            class="staff-avatar">
+                        <div class="staff-info">
+                            <span class="staff-role role-admin">Admin</span>
+                            <span class="staff-name">masterdobudhaa</span>
+                        </div>
                     </div>
                 </div>
-
-                <!-- Dono 2 -->
-                <div class="staff-member">
-                    <img src="https://mc-heads.net/avatar/KellCerejinha/100" alt="Dono KellCerejinha"
-                        class="staff-avatar">
-                    <div class="staff-info">
-                        <span class="staff-role role-owner">Dona</span>
-                        <span class="staff-name">KellCerejinha</span>
-                    </div>
-                </div>
-
-                <!-- Admin 1 -->
-                <div class="staff-member">
-                    <img src="https://mc-heads.net/avatar/juninww7/100" alt="Admin juninww7" class="staff-avatar">
-                    <div class="staff-info">
-                        <span class="staff-role role-admin">Admin</span>
-                        <span class="staff-name">juninww7</span>
-                    </div>
-                </div>
-
-                <!-- Admin 2 -->
-                <div class="staff-member">
-                    <img src="https://mc-heads.net/avatar/masterdobudhaa/100" alt="Admin masterdobudhaa"
-                        class="staff-avatar">
-                    <div class="staff-info">
-                        <span class="staff-role role-admin">Admin</span>
-                        <span class="staff-name">masterdobudhaa</span>
-                    </div>
-                </div>
-            </div>
             </div>
 
             <!-- Widget Prominente para Cópia de IP -->
@@ -271,14 +275,16 @@
         <!-- Seção Como Entrar -->
         <section id="como-entrar" class="join-section">
             <h2 class="section-title">Como Entrar</h2>
-            <p class="section-subtitle">Entre no servidor pelo Minecraft Java ou Bedrock (Celular, Tablet e Consoles).</p>
+            <p class="section-subtitle">Entre no servidor pelo Minecraft Java ou Bedrock (Celular, Tablet e Consoles).
+            </p>
 
             <div class="join-grid">
                 <div class="join-step">
                     <span class="join-step-number">1</span>
                     <i class="fa-solid fa-cube"></i>
                     <h3>Abra o seu Minecraft</h3>
-                    <p>Use Java (versão 1.21.1+) ou Bedrock (última versão). O suporte crossplay permite jogar juntos!</p>
+                    <p>Use Java (versão 1.21.1+) ou Bedrock (última versão). O suporte crossplay permite jogar juntos!
+                    </p>
                 </div>
                 <div class="join-step">
                     <span class="join-step-number">2</span>
@@ -343,7 +349,8 @@
         <!-- Seção de Regras -->
         <section id="regras" class="rules-section">
             <h2 class="section-title">Regras do Servidor</h2>
-            <p class="section-subtitle">Regras claras deixam o survival mais justo, confiável e divertido para todo mundo.</p>
+            <p class="section-subtitle">Regras claras deixam o survival mais justo, confiável e divertido para todo
+                mundo.</p>
 
             <div class="rules-grid">
                 <div class="rule-card">
@@ -391,12 +398,14 @@
                         <article class="news-item">
                             <span class="news-tag">Temporada</span>
                             <h4>Nova fase do FR32SURVIVAL</h4>
-                            <p>O contador prepara a comunidade para a próxima etapa do servidor. Fique no Discord para avisos oficiais.</p>
+                            <p>O contador prepara a comunidade para a próxima etapa do servidor. Fique no Discord para
+                                avisos oficiais.</p>
                         </article>
                         <article class="news-item">
                             <span class="news-tag">Rankings</span>
                             <h4>Ranks ao vivo em implantação</h4>
-                            <p>Os dados do FrTopRanks serão exibidos no site assim que o endpoint do plugin estiver liberado no host.</p>
+                            <p>Os dados do FrTopRanks serão exibidos no site assim que o endpoint do plugin estiver
+                                liberado no host.</p>
                         </article>
                     </div>
                 </div>
@@ -407,7 +416,7 @@
                         <h3>Agenda da comunidade</h3>
                     </div>
                     <div id="eventsList">
-                        
+
                     </div>
                     <a href="https://discord.gg/MNWtkEzM3B" target="_blank" class="events-discord-link">
                         <i class="fa-brands fa-discord"></i>
@@ -484,7 +493,8 @@
                 <div>
                     <span class="section-kicker"><i class="fa-solid fa-images"></i> Galeria</span>
                     <h2 class="section-title">Momentos da Comunidade</h2>
-                    <p class="section-subtitle">Construções, prints e lembranças das temporadas em um preview rápido.</p>
+                    <p class="section-subtitle">Construções, prints e lembranças das temporadas em um preview rápido.
+                    </p>
                 </div>
                 <a href="#galeria" class="btn btn-secondary home-gallery-cta" target="_self">
                     Ver galeria completa <i class="fa-solid fa-arrow-right"></i>
@@ -1015,7 +1025,8 @@
             <div class="player-hub-hero">
                 <span class="player-hub-eyebrow"><i class="fa-solid fa-id-card"></i> Player Hub</span>
                 <h2 class="section-title">Perfil do Jogador</h2>
-                <p class="section-subtitle">Pesquise jogadores do FR32SURVIVAL e acompanhe estatisticas publicas, historico e verificacao de conta.</p>
+                <p class="section-subtitle">Pesquise jogadores do FR32SURVIVAL e acompanhe estatisticas publicas,
+                    historico e verificacao de conta.</p>
 
                 <!-- Top 5 Jogadores em Destaque (Sempre Visível) -->
                 <div class="player-top5-container" id="playerTop5Container">
@@ -1031,7 +1042,8 @@
                 <div class="player-search-panel">
                     <div class="player-search-box">
                         <i class="fa-solid fa-magnifying-glass"></i>
-                        <input type="search" id="playerSearchInput" autocomplete="off" placeholder="Pesquisar nick do jogador...">
+                        <input type="search" id="playerSearchInput" autocomplete="off"
+                            placeholder="Pesquisar nick do jogador...">
                         <button type="button" id="playerSearchButton">Buscar</button>
                     </div>
                     <div class="player-search-suggestions hidden" id="playerSearchSuggestions"></div>
@@ -1043,14 +1055,17 @@
             <div class="player-profile-shell" id="playerProfileShell">
                 <aside class="player-profile-card">
                     <div class="player-banner" id="playerBanner"></div>
-                    <img class="player-body" id="playerBodyImage" src="https://mc-heads.net/body/fabiofr32/220" alt="Skin do jogador" loading="lazy">
+                    <img class="player-body" id="playerBodyImage" src="https://mc-heads.net/body/fabiofr32/220"
+                        alt="Skin do jogador" loading="lazy">
                     <div class="player-avatar-wrap">
-                        <img class="player-avatar" id="playerAvatarImage" src="https://mc-heads.net/avatar/fabiofr32/96" alt="Cabeca do jogador" loading="lazy">
+                        <img class="player-avatar" id="playerAvatarImage" src="https://mc-heads.net/avatar/fabiofr32/96"
+                            alt="Cabeca do jogador" loading="lazy">
                     </div>
                     <div class="player-main-info">
                         <div class="player-name-row">
                             <h3 id="playerNick">Pesquise um jogador</h3>
-                            <span class="player-verified-badge hidden" id="playerVerifiedBadge" title="Este jogador comprovou ser o verdadeiro proprietario desta conta no servidor.">
+                            <span class="player-verified-badge hidden" id="playerVerifiedBadge"
+                                title="Este jogador comprovou ser o verdadeiro proprietario desta conta no servidor.">
                                 <i class="fa-solid fa-circle-check"></i>
                             </span>
                         </div>
@@ -1104,7 +1119,8 @@
                             <i class="fa-solid fa-clock-rotate-left"></i>
                         </div>
                         <div class="player-history-list" id="playerHistoryList">
-                            <p class="player-empty-text">As atividades aparecerao aqui quando o servidor comecar a sincronizar os dados.</p>
+                            <p class="player-empty-text">As atividades aparecerao aqui quando o servidor comecar a
+                                sincronizar os dados.</p>
                         </div>
                     </div>
                 </div>
@@ -1132,23 +1148,28 @@
 
         <section id="loja" class="shop-section">
             <h2 class="section-title">Loja FR32SURVIVAL</h2>
-            <p class="section-subtitle">Planos VIP de 30 dias com kit inicial exclusivo, kit semanal a cada 7 dias e vantagens de conveniencia no survival.</p>
+            <p class="section-subtitle">Planos VIP de 30 dias com kit inicial exclusivo, kit semanal a cada 7 dias e
+                vantagens de conveniencia no survival.</p>
 
             <div class="shop-storefront">
                 <aside class="shop-sidebar">
-                    <span class="shop-badge"><i class="fa-solid fa-circle" style="font-size:0.55em;color:#4dff91"></i> Categoria ativa</span>
+                    <span class="shop-badge"><i class="fa-solid fa-circle" style="font-size:0.55em;color:#4dff91"></i>
+                        Categoria ativa</span>
                     <h3>VIPs Survival</h3>
-                    <p>Apoie o servidor e receba vantagens de conveniencia sem perder a identidade survival da comunidade.</p>
+                    <p>Apoie o servidor e receba vantagens de conveniencia sem perder a identidade survival da
+                        comunidade.</p>
 
                     <div class="shop-category-list" aria-label="Categorias da loja">
-                        <button type="button" class="shop-category active"><i class="fa-solid fa-crown"></i> VIPs</button>
+                        <button type="button" class="shop-category active"><i class="fa-solid fa-crown"></i>
+                            VIPs</button>
                         <button type="button" class="shop-category"><i class="fa-solid fa-box-open"></i> Kits</button>
                         <button type="button" class="shop-category"><i class="fa-solid fa-headset"></i> Suporte</button>
                     </div>
 
                     <div class="shop-safe-box">
                         <strong><i class="fa-solid fa-shield-check"></i> Compra 100% segura</strong>
-                        <span>Compre apenas pelos canais oficiais. Em caso de duvida, abra um ticket antes de pagar.</span>
+                        <span>Compre apenas pelos canais oficiais. Em caso de duvida, abra um ticket antes de
+                            pagar.</span>
                     </div>
 
                     <a href="https://discord.gg/MNWtkEzM3B" target="_blank" class="btn btn-primary shop-sidebar-cta">
@@ -1178,10 +1199,13 @@
                     </div>
 
                     <div class="vip-products-grid" id="vipProductsGrid">
-                        <article class="vip-product-card vip-ametista" data-vip-id="ametista" tabindex="0" role="button" aria-label="Ver detalhes do VIP Ametista">
+                        <article class="vip-product-card vip-ametista" data-vip-id="ametista" tabindex="0" role="button"
+                            aria-label="Ver detalhes do VIP Ametista">
                             <div class="vip-visual">
-                                <span class="vip-tier-tag" style="color:#c97bff;text-shadow:0 0 16px rgba(181,95,255,0.32)">VIP</span>
-                                <img src="https://mc-heads.net/body/fabiofr32/180" alt="Visual VIP Ametista" loading="lazy">
+                                <span class="vip-tier-tag"
+                                    style="color:#c97bff;text-shadow:0 0 16px rgba(181,95,255,0.32)">VIP</span>
+                                <img src="https://mc-heads.net/body/fabiofr32/180" alt="Visual VIP Ametista"
+                                    loading="lazy">
                             </div>
                             <div class="vip-product-body">
                                 <div class="vip-title-row">
@@ -1190,37 +1214,51 @@
                                         <h3>VIP Ametista</h3>
                                     </div>
                                     <div class="vip-price-col">
-                                        <span class="vip-price" style="color:#c97bff;text-shadow:0 0 18px rgba(181,95,255,0.32)">R$ 20,90</span>
+                                        <span class="vip-price"
+                                            style="color:#c97bff;text-shadow:0 0 18px rgba(181,95,255,0.32)">R$
+                                            20,90</span>
                                         <span class="vip-price-label">no Pix</span>
                                     </div>
                                 </div>
-                                <p>O essencial para iniciar sua jornada com conforto, comandos uteis e suprimentos semanais.</p>
+                                <p>O essencial para iniciar sua jornada com conforto, comandos uteis e suprimentos
+                                    semanais.</p>
                                 <ul class="vip-feature-list">
-                                    <li><i class="fa-solid fa-utensils" style="color:#c97bff"></i><span>/feed com 30 min de cooldown</span></li>
-                                    <li><i class="fa-solid fa-hammer" style="color:#c97bff"></i><span>/workbench ou /craft em qualquer lugar</span></li>
-                                    <li><i class="fa-solid fa-door-open" style="color:#c97bff"></i><span>Slot reservado quando o servidor estiver lotado</span></li>
+                                    <li><i class="fa-solid fa-utensils" style="color:#c97bff"></i><span>/feed com 30 min
+                                            de cooldown</span></li>
+                                    <li><i class="fa-solid fa-hammer" style="color:#c97bff"></i><span>/workbench ou
+                                            /craft em qualquer lugar</span></li>
+                                    <li><i class="fa-solid fa-door-open" style="color:#c97bff"></i><span>Slot reservado
+                                            quando o servidor estiver lotado</span></li>
                                 </ul>
                                 <div class="vip-kit-preview" aria-label="Resumo dos kits inclusos">
                                     <div class="vip-kit-preview-row">
                                         <span class="vip-kit-pill"><i class="fa-solid fa-box-open"></i> Kit único</span>
-                                        <span class="vip-kit-pill vip-kit-pill-weekly"><i class="fa-solid fa-calendar-week"></i> Kit semanal</span>
+                                        <span class="vip-kit-pill vip-kit-pill-weekly"><i
+                                                class="fa-solid fa-calendar-week"></i> Kit semanal</span>
                                     </div>
-                                    <span class="vip-kit-hint">Clique em <b>Ver kits</b> para detalhar os itens inclusos.</span>
+                                    <span class="vip-kit-hint">Clique em <b>Ver kits</b> para detalhar os itens
+                                        inclusos.</span>
                                 </div>
                                 <div class="vip-actions">
-                                    <button type="button" class="vip-info-btn vip-more-btn" title="Ver kits e detalhes" onclick="openVipPackage('ametista')"><i class="fa-solid fa-magnifying-glass"></i> Ver kits</button>
-                                    <button type="button" class="btn btn-primary vip-buy-btn" onclick="buyVipNow('ametista')">
+                                    <button type="button" class="vip-info-btn vip-more-btn" title="Ver kits e detalhes"
+                                        onclick="openVipPackage('ametista')"><i
+                                            class="fa-solid fa-magnifying-glass"></i> Ver kits</button>
+                                    <button type="button" class="btn btn-primary vip-buy-btn"
+                                        onclick="buyVipNow('ametista')">
                                         <i class="fa-brands fa-discord"></i> Comprar
                                     </button>
                                 </div>
                             </div>
                         </article>
 
-                        <article class="vip-product-card vip-cerejeira recommended" data-vip-id="cerejeira" tabindex="0" role="button" aria-label="Ver detalhes do VIP Cerejeira">
+                        <article class="vip-product-card vip-cerejeira recommended" data-vip-id="cerejeira" tabindex="0"
+                            role="button" aria-label="Ver detalhes do VIP Cerejeira">
                             <div class="vip-ribbon">Recomendado</div>
                             <div class="vip-visual">
-                                <span class="vip-tier-tag" style="color:#ff5cb5;text-shadow:0 0 16px rgba(255,92,181,0.32)">VIP+</span>
-                                <img src="https://mc-heads.net/body/KellCerejinha/180" alt="Visual VIP Cerejeira" loading="lazy">
+                                <span class="vip-tier-tag"
+                                    style="color:#ff5cb5;text-shadow:0 0 16px rgba(255,92,181,0.32)">VIP+</span>
+                                <img src="https://mc-heads.net/body/KellCerejinha/180" alt="Visual VIP Cerejeira"
+                                    loading="lazy">
                             </div>
                             <div class="vip-product-body">
                                 <div class="vip-title-row">
@@ -1229,36 +1267,50 @@
                                         <h3>VIP Cerejeira</h3>
                                     </div>
                                     <div class="vip-price-col">
-                                        <span class="vip-price" style="color:#ff5cb5;text-shadow:0 0 18px rgba(255,92,181,0.32)">R$ 29,90</span>
+                                        <span class="vip-price"
+                                            style="color:#ff5cb5;text-shadow:0 0 18px rgba(255,92,181,0.32)">R$
+                                            29,90</span>
                                         <span class="vip-price-label">no Pix</span>
                                     </div>
                                 </div>
-                                <p>Poder de Netherite, exploracao mais pratica e todos os beneficios do VIP Ametista.</p>
+                                <p>Poder de Netherite, exploracao mais pratica e todos os beneficios do VIP Ametista.
+                                </p>
                                 <ul class="vip-feature-list">
-                                    <li><i class="fa-solid fa-cubes" style="color:#ff5cb5"></i><span>/condense para compactar recursos</span></li>
-                                    <li><i class="fa-solid fa-hat-cowboy" style="color:#ff5cb5"></i><span>/hat para usar blocos na cabeca</span></li>
-                                    <li><i class="fa-solid fa-box" style="color:#ff5cb5"></i><span>/ec ou /enderchest em qualquer lugar</span></li>
-                                    <li><i class="fa-solid fa-location-dot" style="color:#ff5cb5"></i><span>/near em raio de 100 blocos e +5 homes</span></li>
+                                    <li><i class="fa-solid fa-cubes" style="color:#ff5cb5"></i><span>/condense para
+                                            compactar recursos</span></li>
+                                    <li><i class="fa-solid fa-hat-cowboy" style="color:#ff5cb5"></i><span>/hat para usar
+                                            blocos na cabeca</span></li>
+                                    <li><i class="fa-solid fa-box" style="color:#ff5cb5"></i><span>/ec ou /enderchest em
+                                            qualquer lugar</span></li>
+                                    <li><i class="fa-solid fa-location-dot" style="color:#ff5cb5"></i><span>/near em
+                                            raio de 100 blocos e +5 homes</span></li>
                                 </ul>
                                 <div class="vip-kit-preview" aria-label="Resumo dos kits inclusos">
                                     <div class="vip-kit-preview-row">
                                         <span class="vip-kit-pill"><i class="fa-solid fa-box-open"></i> Kit único</span>
-                                        <span class="vip-kit-pill vip-kit-pill-weekly"><i class="fa-solid fa-calendar-week"></i> Kit semanal</span>
+                                        <span class="vip-kit-pill vip-kit-pill-weekly"><i
+                                                class="fa-solid fa-calendar-week"></i> Kit semanal</span>
                                     </div>
-                                    <span class="vip-kit-hint">Clique em <b>Ver kits</b> para detalhar os itens inclusos.</span>
+                                    <span class="vip-kit-hint">Clique em <b>Ver kits</b> para detalhar os itens
+                                        inclusos.</span>
                                 </div>
                                 <div class="vip-actions">
-                                    <button type="button" class="vip-info-btn vip-more-btn" title="Ver kits e detalhes" onclick="openVipPackage('cerejeira')"><i class="fa-solid fa-magnifying-glass"></i> Ver kits</button>
-                                    <button type="button" class="btn btn-primary vip-buy-btn" onclick="buyVipNow('cerejeira')">
+                                    <button type="button" class="vip-info-btn vip-more-btn" title="Ver kits e detalhes"
+                                        onclick="openVipPackage('cerejeira')"><i
+                                            class="fa-solid fa-magnifying-glass"></i> Ver kits</button>
+                                    <button type="button" class="btn btn-primary vip-buy-btn"
+                                        onclick="buyVipNow('cerejeira')">
                                         <i class="fa-brands fa-discord"></i> Comprar
                                     </button>
                                 </div>
                             </div>
                         </article>
 
-                        <article class="vip-product-card vip-lendario" data-vip-id="lendario" tabindex="0" role="button" aria-label="Ver detalhes do VIP Lendario">
+                        <article class="vip-product-card vip-lendario" data-vip-id="lendario" tabindex="0" role="button"
+                            aria-label="Ver detalhes do VIP Lendario">
                             <div class="vip-visual">
-                                <span class="vip-tier-tag" style="color:#ffd45e;text-shadow:0 0 16px rgba(255,212,94,0.32)">VIP MAX</span>
+                                <span class="vip-tier-tag"
+                                    style="color:#ffd45e;text-shadow:0 0 16px rgba(255,212,94,0.32)">VIP MAX</span>
                                 <img src="https://mc-heads.net/body/vNeoo/180" alt="Visual VIP Lendario" loading="lazy">
                             </div>
                             <div class="vip-product-body">
@@ -1268,27 +1320,39 @@
                                         <h3>VIP Lendario</h3>
                                     </div>
                                     <div class="vip-price-col">
-                                        <span class="vip-price" style="color:#ffd45e;text-shadow:0 0 18px rgba(255,212,94,0.32)">R$ 49,90</span>
+                                        <span class="vip-price"
+                                            style="color:#ffd45e;text-shadow:0 0 18px rgba(255,212,94,0.32)">R$
+                                            49,90</span>
                                         <span class="vip-price-label">no Pix</span>
                                     </div>
                                 </div>
-                                <p>A elite do servidor, com reparo, comandos avancados e os melhores kits de temporada.</p>
+                                <p>A elite do servidor, com reparo, comandos avancados e os melhores kits de temporada.
+                                </p>
                                 <ul class="vip-feature-list">
-                                    <li><i class="fa-solid fa-screwdriver-wrench" style="color:#ffd45e"></i><span>/fix ou /repair com 24h de cooldown</span></li>
-                                    <li><i class="fa-solid fa-cloud-sun" style="color:#ffd45e"></i><span>/pweather para clima individual</span></li>
-                                    <li><i class="fa-solid fa-scroll" style="color:#ffd45e"></i><span>/recipe para consultar receitas</span></li>
-                                    <li><i class="fa-solid fa-house-chimney" style="color:#ffd45e"></i><span>Todos os beneficios anteriores e +15 homes</span></li>
+                                    <li><i class="fa-solid fa-screwdriver-wrench" style="color:#ffd45e"></i><span>/fix
+                                            ou /repair com 24h de cooldown</span></li>
+                                    <li><i class="fa-solid fa-cloud-sun" style="color:#ffd45e"></i><span>/pweather para
+                                            clima individual</span></li>
+                                    <li><i class="fa-solid fa-scroll" style="color:#ffd45e"></i><span>/recipe para
+                                            consultar receitas</span></li>
+                                    <li><i class="fa-solid fa-house-chimney" style="color:#ffd45e"></i><span>Todos os
+                                            beneficios anteriores e +15 homes</span></li>
                                 </ul>
                                 <div class="vip-kit-preview" aria-label="Resumo dos kits inclusos">
                                     <div class="vip-kit-preview-row">
                                         <span class="vip-kit-pill"><i class="fa-solid fa-box-open"></i> Kit único</span>
-                                        <span class="vip-kit-pill vip-kit-pill-weekly"><i class="fa-solid fa-calendar-week"></i> Kit semanal</span>
+                                        <span class="vip-kit-pill vip-kit-pill-weekly"><i
+                                                class="fa-solid fa-calendar-week"></i> Kit semanal</span>
                                     </div>
-                                    <span class="vip-kit-hint">Clique em <b>Ver kits</b> para detalhar os itens inclusos.</span>
+                                    <span class="vip-kit-hint">Clique em <b>Ver kits</b> para detalhar os itens
+                                        inclusos.</span>
                                 </div>
                                 <div class="vip-actions">
-                                    <button type="button" class="vip-info-btn vip-more-btn" title="Ver kits e detalhes" onclick="openVipPackage('lendario')"><i class="fa-solid fa-magnifying-glass"></i> Ver kits</button>
-                                    <button type="button" class="btn btn-primary vip-buy-btn" onclick="buyVipNow('lendario')">
+                                    <button type="button" class="vip-info-btn vip-more-btn" title="Ver kits e detalhes"
+                                        onclick="openVipPackage('lendario')"><i
+                                            class="fa-solid fa-magnifying-glass"></i> Ver kits</button>
+                                    <button type="button" class="btn btn-primary vip-buy-btn"
+                                        onclick="buyVipNow('lendario')">
                                         <i class="fa-brands fa-discord"></i> Comprar
                                     </button>
                                 </div>
@@ -1298,7 +1362,8 @@
 
                     <div class="shop-disclaimer">
                         <i class="fa-solid fa-circle-info"></i>
-                        A entrega e feita pela equipe apos confirmacao do pagamento. Abra ticket no Discord com seu nick e comprovante.
+                        A entrega e feita pela equipe apos confirmacao do pagamento. Abra ticket no Discord com seu nick
+                        e comprovante.
                     </div>
                 </div>
             </div>
@@ -1316,7 +1381,8 @@
 
     <div id="vipPackageModal" class="vip-package-modal" aria-hidden="true">
         <div class="vip-package-dialog" role="dialog" aria-modal="true" aria-labelledby="vipPackageTitle">
-            <button type="button" class="vip-package-close" onclick="closeVipPackage()" aria-label="Fechar detalhes do VIP">
+            <button type="button" class="vip-package-close" onclick="closeVipPackage()"
+                aria-label="Fechar detalhes do VIP">
                 <i class="fa-solid fa-xmark"></i>
             </button>
             <div class="vip-package-grid">
@@ -1375,7 +1441,8 @@
         </div>
     </div>
 
-    <button type="button" class="vip-cart-floating-btn" id="vipCartFloatingBtn" onclick="openVipCart()" aria-label="Abrir carrinho VIP">
+    <button type="button" class="vip-cart-floating-btn" id="vipCartFloatingBtn" onclick="openVipCart()"
+        aria-label="Abrir carrinho VIP">
         <i class="fa-solid fa-cart-shopping"></i>
         <span id="vipCartCount">0</span>
     </button>

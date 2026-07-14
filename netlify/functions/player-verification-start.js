@@ -3,6 +3,7 @@ const crypto = require('crypto');
 const SUPABASE_URL = process.env.SUPABASE_URL || 'https://dzfmtmlgbyxnqjdwutfp.supabase.co';
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const CODE_TTL_MINUTES = 10;
+const CODE_REQUEST_COOLDOWN_SECONDS = 60;
 
 exports.handler = async function handler(event) {
     if (event.httpMethod !== 'POST') {
@@ -42,6 +43,27 @@ exports.handler = async function handler(event) {
         if (!profile) return jsonResponse(404, { error: 'Player not found.' });
         if (profile.is_verified && profile.verified_by_user_id && profile.verified_by_user_id !== user.id) {
             return jsonResponse(409, { error: 'This player profile is already verified.' });
+        }
+
+        const latestVerification = await fetchSingle('player_verifications', {
+            select: 'created_at',
+            player_id: `eq.${playerId}`,
+            user_id: `eq.${user.id}`,
+            order: 'created_at.desc',
+            limit: '1'
+        });
+        const latestCreatedAt = latestVerification?.created_at
+            ? new Date(latestVerification.created_at).getTime()
+            : 0;
+        const retryAfterSeconds = Math.ceil(
+            (latestCreatedAt + CODE_REQUEST_COOLDOWN_SECONDS * 1000 - Date.now()) / 1000
+        );
+
+        if (retryAfterSeconds > 0) {
+            return jsonResponse(429, {
+                error: 'Please wait before requesting another verification code.',
+                retry_after_seconds: retryAfterSeconds
+            }, { 'retry-after': String(retryAfterSeconds) });
         }
 
         await patchRows('player_verifications', { used_at: new Date().toISOString() }, {
@@ -153,12 +175,13 @@ function serviceHeaders(extra = {}) {
     };
 }
 
-function jsonResponse(statusCode, body) {
+function jsonResponse(statusCode, body, extraHeaders = {}) {
     return {
         statusCode,
         headers: {
             'content-type': 'application/json',
-            'cache-control': 'no-store'
+            'cache-control': 'no-store',
+            ...extraHeaders
         },
         body: JSON.stringify(body)
     };

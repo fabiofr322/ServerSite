@@ -1,4 +1,4 @@
-const CLANS_ENDPOINT = 'http://enx-cirion-92.enx.host:10026/clans';
+const CLANS_ENDPOINT = process.env.CLANS_ENDPOINT || 'http://enx-cirion-92.enx.host:10026/clans';
 
 // Reuses RANKS_TOKEN because FrSiteBridge protects ranks and clans with the same token.
 exports.handler = async function handler() {

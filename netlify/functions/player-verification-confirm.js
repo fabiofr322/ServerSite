@@ -3,6 +3,7 @@ const crypto = require('crypto');
 const SUPABASE_URL = process.env.SUPABASE_URL || 'https://dzfmtmlgbyxnqjdwutfp.supabase.co';
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const PLAYER_BRIDGE_TOKEN = process.env.PLAYER_BRIDGE_TOKEN || process.env.RANKS_TOKEN;
+const MAX_VERIFICATION_ATTEMPTS = 5;
 
 exports.handler = async function handler(event) {
     if (event.httpMethod !== 'POST') {
@@ -53,8 +54,12 @@ exports.handler = async function handler(event) {
             return jsonResponse(404, { error: 'Verification code not found.' });
         }
 
+        if (Number(verification.attempts || 0) >= MAX_VERIFICATION_ATTEMPTS) {
+            return jsonResponse(429, { error: 'Verification attempt limit reached. Generate a new code.' });
+        }
+
         if (new Date(verification.expires_at).getTime() < Date.now()) {
-            await patchRows('player_verifications', { attempts: Number(verification.attempts || 0) + 1 }, { id: `eq.${verification.id}` });
+            await registerFailedAttempt(verification);
             return jsonResponse(410, { error: 'Verification code expired.' });
         }
 
@@ -66,7 +71,7 @@ exports.handler = async function handler(event) {
 
         if (!profile) return jsonResponse(404, { error: 'Player profile not found.' });
         if (profile.minecraft_username.toLowerCase() !== minecraftUsername.toLowerCase()) {
-            await patchRows('player_verifications', { attempts: Number(verification.attempts || 0) + 1 }, { id: `eq.${verification.id}` });
+            await registerFailedAttempt(verification);
             return jsonResponse(409, { error: 'This code belongs to another player.' });
         }
 
@@ -90,6 +95,15 @@ exports.handler = async function handler(event) {
         return jsonResponse(500, { error: error.message || 'Unable to confirm verification.' });
     }
 };
+
+async function registerFailedAttempt(verification) {
+    const attempts = Number(verification.attempts || 0) + 1;
+    const row = { attempts };
+    if (attempts >= MAX_VERIFICATION_ATTEMPTS) {
+        row.used_at = new Date().toISOString();
+    }
+    await patchRows('player_verifications', row, { id: `eq.${verification.id}` });
+}
 
 function hashCode(code) {
     return crypto.createHash('sha256').update(String(code).trim().toUpperCase()).digest('hex');

@@ -1,4 +1,4 @@
-const RANKS_ENDPOINT = 'http://enx-cirion-92.enx.host:10026/ranks';
+const RANKS_ENDPOINT = process.env.RANKS_ENDPOINT || 'http://enx-cirion-92.enx.host:10026/ranks';
 
 // Netlify reads RANKS_TOKEN from the site environment variables at deploy time.
 exports.handler = async function handler() {
