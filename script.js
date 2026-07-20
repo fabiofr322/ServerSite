@@ -2294,6 +2294,18 @@ function setupTopClans() {
         return ['point', 'points', 'kill', 'kills', 'kdr', 'member', 'members'].includes(String(value || '').trim().toLowerCase());
     }
 
+    function isClanActive(clan) {
+        if (!clan || typeof clan !== 'object') return false;
+        const status = String(clan.status || clan.state || '').trim().toLowerCase();
+        if (['deleted', 'disbanded', 'inactive', 'removed', 'desfeito'].includes(status)) return false;
+        if (clan.deleted === true || clan.disbanded === true || clan.active === false) return false;
+        const tag = String(clan.tag || '').trim();
+        const name = String(clan.name || '').trim();
+        if (!tag && !name) return false;
+        if (Object.prototype.hasOwnProperty.call(clan, 'members') && Number(clan.members) <= 0) return false;
+        return true;
+    }
+
     function getClanScore(clan) {
         const points = Number(clan.points) || 0;
         const level = Number(clan.level) || 0;
@@ -2337,17 +2349,15 @@ function setupTopClans() {
     function normalizeClans(data) {
         const merged = new Map();
         const addClan = clan => {
-            if (!clan || typeof clan !== 'object') return;
+            if (!isClanActive(clan)) return;
             const key = clanKey(clan);
             const current = merged.get(key) || {};
             merged.set(key, mergeClanData(current, clan));
         };
 
-        if (Array.isArray(data?.clans)) {
+        if (Array.isArray(data?.clans) && data.clans.length) {
             data.clans.forEach(addClan);
-        }
-
-        if (data?.rankings && typeof data.rankings === 'object') {
+        } else if (data?.rankings && typeof data.rankings === 'object') {
             Object.values(data.rankings).forEach(list => {
                 if (Array.isArray(list)) list.forEach(addClan);
             });
@@ -2371,7 +2381,7 @@ function setupTopClans() {
                 };
                 return { ...normalized, score: getClanScore(normalized) };
             })
-            .filter(clan => clan.name || clan.tag)
+            .filter(isClanActive)
             .sort((a, b) =>
                 b.score - a.score ||
                 b.points - a.points ||
@@ -2482,7 +2492,8 @@ function setupTopClans() {
         try {
             const controller = new AbortController();
             const timeoutId = setTimeout(() => controller.abort(), 3500);
-            const response = await fetch(CLANS_API_URL, { cache: 'no-store', signal: controller.signal });
+            const clansUrl = `${CLANS_API_URL}${CLANS_API_URL.includes('?') ? '&' : '?'}_=${Date.now()}`;
+            const response = await fetch(clansUrl, { cache: 'no-store', signal: controller.signal });
             clearTimeout(timeoutId);
 
             if (!response.ok) throw new Error('API de clans offline');

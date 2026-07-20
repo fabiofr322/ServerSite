@@ -9,7 +9,11 @@ exports.handler = async function handler() {
     }
 
     try {
-        const response = await fetch(`${CLANS_ENDPOINT}?token=${encodeURIComponent(token)}`, {
+        const url = new URL(CLANS_ENDPOINT);
+        url.searchParams.set('token', token);
+        url.searchParams.set('_', Date.now().toString());
+
+        const response = await fetch(url.toString(), {
             headers: { accept: 'application/json' }
         });
 
@@ -20,7 +24,9 @@ exports.handler = async function handler() {
             statusCode: response.status,
             headers: {
                 'content-type': contentType,
-                'cache-control': 'public, max-age=30'
+                'cache-control': 'no-store, no-cache, must-revalidate, max-age=0',
+                pragma: 'no-cache',
+                expires: '0'
             },
             body
         };
